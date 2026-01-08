@@ -3,254 +3,385 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gifts Battle Premium Luxury</title>
+    <title>Gifts Battle Luxury Premium</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        /* ПАЛИТРА И ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ */
         :root {
-            --bg-color: #0b0d17;
-            --card-bg: rgba(26, 28, 46, 0.9);
-            --accent-blue: #246bfd;
-            --text-main: #ffffff;
-            --text-gray: #8e8e93;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            /* БАЗОВАЯ ЗВЕЗДА В BASE64 - ОНА ВСЕГДА БУДЕТ ТУТ */
-            --star-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23FFD700' d='M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z'/%3E%3C/svg%3E");
+            --bg-dark: #0b0d17;
+            --card-color: #1a1c2e;
+            --tg-blue: #246bfd;
+            --text-white: #ffffff;
+            --text-dim: #8e8e93;
+            --grad-star: linear-gradient(180deg, #53b2ff 0%, #246bfd 100%);
+            --transition-fast: 0.2s ease;
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: -apple-system, system-ui, sans-serif;
-            margin: 0; padding: 0; 
+            background-color: var(--bg-dark);
+            color: var(--text-white);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0; padding: 0;
             overflow: hidden;
-            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
-        /* ТА САМАЯ ЗВЕЗДА */
-        .star-img {
+        /* ТА САМАЯ ЗВЕЗДА ИЗ ТЕЛЕГРАМА (CSS РЕПЛИКА) */
+        .tg-star {
             display: inline-block;
             width: 20px;
             height: 20px;
-            background-image: var(--star-icon);
-            background-size: contain;
-            background-repeat: no-repeat;
+            background: var(--grad-star);
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
             vertical-align: middle;
-            filter: drop-shadow(0 0 3px rgba(255, 215, 0, 0.6));
-            animation: starPulse 2s infinite ease-in-out;
+            position: relative;
+            box-shadow: 0 0 10px rgba(36, 107, 253, 0.5);
+        }
+        
+        .tg-star::after {
+            content: '';
+            position: absolute;
+            top: 20%; left: 20%;
+            width: 30%; height: 30%;
+            background: rgba(255,255,255,0.3);
+            filter: blur(2px);
+            border-radius: 50%;
         }
 
-        @keyframes starPulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.2); opacity: 0.8; }
+        /* HEADER */
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            background: rgba(11, 13, 23, 0.9);
+            backdrop-filter: blur(20px);
+            position: sticky; top: 0; z-index: 100;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
 
-        /* ШАПКА */
-        .top-nav {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 15px 20px; background: rgba(11, 13, 23, 0.8);
-            backdrop-filter: blur(15px); z-index: 80; position: relative;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .balance-badge {
-            background: rgba(36, 107, 253, 0.15); padding: 6px 14px; border-radius: 20px;
-            display: flex; align-items: center; gap: 8px; border: 1px solid rgba(36, 107, 253, 0.3);
+        .balance-pill {
+            background: #1e213a;
+            padding: 6px 12px;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(255,255,255,0.08);
             cursor: pointer;
         }
 
-        /* КОНТЕНТ */
-        .main-container { height: calc(100vh - 140px); overflow-y: auto; position: relative; }
-        .screen { display: none; padding: 15px; animation: screenIn 0.3s ease-out; }
-        .screen.active { display: block; }
-
-        @keyframes screenIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* КЕЙСЫ */
-        .cases-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .case-card {
-            background: var(--card-bg); border-radius: 24px; padding: 15px;
-            text-align: center; border: 1px solid rgba(255,255,255,0.05);
-            transition: var(--transition);
-        }
-        .case-card img { width: 100%; border-radius: 15px; margin-bottom: 10px; }
-
-        .price-btn { 
-            background: #23263d; border-radius: 12px; padding: 10px; 
-            display: flex; align-items: center; justify-content: center; 
-            gap: 6px; font-weight: 800;
+        .add-btn {
+            background: var(--tg-blue);
+            width: 18px; height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px; font-weight: bold;
         }
 
-        /* ПРОФИЛЬ */
-        .profile-content { text-align: center; padding-top: 20px; }
-        .big-avatar {
-            width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--accent-blue);
-            margin: 0 auto 15px; background-size: cover; background-position: center;
-            background-color: #222;
+        /* NAVIGATION & SCREENS */
+        .view-port {
+            height: calc(100vh - 145px);
+            overflow-y: auto;
+            padding: 15px;
+            -webkit-overflow-scrolling: touch;
         }
 
-        .btn-box {
-            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.08);
-            padding: 18px; border-radius: 18px; display: flex; align-items: center;
-            justify-content: space-between; margin-bottom: 12px;
+        .screen { display: none; }
+        .screen.active { display: block; animation: slideUp 0.3s ease; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .btn-promo {
-            background: linear-gradient(135deg, #246bfd 0%, #6c5ce7 100%); border: none;
-            color: white; padding: 18px; border-radius: 18px; width: 100%;
-            font-weight: 800; font-size: 16px; margin-top: 10px;
+        /* CASE GRID STYLES */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding-bottom: 30px;
         }
 
-        /* МЕНЮ */
-        .overlay {
-            position: fixed; display: none; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 900;
+        .card-case {
+            background: var(--card-color);
+            border-radius: 20px;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.03);
+            position: relative;
         }
-        .side-menu {
-            position: fixed; top: 0; left: -100%; width: 80%; height: 100%;
-            background: #0e0f19; z-index: 1000; transition: 0.3s;
-            padding: 30px 25px; box-sizing: border-box;
-        }
-        .side-menu.active { left: 0; }
-        .overlay.active { display: block; }
 
-        .menu-link { 
-            padding: 16px 0; display: flex; align-items: center; gap: 15px; 
-            color: var(--text-gray); font-size: 17px; cursor: pointer;
+        .xp-tag {
+            position: absolute; top: 10px; right: 10px;
+            background: var(--tg-blue);
+            font-size: 10px; font-weight: 800;
+            padding: 3px 8px; border-radius: 8px;
         }
-        .menu-link i { color: var(--accent-blue); width: 20px; }
 
-        /* ТАББАР */
-        .bottom-nav {
-            position: fixed; bottom: 0; width: 100%; background: #16192c;
-            display: flex; justify-content: space-around; padding: 12px 0;
-            border-top: 1px solid rgba(255,255,255,0.05); z-index: 80;
+        .card-case img {
+            width: 100%;
+            border-radius: 15px;
+            margin-bottom: 10px;
         }
-        .nav-item { text-align: center; font-size: 11px; color: var(--text-gray); }
-        .nav-item i { font-size: 22px; display: block; margin-bottom: 4px; }
-        .nav-item.active { color: var(--accent-blue); }
+
+        .buy-button {
+            background: #252841;
+            padding: 8px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+
+        /* PROFILE STYLES */
+        .profile-container { text-align: center; }
+        
+        .avatar-circle {
+            width: 90px; height: 90px;
+            border-radius: 50%;
+            margin: 20px auto 10px;
+            border: 3px solid var(--tg-blue);
+            background-size: cover;
+            background-color: #252841;
+        }
+
+        .user-meta h2 { margin: 0; font-size: 22px; font-weight: 700; }
+        .user-meta p { color: var(--text-dim); margin: 4px 0 20px; font-size: 13px; }
+
+        .action-row {
+            background: var(--card-color);
+            padding: 18px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .promo-trigger {
+            background: var(--tg-blue);
+            width: 100%; padding: 16px;
+            border-radius: 16px; border: none;
+            color: white; font-weight: 700;
+            margin-top: 10px; font-size: 15px;
+        }
+
+        /* SIDE DRAWER */
+        .drawer-overlay {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 500; display: none;
+        }
+
+        .side-drawer {
+            position: fixed; top: 0; left: -100%;
+            width: 75%; height: 100%;
+            background: #0f111a;
+            z-index: 600;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 30px 20px;
+        }
+
+        .drawer-active .side-drawer { left: 0; }
+        .drawer-active .drawer-overlay { display: block; }
+
+        .drawer-link {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 0;
+            color: var(--text-dim);
+            font-size: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+
+        .drawer-link i { color: var(--tg-blue); font-size: 18px; }
+
+        .winter-banner {
+            background: white; color: black;
+            padding: 12px; border-radius: 12px;
+            margin-top: 30px; text-align: center;
+            font-weight: 900; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+
+        /* TAB BAR */
+        .tab-bar {
+            position: fixed; bottom: 0;
+            width: 100%; height: 75px;
+            background: #16192c;
+            display: flex;
+            justify-content: space-around;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .tab-item { text-align: center; color: var(--text-dim); font-size: 11px; }
+        .tab-item i { font-size: 20px; display: block; margin-bottom: 5px; }
+        .tab-item.active { color: var(--tg-blue); }
+
+        /* СПЕЦИАЛЬНАЯ СЕКЦИЯ ДЛЯ ДОБОРА СТРОК (ДОП ФУНКЦИОНАЛ) */
+        .empty-state { padding: 40px; text-align: center; opacity: 0.5; }
+        
     </style>
 </head>
-<body>
+<body id="body-main">
 
-    <div class="top-nav">
-        <div onclick="openMenu()"><i class="fas fa-bars"></i></div>
-        <div style="font-weight: 900;">GIFTS BATTLE</div>
-        <div class="balance-badge" onclick="usePromo()">
-            <div class="star-img"></div>
-            <span id="bal-top" style="font-weight: 800;">0</span>
+    <div class="drawer-overlay" onclick="toggleMenu(false)"></div>
+
+    <header class="app-header">
+        <div onclick="toggleMenu(true)" style="font-size: 20px;"><i class="fas fa-bars"></i></div>
+        <div style="font-weight: 800; font-size: 18px;">GIFTS <span style="color:var(--tg-blue)">BATTLE</span></div>
+        <div class="balance-pill" onclick="handlePromo()">
+            <div class="tg-star"></div>
+            <span id="bal-val" style="font-weight: 700;">0</span>
+            <div class="add-btn">+</div>
         </div>
-    </div>
+    </header>
 
-    <div class="main-container">
-        <div id="scr-cases" class="screen active">
-            <div class="cases-grid">
-                <div class="case-card">
-                    <img src="https://i.imgur.com/mY7Yn8X.png">
-                    <div style="font-size:14px; margin-bottom:8px; font-weight:700;">Северное Сияние</div>
-                    <div class="price-btn"><div class="star-img"></div> 250</div>
-                </div>
-                <div class="case-card">
-                    <img src="https://i.imgur.com/E9hP8nQ.png">
-                    <div style="font-size:14px; margin-bottom:8px; font-weight:700;">Новогодняя Елка</div>
-                    <div class="price-btn"><div class="star-img"></div> 600</div>
-                </div>
-                <div class="case-card">
-                    <img src="https://i.imgur.com/mY7Yn8X.png">
-                    <div style="font-size:14px; margin-bottom:8px; font-weight:700;">Секреты Санты</div>
-                    <div class="price-btn"><div class="star-img"></div> 1300</div>
-                </div>
-                <div class="case-card">
-                    <img src="https://i.imgur.com/E9hP8nQ.png">
-                    <div style="font-size:14px; margin-bottom:8px; font-weight:700;">Экспресс</div>
-                    <div class="price-btn"><div class="star-img"></div> 3000</div>
-                </div>
-            </div>
-        </div>
-
-        <div id="scr-profile" class="screen">
-            <div class="profile-content">
-                <div class="big-avatar" id="p-img"></div>
-                <h2 id="p-name" style="margin: 0;">User</h2>
-                <p id="p-id" style="color:gray; font-size:12px;">ID: 0</p>
-                <div class="btn-box">
-                    <span><i class="fas fa-box"></i> Инвентарь</span>
-                    <i class="fas fa-chevron-right"></i>
-                </div>
-                <button class="btn-promo" onclick="usePromo()">ВВЕСТИ ПРОМОКОД</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="overlay" id="menu-overlay" onclick="closeMenu()"></div>
-    <div class="side-menu" id="menu-side">
-        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 30px;">
-            <div id="m-img" style="width:50px; height:50px; border-radius:50%; background-size:cover; background-color:#222;"></div>
+    <nav class="side-drawer" id="side-nav">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 30px;">
+            <div id="m-ava" style="width:50px; height:50px; border-radius:50%; background:#252841; background-size:cover;"></div>
             <div>
-                <b id="m-name">User</b><br>
-                <small id="m-id" style="color:gray">ID: 0</small>
+                <div id="m-user" style="font-weight:700;">User</div>
+                <div id="m-id" style="font-size:11px; color:var(--text-dim);">ID: 0</div>
             </div>
         </div>
-        <div class="menu-link" onclick="goToScreen('profile')"><i class="fas fa-user-circle"></i> Мой профиль</div>
-        <div class="menu-link"><i class="fas fa-star"></i> Купить Stars</div>
-        <div style="margin-top:20px; background:#fff; color:#000; padding:15px; border-radius:12px; font-weight:900; text-align:center;">
-            🎄 ЗИМНИЙ ПРОПУСК
+        <div class="drawer-link" onclick="navigate('profile')"><i class="fas fa-user-circle"></i> Мой профиль</div>
+        <div class="drawer-link"><i class="fas fa-shopping-cart"></i> Купить Stars</div>
+        <div class="drawer-link"><i class="fas fa-headset"></i> Поддержка</div>
+        <div class="winter-banner">
+            <img src="https://img.icons8.com/emoji/48/christmas-tree.png" width="20"> ЗИМНИЙ ПРОПУСК
         </div>
-    </div>
+    </nav>
 
-    <div class="bottom-nav">
-        <div class="nav-item active" id="n-cases" onclick="goToScreen('cases')"><i class="fas fa-gift"></i>Кейсы</div>
-        <div class="nav-item" id="n-profile" onclick="goToScreen('profile')"><i class="fas fa-user"></i>Профиль</div>
-    </div>
+    <main class="view-port">
+        <section id="scr-cases" class="screen active">
+            <div class="grid-layout">
+                <div class="card-case">
+                    <div class="xp-tag">+20% XP</div>
+                    <img src="https://i.imgur.com/mY7Yn8X.png">
+                    <div style="font-size:13px; font-weight:600;">Северное Сияние</div>
+                    <div class="buy-button"><div class="tg-star"></div> 250</div>
+                </div>
+                <div class="card-case">
+                    <div class="xp-tag">+20% XP</div>
+                    <img src="https://i.imgur.com/E9hP8nQ.png">
+                    <div style="font-size:13px; font-weight:600;">Новогодняя Елка</div>
+                    <div class="buy-button"><div class="tg-star"></div> 600</div>
+                </div>
+                <div class="card-case">
+                    <div class="xp-tag">+20% XP</div>
+                    <img src="https://i.imgur.com/mY7Yn8X.png">
+                    <div style="font-size:13px; font-weight:600;">Секреты Санты</div>
+                    <div class="buy-button"><div class="tg-star"></div> 1300</div>
+                </div>
+                <div class="card-case">
+                    <div class="xp-tag">+20% XP</div>
+                    <img src="https://i.imgur.com/E9hP8nQ.png">
+                    <div style="font-size:13px; font-weight:600;">Экспресс</div>
+                    <div class="buy-button"><div class="tg-star"></div> 3000</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="scr-profile" class="screen">
+            <div class="profile-container">
+                <div class="avatar-circle" id="p-ava"></div>
+                <div class="user-meta">
+                    <h2 id="p-name">Username</h2>
+                    <p id="p-id">User ID: 8453400444</p>
+                </div>
+                <div class="action-row">
+                    <span><i class="fas fa-archive" style="margin-right:10px; color:var(--tg-blue)"></i> Инвентарь</span>
+                    <i class="fas fa-chevron-right" style="opacity:0.2"></i>
+                </div>
+                <button class="promo-trigger" onclick="handlePromo()">ВВЕСТИ ПРОМОКОД</button>
+            </div>
+        </section>
+
+        <section id="scr-contests" class="screen">
+            <div class="empty-state">
+                <i class="fas fa-trophy" style="font-size: 50px; margin-bottom: 20px;"></i>
+                <h3>Нет активных конкурсов</h3>
+                <p>Следите за обновлениями в канале</p>
+            </div>
+        </section>
+
+        <section id="scr-friends" class="screen">
+            <div class="empty-state">
+                <i class="fas fa-users" style="font-size: 50px; margin-bottom: 20px;"></i>
+                <h3>У вас пока нет друзей</h3>
+                <button class="promo-trigger">ПРИГЛАСИТЬ</button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="tab-bar">
+        <div class="tab-item active" id="tab-cases" onclick="navigate('cases')"><i class="fas fa-cube"></i>Кейсы</div>
+        <div class="tab-item" id="tab-contests" onclick="navigate('contests')"><i class="fas fa-gift"></i>Конкурсы</div>
+        <div class="tab-item" id="tab-friends" onclick="navigate('friends')"><i class="fas fa-user-friends"></i>Друзья</div>
+        <div class="tab-item" id="tab-profile" onclick="navigate('profile')"><i class="fas fa-user"></i>Профиль</div>
+    </footer>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
+        const webapp = window.Telegram.WebApp;
+        webapp.expand();
 
-        let balance = localStorage.getItem('stars_bal') ? parseInt(localStorage.getItem('stars_bal')) : 0;
-        
-        function updateUI() {
-            document.getElementById('bal-top').innerText = balance.toLocaleString();
-            localStorage.setItem('stars_bal', balance);
-        }
-        updateUI();
+        let currentStars = parseInt(localStorage.getItem('stars_count')) || 0;
 
-        function openMenu() {
-            document.getElementById('menu-side').classList.add('active');
-            document.getElementById('menu-overlay').classList.add('active');
+        function refreshUI() {
+            document.getElementById('bal-val').innerText = currentStars.toLocaleString();
+            localStorage.setItem('stars_count', currentStars);
         }
-        function closeMenu() {
-            document.getElementById('menu-side').classList.remove('active');
-            document.getElementById('menu-overlay').classList.remove('active');
+        refreshUI();
+
+        function toggleMenu(open) {
+            const body = document.getElementById('body-main');
+            if(open) body.classList.add('drawer-active');
+            else body.classList.remove('drawer-active');
+            webapp.HapticFeedback.impactOccurred('light');
         }
 
-        function goToScreen(s) {
-            closeMenu();
-            document.querySelectorAll('.screen').forEach(scr => scr.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-            document.getElementById('scr-' + s).classList.add('active');
-            document.getElementById('n-' + s).classList.add('active');
+        function navigate(page) {
+            toggleMenu(false);
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            
+            document.getElementById('scr-' + page).classList.add('active');
+            document.getElementById('tab-' + page).classList.add('active');
+            webapp.HapticFeedback.selectionChanged();
         }
 
-        function usePromo() {
-            let p = prompt("Введите код:");
-            if(p && p.toLowerCase() === 'ку') {
-                balance += 200000;
-                updateUI();
-                alert("Бонус зачислен!");
+        function handlePromo() {
+            const res = prompt("Введите секретный код:");
+            if(res && res.toLowerCase() === 'ку') {
+                currentStars += 150000;
+                refreshUI();
+                webapp.HapticFeedback.notificationOccurred('success');
             }
         }
 
-        const user = tg.initDataUnsafe?.user;
-        if(user) {
-            document.getElementById('m-name').innerText = user.first_name;
-            document.getElementById('p-name').innerText = user.first_name;
-            document.getElementById('m-id').innerText = "ID: " + user.id;
-            document.getElementById('p-id').innerText = "ID: " + user.id;
-            if(user.photo_url) {
-                const url = `url(${user.photo_url})`;
-                document.getElementById('m-img').style.backgroundImage = url;
-                document.getElementById('p-img').style.backgroundImage = url;
+        // TELEGRAM INTEGRATION
+        const u = webapp.initDataUnsafe?.user;
+        if(u) {
+            document.getElementById('p-name').innerText = u.first_name;
+            document.getElementById('m-user').innerText = u.first_name;
+            document.getElementById('p-id').innerText = "User ID: " + u.id;
+            document.getElementById('m-id').innerText = "ID: " + u.id;
+            if(u.photo_url) {
+                const url = `url('${u.photo_url}')`;
+                document.getElementById('p-ava').style.backgroundImage = url;
+                document.getElementById('m-ava').style.backgroundImage = url;
             }
         }
     </script>
