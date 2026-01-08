@@ -9,7 +9,7 @@
     <style>
         :root {
             --bg-color: #0b0d17;
-            --card-bg: rgba(26, 28, 46, 0.8);
+            --card-bg: rgba(26, 28, 46, 0.9);
             --accent-blue: #246bfd;
             --text-main: #ffffff;
             --text-gray: #8e8e93;
@@ -18,217 +18,216 @@
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-            margin: 0; padding: 0; overflow-x: hidden;
+            font-family: -apple-system, system-ui, sans-serif;
+            margin: 0; padding: 0; overflow: hidden;
         }
 
         /* ИКОНКА ЗВЕЗДЫ */
         .gold-star {
             display: inline-block;
-            width: 20px; height: 20px;
+            width: 18px; height: 18px;
             background: url('https://img.icons8.com/fluency/48/star.png') no-repeat center;
             background-size: contain;
             vertical-align: middle;
+            filter: drop-shadow(0 0 5px rgba(255, 204, 0, 0.4));
         }
 
         /* ШАПКА */
         .top-nav {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 15px; position: sticky; top: 0; background: rgba(11, 13, 23, 0.95);
-            backdrop-filter: blur(10px); z-index: 50;
+            padding: 15px; background: var(--bg-color); z-index: 80; position: relative;
         }
-        .menu-btn { font-size: 24px; cursor: pointer; }
-        .logo { display: flex; align-items: center; gap: 8px; font-weight: bold; font-size: 20px; }
-        .logo img { height: 25px; }
+        .menu-btn { font-size: 24px; cursor: pointer; padding: 5px; }
 
         .balance-badge {
-            background: rgba(35, 38, 61, 0.7); padding: 5px 12px; border-radius: 20px;
-            display: flex; align-items: center; gap: 8px; border: 1px solid rgba(255,255,255,0.1);
+            background: #1a1c2e; padding: 6px 14px; border-radius: 20px;
+            display: flex; align-items: center; gap: 8px; border: 1px solid #2c2f48;
         }
 
-        /* ЭКРАНЫ */
-        .screen { display: none; padding-bottom: 100px; animation: fadeIn 0.3s ease; }
+        /* КОНТЕНТ */
+        .main-container { height: calc(100vh - 140px); overflow-y: auto; position: relative; }
+        .screen { display: none; padding: 15px; }
         .screen.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         /* КЕЙСЫ */
-        .cases-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; }
+        .cases-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .case-card {
             background: var(--card-bg); border-radius: 24px; padding: 15px;
-            text-align: center; border: 1px solid rgba(255,255,255,0.05); position: relative;
+            text-align: center; border: 1px solid rgba(255,255,255,0.05);
         }
-        .case-card img { width: 100%; border-radius: 15px; margin-bottom: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        .price-btn {
-            background: #23263d; border-radius: 10px; padding: 8px;
-            display: flex; align-items: center; justify-content: center; gap: 5px; font-weight: bold;
-        }
+        .case-card img { width: 100%; border-radius: 15px; margin-bottom: 10px; }
+        .price-btn { background: #23263d; border-radius: 10px; padding: 8px; display: flex; align-items: center; justify-content: center; gap: 5px; font-weight: bold; }
 
         /* ПРОФИЛЬ */
-        .profile-screen { padding: 20px; text-align: center; }
+        .profile-content { text-align: center; padding-top: 20px; }
         .big-avatar {
             width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--accent-blue);
             margin: 0 auto 15px; background-size: cover; background-position: center;
-            box-shadow: 0 0 20px rgba(36, 107, 253, 0.3);
+            box-shadow: 0 0 30px rgba(36, 107, 253, 0.3);
         }
         .btn-box {
-            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1);
-            padding: 15px; border-radius: 12px; display: flex; align-items: center;
-            justify-content: space-between; margin-bottom: 10px; font-weight: 600;
+            background: var(--card-bg); border: 1px solid #2c2f48;
+            padding: 18px; border-radius: 15px; display: flex; align-items: center;
+            justify-content: space-between; margin-bottom: 12px;
         }
         .btn-promo {
             background: linear-gradient(90deg, #246bfd, #6c5ce7); border: none;
-            color: white; padding: 16px; border-radius: 12px; width: 100%;
-            font-weight: bold; font-size: 16px; margin-top: 5px; box-shadow: 0 5px 15px rgba(36, 107, 253, 0.3);
+            color: white; padding: 18px; border-radius: 15px; width: 100%;
+            font-weight: bold; font-size: 16px; margin-top: 10px;
         }
 
-        /* БОКОВОЕ МЕНЮ */
+        /* БОКОВОЕ МЕНЮ (САМЫЙ ВЫСОКИЙ Z-INDEX) */
+        .overlay {
+            position: fixed; display: none; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 900; backdrop-filter: blur(3px);
+        }
         .side-menu {
             position: fixed; top: 0; left: -100%; width: 80%; height: 100%;
-            background: #0e0f19; z-index: 100; transition: 0.3s; padding: 20px;
-            box-sizing: border-box; box-shadow: 5px 0 15px rgba(0,0,0,0.5);
+            background: #0e0f19; z-index: 1000; transition: 0.4s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+            padding: 25px; box-sizing: border-box;
         }
         .side-menu.active { left: 0; }
-        .overlay { position: fixed; display: none; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 90; }
         .overlay.active { display: block; }
 
-        .user-profile { display: flex; align-items: center; margin-bottom: 30px; }
-        .avatar { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; background: #333; background-size: cover; }
-        .side-balance { background: #1a1c2e; padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); }
-        .menu-items div { padding: 12px 0; display: flex; align-items: center; gap: 10px; color: var(--text-gray); cursor: pointer; }
-        .winter-pass { background: white; color: black; padding: 10px; border-radius: 10px; text-align: center; font-weight: bold; margin-top: 10px; }
+        .user-info { display: flex; align-items: center; margin-bottom: 30px; }
+        .avatar-small { width: 55px; height: 55px; border-radius: 50%; margin-right: 15px; background: #222; background-size: cover; }
+        
+        .menu-link { padding: 15px 0; display: flex; align-items: center; gap: 12px; color: var(--text-gray); font-size: 16px; cursor: pointer; }
+        .menu-link i { width: 20px; color: var(--accent-blue); }
 
         /* НИЖНЕЕ МЕНЮ */
         .bottom-nav {
-            position: fixed; bottom: 0; width: 100%; background: rgba(22, 25, 44, 0.95);
-            display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); z-index: 50;
+            position: fixed; bottom: 0; width: 100%; background: #16192c;
+            display: flex; justify-content: space-around; padding: 12px 0;
+            border-top: 1px solid #2c2f48; z-index: 80;
         }
-        .nav-item { text-align: center; font-size: 10px; color: var(--text-gray); cursor: pointer; }
-        .nav-item i { font-size: 20px; display: block; margin-bottom: 4px; }
+        .nav-item { text-align: center; font-size: 10px; color: var(--text-gray); }
+        .nav-item i { font-size: 22px; display: block; margin-bottom: 4px; }
         .nav-item.active { color: var(--accent-blue); }
     </style>
 </head>
 <body>
 
     <div class="top-nav">
-        <div class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
-        <div class="logo">GIFTS <span style="color:var(--accent-blue)">BATTLE</span></div>
+        <div class="menu-btn" onclick="openMenu()"><i class="fas fa-bars"></i></div>
+        <div style="font-weight: bold; font-size: 18px;">GIFTS <span style="color:var(--accent-blue)">BATTLE</span></div>
         <div class="balance-badge">
             <div class="gold-star"></div>
-            <span id="top-balance" style="font-weight: 800;">0</span>
-            <span style="color:var(--accent-blue); font-weight:bold;">+</span>
+            <span id="bal-top">0</span>
         </div>
     </div>
 
-    <div id="cases-screen" class="screen active">
-        <div class="cases-grid">
-            <div class="case-card">
-                <img src="https://i.imgur.com/mY7Yn8X.png">
-                <div style="font-size:14px; margin-bottom:10px; font-weight:600;">Северное Сияние</div>
-                <div class="price-btn"><div class="gold-star"></div> 250</div>
+    <div class="main-container">
+        <div id="scr-cases" class="screen active">
+            <div class="cases-grid">
+                <div class="case-card">
+                    <img src="https://i.imgur.com/mY7Yn8X.png">
+                    <div style="font-size:14px; margin-bottom:10px; font-weight:600;">Северное Сияние</div>
+                    <div class="price-btn"><div class="gold-star"></div> 250</div>
+                </div>
+                <div class="case-card">
+                    <img src="https://i.imgur.com/E9hP8nQ.png">
+                    <div style="font-size:14px; margin-bottom:10px; font-weight:600;">Новогодняя Елка</div>
+                    <div class="price-btn"><div class="gold-star"></div> 600</div>
+                </div>
             </div>
-            <div class="case-card">
-                <img src="https://i.imgur.com/E9hP8nQ.png">
-                <div style="font-size:14px; margin-bottom:10px; font-weight:600;">Новогодняя Елка</div>
-                <div class="price-btn"><div class="gold-star"></div> 600</div>
+        </div>
+
+        <div id="scr-profile" class="screen">
+            <div class="profile-content">
+                <div class="big-avatar" id="p-img"></div>
+                <h2 id="p-name" style="margin-bottom: 5px;">User</h2>
+                <div id="p-id" style="color: var(--text-gray); margin-bottom: 25px; font-size: 14px;">ID: 000000</div>
+                
+                <div class="btn-box">
+                    <span><i class="fas fa-box" style="margin-right: 10px; color: var(--accent-blue);"></i> Инвентарь</span>
+                    <i class="fas fa-chevron-right" style="font-size: 12px;"></i>
+                </div>
+                <button class="btn-promo" onclick="usePromo()">🎟 ВВЕСТИ ПРОМОКОД</button>
             </div>
         </div>
     </div>
 
-    <div id="profile-screen" class="screen">
-        <div class="profile-screen">
-            <div class="big-avatar" id="p-photo"></div>
-            <h2 id="p-name">Загрузка...</h2>
-            <div id="p-id" style="color: var(--text-gray); margin-bottom: 25px;">ID: 0</div>
-            
-            <div class="btn-box">
-                <span><i class="fas fa-box" style="margin-right: 10px;"></i> Инвентарь</span>
-                <i class="fas fa-chevron-right"></i>
-            </div>
-            <button class="btn-promo" onclick="activatePromo()">🎟 ИСПОЛЬЗОВАТЬ ПРОМОКОД</button>
-        </div>
-    </div>
-
-    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
-    <div class="side-menu" id="side-menu">
-        <div class="user-profile">
-            <div class="avatar" id="u-photo"></div>
+    <div class="overlay" id="menu-overlay" onclick="closeMenu()"></div>
+    <div class="side-menu" id="menu-side">
+        <div class="user-info">
+            <div class="avatar-small" id="m-img"></div>
             <div>
-                <div id="u-name" style="font-weight:bold;">User</div>
-                <div id="u-id" style="color:gray; font-size:12px;">ID: 0</div>
+                <div id="m-name" style="font-weight:bold; font-size: 18px;">User</div>
+                <div id="m-id" style="color:gray; font-size:12px;">ID: 0</div>
             </div>
         </div>
-        <div class="side-balance">
-            <div style="color:gray; font-size:12px; margin-bottom:10px;">Мой баланс</div>
-            <div style="display:flex; gap:15px; font-size:20px; font-weight:bold;">
-                <span><div class="gold-star"></div> <span class="balance-val">0</span></span>
-            </div>
-            <button style="width:100%; background:#246bfd; border:none; color:white; padding:10px; border-radius:10px; margin-top:15px; font-weight:bold;">Пополнить</button>
-        </div>
-        <div class="menu-items">
-            <div onclick="showScreen('profile'); toggleMenu()"><i class="far fa-user"></i> Мой профиль</div>
-            <div><i class="far fa-star"></i> Купить Stars</div>
-            <div class="winter-pass">🎄 ЗИМНИЙ ПРОПУСК</div>
-        </div>
-        <a href="#" onclick="window.Telegram.WebApp.openTelegramLink('https://t.me/nasjsa')" style="color:#00ff00; margin-top:40px; display:block; text-decoration:none;">
+        
+        <div class="menu-link" onclick="goToScreen('profile')"><i class="far fa-user"></i> Мой профиль</div>
+        <div class="menu-link"><i class="far fa-star"></i> Купить Stars</div>
+        <div style="background: white; color: black; padding: 12px; border-radius: 12px; text-align: center; font-weight: bold; margin-top: 15px;">🎄 ЗИМНИЙ ПРОПУСК</div>
+        
+        <div class="menu-link" style="margin-top: 30px; color: #00ff00;" onclick="window.Telegram.WebApp.openTelegramLink('https://t.me/nasjsa')">
             <i class="fas fa-headset"></i> Поддержка
-        </a>
+        </div>
     </div>
 
     <div class="bottom-nav">
-        <div class="nav-item" onclick="showScreen('cases')"><i class="fas fa-box-open"></i><br>Кейсы</div>
-        <div class="nav-item" onclick="showScreen('profile')"><i class="fas fa-user"></i><br>Профиль</div>
+        <div class="nav-item active" id="n-cases" onclick="goToScreen('cases')"><i class="fas fa-box-open"></i>Кейсы</div>
+        <div class="nav-item" id="n-profile" onclick="goToScreen('profile')"><i class="fas fa-user"></i>Профиль</div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        let stars = localStorage.getItem('stars_bal') ? parseInt(localStorage.getItem('stars_bal')) : 0;
-        updateUI();
+        let stars = localStorage.getItem('stars_v2') ? parseInt(localStorage.getItem('stars_v2')) : 0;
+        
+        function updateBal() {
+            document.getElementById('bal-top').innerText = stars.toLocaleString();
+            localStorage.setItem('stars_v2', stars);
+        }
+        updateBal();
 
-        function updateUI() {
-            document.getElementById('top-balance').innerText = stars.toLocaleString();
-            document.querySelectorAll('.balance-val').forEach(el => el.innerText = stars.toLocaleString());
-            localStorage.setItem('stars_bal', stars);
+        // Функции Меню
+        function openMenu() {
+            document.getElementById('menu-side').classList.add('active');
+            document.getElementById('menu-overlay').classList.add('active');
+        }
+        function closeMenu() {
+            document.getElementById('menu-side').classList.remove('active');
+            document.getElementById('menu-overlay').classList.remove('active');
         }
 
-        function toggleMenu() {
-            document.getElementById('side-menu').classList.toggle('active');
-            document.getElementById('overlay').classList.toggle('active');
-        }
-
-        function showScreen(screenId) {
+        // Переключение экранов
+        function goToScreen(name) {
+            closeMenu();
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(screenId + '-screen').classList.add('active');
-            
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            if(screenId === 'cases') document.querySelectorAll('.nav-item')[0].classList.add('active');
-            if(screenId === 'profile') document.querySelectorAll('.nav-item')[1].classList.add('active');
+            
+            document.getElementById('scr-' + name).classList.add('active');
+            document.getElementById('n-' + name).classList.add('active');
         }
 
-        function activatePromo() {
-            let code = prompt("Введите промокод:");
-            if (code && code.toLowerCase() === 'ку') {
+        // Промокод
+        function usePromo() {
+            let c = prompt("Код:");
+            if(c && c.toLowerCase() === 'ку') {
                 stars += 100000;
-                updateUI();
+                updateBal();
                 tg.HapticFeedback.notificationOccurred('success');
-                alert("✅ +100,000 звезд!");
+                alert("Успешно! +100,000 звезд");
             }
         }
 
-        const user = tg.initDataUnsafe?.user;
-        if (user) {
-            document.getElementById('u-name').innerText = user.first_name;
-            document.getElementById('p-name').innerText = user.first_name;
-            document.getElementById('u-id').innerText = "ID: " + user.id;
-            document.getElementById('p-id').innerText = "User ID: " + user.id;
-            if (user.photo_url) {
-                const url = `url(${user.photo_url})`;
-                document.getElementById('u-photo').style.backgroundImage = url;
-                document.getElementById('p-photo').style.backgroundImage = url;
+        // Данные юзера
+        const u = tg.initDataUnsafe?.user;
+        if(u) {
+            document.getElementById('m-name').innerText = u.first_name;
+            document.getElementById('p-name').innerText = u.first_name;
+            document.getElementById('m-id').innerText = "ID: " + u.id;
+            document.getElementById('p-id').innerText = "User ID: " + u.id;
+            if(u.photo_url) {
+                const img = `url(${u.photo_url})`;
+                document.getElementById('m-img').style.backgroundImage = img;
+                document.getElementById('p-img').style.backgroundImage = img;
             }
         }
     </script>
 </body>
 </html>
-
