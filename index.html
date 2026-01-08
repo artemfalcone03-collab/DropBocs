@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gifts Battle Luxury</title>
+    <title>Gifts Battle Premium Luxury</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -26,18 +26,18 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* ТА САМАЯ ЗВЕЗДОЧКА (SVG - ВЕЧНАЯ И ЛАКШЕРИ) */
+        /* ТА САМАЯ ЗВЕЗДОЧКА (SVG - ТЕПЕРЬ 100% РАБОТАЕТ) */
         .gold-star {
             display: inline-block;
             width: 20px; height: 20px;
             vertical-align: middle;
-            filter: drop-shadow(0 0 5px rgba(255, 205, 0, 0.8));
+            filter: drop-shadow(0 0 5px rgba(255, 205, 0, 0.7));
             animation: starPulse 2s infinite ease-in-out;
         }
 
         @keyframes starPulse {
-            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(255, 205, 0, 0.8)); }
-            50% { transform: scale(1.15); filter: drop-shadow(0 0 10px rgba(255, 205, 0, 1)); }
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(255, 205, 0, 0.7)); }
+            50% { transform: scale(1.15); filter: drop-shadow(0 0 10px rgba(255, 205, 0, 0.9)); }
         }
 
         /* ШАПКА */
@@ -67,28 +67,30 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* КЕЙСЫ С МОЩНОЙ АНИМАЦИЕЙ */
+        /* КЕЙСЫ */
         .cases-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding-bottom: 20px; }
         .case-card {
             background: var(--card-bg); border-radius: 24px; padding: 15px;
             text-align: center; border: 1px solid rgba(255,255,255,0.05);
-            transition: var(--transition); position: relative; overflow: hidden;
+            transition: var(--transition); position: relative;
+            overflow: hidden;
         }
         .case-card:hover, .case-card:active {
-            transform: translateY(-8px) scale(1.03);
+            transform: translateY(-5px) scale(1.02);
             border-color: var(--accent-blue);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.5), 0 0 20px rgba(36, 107, 253, 0.3);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4), 0 0 15px rgba(36, 107, 253, 0.2);
         }
         .case-card img { 
             width: 100%; border-radius: 15px; margin-bottom: 12px; 
-            transition: 0.5s ease;
+            transition: var(--transition);
         }
-        .case-card:hover img { transform: rotate(2deg) scale(1.08); }
+        .case-card:hover img { transform: scale(1.05); }
 
         .price-btn { 
             background: #23263d; border-radius: 12px; padding: 10px; 
             display: flex; align-items: center; justify-content: center; 
-            gap: 6px; font-weight: 800; font-size: 15px; transition: var(--transition);
+            gap: 6px; font-weight: 800; font-size: 15px;
+            transition: var(--transition);
         }
         .case-card:hover .price-btn { background: var(--accent-blue); color: #fff; }
 
@@ -97,7 +99,8 @@
         .big-avatar {
             width: 110px; height: 110px; border-radius: 50%; border: 3px solid var(--accent-blue);
             margin: 0 auto 15px; background-size: cover; background-position: center;
-            box-shadow: 0 0 25px rgba(36, 107, 253, 0.4); transition: var(--transition);
+            box-shadow: 0 0 25px rgba(36, 107, 253, 0.4);
+            transition: var(--transition);
         }
         .big-avatar:hover { transform: rotate(5deg) scale(1.05); }
 
@@ -112,8 +115,10 @@
             background: linear-gradient(135deg, #246bfd 0%, #6c5ce7 100%); border: none;
             color: white; padding: 18px; border-radius: 18px; width: 100%;
             font-weight: 800; font-size: 16px; margin-top: 10px;
-            box-shadow: 0 4px 15px rgba(36, 107, 253, 0.3); transition: var(--transition); cursor: pointer;
+            box-shadow: 0 4px 15px rgba(36, 107, 253, 0.3);
+            transition: var(--transition); cursor: pointer;
         }
+        .btn-promo:hover { filter: brightness(1.1); transform: translateY(-2px); }
 
         /* МЕНЮ */
         .overlay {
@@ -123,14 +128,16 @@
         .side-menu {
             position: fixed; top: 0; left: -100%; width: 80%; height: 100%;
             background: #0e0f19; z-index: 1000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 30px 25px; box-sizing: border-box; border-right: 1px solid rgba(255,255,255,0.05);
+            padding: 30px 25px; box-sizing: border-box;
+            border-right: 1px solid rgba(255,255,255,0.05);
         }
         .side-menu.active { left: 0; }
         .overlay.active { display: block; }
 
         .menu-link { 
             padding: 16px 0; display: flex; align-items: center; gap: 15px; 
-            color: var(--text-gray); font-size: 17px; font-weight: 500; transition: var(--transition); cursor: pointer;
+            color: var(--text-gray); font-size: 17px; font-weight: 500;
+            transition: var(--transition); cursor: pointer;
         }
         .menu-link:active { color: #fff; transform: translateX(10px); }
         .menu-link i { width: 24px; color: var(--accent-blue); font-size: 20px; }
@@ -138,23 +145,23 @@
         .winter-pass-card {
             background: #fff; color: #000; padding: 15px; border-radius: 15px;
             display: flex; align-items: center; justify-content: center; gap: 10px;
-            font-weight: 900; margin-top: 20px;
+            font-weight: 900; margin-top: 20px; transition: var(--transition);
         }
 
-        /* НИЖНЯЯ ПАНЕЛЬ */
+        /* ТАББАР */
         .bottom-nav {
             position: fixed; bottom: 0; width: 100%; background: rgba(22, 25, 44, 0.9);
             display: flex; justify-content: space-around; padding: 12px 0;
             border-top: 1px solid rgba(255,255,255,0.05); z-index: 80; backdrop-filter: blur(10px);
         }
         .nav-item { text-align: center; font-size: 11px; color: var(--text-gray); transition: var(--transition); font-weight: 600; }
-        .nav-item.active { color: var(--accent-blue); }
         .nav-item i { font-size: 24px; display: block; margin-bottom: 5px; }
+        .nav-item.active { color: var(--accent-blue); }
     </style>
 </head>
 <body>
 
-    <svg style="display:none;">
+    <svg style="display:none">
         <symbol id="star-icon" viewBox="0 0 24 24">
             <path fill="#FFD700" d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z" />
         </symbol>
@@ -202,7 +209,7 @@
                 <div id="p-id" style="color: var(--text-gray); margin-bottom: 30px; font-size: 14px;">ID: 000000</div>
                 <div class="btn-box">
                     <span style="font-weight: 700;"><i class="fas fa-box" style="margin-right: 12px; color: var(--accent-blue);"></i> Инвентарь</span>
-                    <i class="fas fa-chevron-right" style="opacity: 0.5;"></i>
+                    <i class="fas fa-chevron-right" style="font-size: 12px; opacity: 0.5;"></i>
                 </div>
                 <button class="btn-promo" onclick="usePromo()">🎟 ВВЕСТИ ПРОМОКОД</button>
             </div>
@@ -232,11 +239,11 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        let stars = localStorage.getItem('stars_v5') ? parseInt(localStorage.getItem('stars_v5')) : 0;
+        let stars = localStorage.getItem('stars_v_luxury') ? parseInt(localStorage.getItem('stars_v_luxury')) : 0;
         
         function updateBal() {
             document.getElementById('bal-top').innerText = stars.toLocaleString();
-            localStorage.setItem('stars_v5', stars);
+            localStorage.setItem('stars_v_luxury', stars);
         }
         updateBal();
 
@@ -273,7 +280,7 @@
             document.getElementById('m-name').innerText = u.first_name;
             document.getElementById('p-name').innerText = u.first_name;
             document.getElementById('m-id').innerText = "ID: " + u.id;
-            document.getElementById('p-id').innerText = "ID: " + u.id;
+            document.getElementById('p-id').innerText = "User ID: " + u.id;
             if(u.photo_url) {
                 const img = `url(${u.photo_url})`;
                 document.getElementById('m-img').style.backgroundImage = img;
