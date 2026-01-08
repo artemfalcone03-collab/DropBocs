@@ -1,62 +1,173 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Wheel of Fortune</title>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gifts Battle</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-      body {
-        background: #1c1c1c;
-        color: white;
-        text-align: center;
-        font-family: sans-serif;
-      }
-      .wheel {
-        width: 300px;
-        height: 300px;
-        border: 5px solid gold;
-        border-radius: 50%;
-        margin: 50px auto;
-        transition: transform 4s cubic-bezier(0.1, 0.7, 0.1, 1);
-        background: conic-gradient(
-          red 0 60deg,
-          blue 60deg 120deg,
-          green 120deg 180deg,
-          yellow 180deg 240deg,
-          orange 240deg 300deg,
-          purple 300deg 360deg
-        );
-      }
-      button {
-        padding: 15px 30px;
-        font-size: 20px;
-        background: gold;
-        border: none;
-        border-radius: 10px;
-        cursor: pointer;
-      }
+        :root {
+            --bg-color: #0e0f19;
+            --card-color: #1a1c2e;
+            --accent-color: #246bfd;
+            --text-main: #ffffff;
+            --text-gray: #8e8e93;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+        }
+
+        /* Шапка профиля */
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+            margin-right: 12px;
+            overflow: hidden;
+        }
+
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+        .user-info h2 { margin: 0; font-size: 18px; }
+        .user-info p { margin: 4px 0 0; color: var(--text-gray); font-size: 14px; }
+
+        /* Карточка баланса */
+        .balance-card {
+            background-color: var(--card-color);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .balance-card label { color: var(--text-gray); font-size: 13px; display: block; margin-bottom: 12px; }
+
+        .stats { display: flex; align-items: center; gap: 20px; margin-bottom: 20px; }
+        .stat-item { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: bold; }
+        .stat-item i.star { color: #ffcc00; }
+        .stat-item i.ticket { color: #ff4d6d; }
+
+        .btn-deposit {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Список меню */
+        .menu-list { display: flex; flex-direction: column; gap: 16px; }
+        .menu-item {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: white;
+            font-size: 16px;
+            gap: 12px;
+        }
+        .menu-item i { width: 20px; color: var(--text-gray); }
+
+        /* Зимний пропуск */
+        .winter-pass {
+            background: linear-gradient(90deg, #ffffff 0%, #e0f2ff 100%);
+            color: #1a1c2e;
+            padding: 12px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-top: 10px;
+            gap: 10px;
+        }
+
+        /* Поддержка */
+        .support {
+            margin-top: auto;
+            padding-top: 40px;
+            color: #00ff00;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            font-weight: 600;
+        }
     </style>
-  </head>
-  <body>
-    <h1>🎰 Удача ждет!</h1>
-    <div class="wheel" id="wheel"></div>
-    <button onclick="spin()">КРУТИТЬ!</button>
+</head>
+<body>
+
+    <div class="header">
+        <div class="avatar" id="user-photo">
+            <img src="https://via.placeholder.com/60" alt="avatar">
+        </div>
+        <div class="user-info">
+            <h2 id="user-name">Загрузка...</h2>
+            <p>ID: <span id="user-id">00000000</span></p>
+        </div>
+    </div>
+
+    <div class="balance-card">
+        <label>Мой баланс</label>
+        <div class="stats">
+            <div class="stat-item"><i class="fas fa-star star"></i> <span id="balance">0</span></div>
+            <div class="stat-item"><i class="fas fa-ticket-alt ticket"></i> 10</div>
+        </div>
+        <button class="btn-deposit">Пополнить</button>
+    </div>
+
+    <div class="menu-list">
+        <div class="menu-item"><i class="far fa-user"></i> Мой профиль</div>
+        <div class="menu-item"><i class="far fa-star"></i> Купить Stars</div>
+        
+        <div class="winter-pass">
+            🎄 ЗИМНИЙ ПРОПУСК
+        </div>
+    </div>
+
+    <a href="https://t.me/nasjsa" class="support">
+        <i class="fas fa-headset"></i> Поддержка
+    </a>
 
     <script>
-      const tg = window.Telegram.WebApp;
-      tg.expand(); // Развернуть на весь экран
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.ready();
 
-      function spin() {
-        const wheel = document.getElementById("wheel");
-        const deg = Math.floor(5000 + Math.random() * 5000);
-        wheel.style.transform = `rotate(${deg}deg)`;
+        // Берем данные из Telegram
+        const user = tg.initDataUnsafe?.user;
 
-        setTimeout(() => {
-          alert("Поздравляем! Вы выиграли бонус!");
-          tg.close(); // Закрыть приложение после выигрыша
-        }, 4100);
-      }
+        if (user) {
+            document.getElementById('user-name').innerText = user.first_name + (user.last_name ? ' ' + user.last_name : '');
+            document.getElementById('user-id').innerText = user.id;
+            
+            if (user.photo_url) {
+                document.getElementById('user-photo').innerHTML = `<img src="${user.photo_url}">`;
+            }
+        } else {
+            // Если открыто не в телеге (для теста в браузере)
+            document.getElementById('user-name').innerText = "Test User";
+            document.getElementById('user-id').innerText = "12345678";
+        }
     </script>
-  </body>
+</body>
 </html>
+
