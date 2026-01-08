@@ -11,109 +11,170 @@
             --bg-color: #0b0d17;
             --card-bg: rgba(26, 28, 46, 0.9);
             --accent-blue: #246bfd;
+            --star-gold: #ffcd00;
             --text-main: #ffffff;
             --text-gray: #8e8e93;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
             font-family: -apple-system, system-ui, sans-serif;
-            margin: 0; padding: 0; overflow: hidden;
+            margin: 0; padding: 0; 
+            overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* ИКОНКА ЗВЕЗДЫ */
+        /* ТА САМАЯ ЗВЕЗДОЧКА (TELEGRAM STARS) */
         .gold-star {
             display: inline-block;
-            width: 18px; height: 18px;
-            background: url('https://img.icons8.com/fluency/48/star.png') no-repeat center;
+            width: 20px; height: 20px;
+            background: url('https://contest.com/icons/72/star.png') no-repeat center;
             background-size: contain;
             vertical-align: middle;
-            filter: drop-shadow(0 0 5px rgba(255, 204, 0, 0.4));
+            filter: drop-shadow(0 0 4px rgba(255, 205, 0, 0.6));
+            animation: starPulse 2s infinite ease-in-out;
+        }
+
+        @keyframes starPulse {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 4px rgba(255, 205, 0, 0.6)); }
+            50% { transform: scale(1.1); filter: drop-shadow(0 0 8px rgba(255, 205, 0, 0.9)); }
         }
 
         /* ШАПКА */
         .top-nav {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 15px; background: var(--bg-color); z-index: 80; position: relative;
+            padding: 15px 20px; background: rgba(11, 13, 23, 0.8);
+            backdrop-filter: blur(15px); z-index: 80; position: relative;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
-        .menu-btn { font-size: 24px; cursor: pointer; padding: 5px; }
+        .menu-btn { font-size: 22px; cursor: pointer; transition: var(--transition); padding: 5px; }
+        .menu-btn:active { transform: scale(0.9); opacity: 0.7; }
 
         .balance-badge {
-            background: #1a1c2e; padding: 6px 14px; border-radius: 20px;
-            display: flex; align-items: center; gap: 8px; border: 1px solid #2c2f48;
+            background: rgba(36, 107, 253, 0.15); padding: 6px 14px; border-radius: 20px;
+            display: flex; align-items: center; gap: 8px; border: 1px solid rgba(36, 107, 253, 0.3);
+            cursor: pointer; transition: var(--transition);
         }
+        .balance-badge:active { transform: scale(0.95); }
 
-        /* КОНТЕНТ */
-        .main-container { height: calc(100vh - 140px); overflow-y: auto; position: relative; }
-        .screen { display: none; padding: 15px; }
+        /* КОНТЕНТ С АНИМАЦИЕЙ */
+        .main-container { height: calc(100vh - 140px); overflow-y: auto; position: relative; scroll-behavior: smooth; }
+        .screen { display: none; padding: 15px; animation: screenIn 0.4s ease-out; }
         .screen.active { display: block; }
 
-        /* КЕЙСЫ */
-        .cases-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        @keyframes screenIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* КЕЙСЫ С АНИМАЦИЕЙ ПРИ НАВЕДЕНИИ */
+        .cases-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding-bottom: 20px; }
         .case-card {
             background: var(--card-bg); border-radius: 24px; padding: 15px;
             text-align: center; border: 1px solid rgba(255,255,255,0.05);
+            transition: var(--transition); position: relative;
+            overflow: hidden;
         }
-        .case-card img { width: 100%; border-radius: 15px; margin-bottom: 10px; }
-        .price-btn { background: #23263d; border-radius: 10px; padding: 8px; display: flex; align-items: center; justify-content: center; gap: 5px; font-weight: bold; }
+        .case-card:hover, .case-card:active {
+            transform: translateY(-5px) scale(1.02);
+            border-color: var(--accent-blue);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4), 0 0 15px rgba(36, 107, 253, 0.2);
+        }
+        .case-card img { 
+            width: 100%; border-radius: 15px; margin-bottom: 12px; 
+            transition: var(--transition);
+        }
+        .case-card:hover img { transform: scale(1.05); }
+
+        .price-btn { 
+            background: #23263d; border-radius: 12px; padding: 10px; 
+            display: flex; align-items: center; justify-content: center; 
+            gap: 6px; font-weight: 800; font-size: 15px;
+            transition: var(--transition);
+        }
+        .case-card:hover .price-btn { background: var(--accent-blue); color: #fff; }
 
         /* ПРОФИЛЬ */
         .profile-content { text-align: center; padding-top: 20px; }
         .big-avatar {
-            width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--accent-blue);
+            width: 110px; height: 110px; border-radius: 50%; border: 3px solid var(--accent-blue);
             margin: 0 auto 15px; background-size: cover; background-position: center;
-            box-shadow: 0 0 30px rgba(36, 107, 253, 0.3);
+            box-shadow: 0 0 25px rgba(36, 107, 253, 0.4);
+            transition: var(--transition);
         }
-        .btn-box {
-            background: var(--card-bg); border: 1px solid #2c2f48;
-            padding: 18px; border-radius: 15px; display: flex; align-items: center;
-            justify-content: space-between; margin-bottom: 12px;
-        }
-        .btn-promo {
-            background: linear-gradient(90deg, #246bfd, #6c5ce7); border: none;
-            color: white; padding: 18px; border-radius: 15px; width: 100%;
-            font-weight: bold; font-size: 16px; margin-top: 10px;
-        }
+        .big-avatar:hover { transform: rotate(5deg) scale(1.05); }
 
-        /* БОКОВОЕ МЕНЮ (САМЫЙ ВЫСОКИЙ Z-INDEX) */
+        .btn-box {
+            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.08);
+            padding: 18px; border-radius: 18px; display: flex; align-items: center;
+            justify-content: space-between; margin-bottom: 12px; transition: var(--transition);
+        }
+        .btn-box:active { transform: scale(0.98); background: rgba(255,255,255,0.05); }
+
+        .btn-promo {
+            background: linear-gradient(135deg, #246bfd 0%, #6c5ce7 100%); border: none;
+            color: white; padding: 18px; border-radius: 18px; width: 100%;
+            font-weight: 800; font-size: 16px; margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(36, 107, 253, 0.3);
+            transition: var(--transition); cursor: pointer;
+        }
+        .btn-promo:hover { filter: brightness(1.1); transform: translateY(-2px); }
+        .btn-promo:active { transform: translateY(0) scale(0.98); }
+
+        /* МЕНЮ */
         .overlay {
             position: fixed; display: none; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 900; backdrop-filter: blur(3px);
+            background: rgba(0,0,0,0.85); z-index: 900; backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s ease;
         }
         .side-menu {
             position: fixed; top: 0; left: -100%; width: 80%; height: 100%;
-            background: #0e0f19; z-index: 1000; transition: 0.4s cubic-bezier(0.17, 0.67, 0.83, 0.67);
-            padding: 25px; box-sizing: border-box;
+            background: #0e0f19; z-index: 1000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 30px 25px; box-sizing: border-box;
+            border-right: 1px solid rgba(255,255,255,0.05);
         }
         .side-menu.active { left: 0; }
         .overlay.active { display: block; }
 
-        .user-info { display: flex; align-items: center; margin-bottom: 30px; }
-        .avatar-small { width: 55px; height: 55px; border-radius: 50%; margin-right: 15px; background: #222; background-size: cover; }
-        
-        .menu-link { padding: 15px 0; display: flex; align-items: center; gap: 12px; color: var(--text-gray); font-size: 16px; cursor: pointer; }
-        .menu-link i { width: 20px; color: var(--accent-blue); }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* НИЖНЕЕ МЕНЮ */
-        .bottom-nav {
-            position: fixed; bottom: 0; width: 100%; background: #16192c;
-            display: flex; justify-content: space-around; padding: 12px 0;
-            border-top: 1px solid #2c2f48; z-index: 80;
+        .menu-link { 
+            padding: 16px 0; display: flex; align-items: center; gap: 15px; 
+            color: var(--text-gray); font-size: 17px; font-weight: 500;
+            transition: var(--transition); cursor: pointer;
         }
-        .nav-item { text-align: center; font-size: 10px; color: var(--text-gray); }
-        .nav-item i { font-size: 22px; display: block; margin-bottom: 4px; }
+        .menu-link:active { color: #fff; transform: translateX(10px); }
+        .menu-link i { width: 24px; color: var(--accent-blue); font-size: 20px; }
+
+        .winter-pass-card {
+            background: #fff; color: #000; padding: 15px; border-radius: 15px;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            font-weight: 900; margin-top: 20px; transition: var(--transition);
+        }
+        .winter-pass-card:active { transform: scale(0.95); }
+
+        /* НИЖНЯЯ ПАНЕЛЬ */
+        .bottom-nav {
+            position: fixed; bottom: 0; width: 100%; background: rgba(22, 25, 44, 0.9);
+            display: flex; justify-content: space-around; padding: 12px 0;
+            border-top: 1px solid rgba(255,255,255,0.05); z-index: 80; backdrop-filter: blur(10px);
+        }
+        .nav-item { text-align: center; font-size: 11px; color: var(--text-gray); transition: var(--transition); font-weight: 600; }
+        .nav-item i { font-size: 24px; display: block; margin-bottom: 5px; transition: var(--transition); }
         .nav-item.active { color: var(--accent-blue); }
+        .nav-item.active i { transform: translateY(-3px); }
     </style>
 </head>
 <body>
 
     <div class="top-nav">
         <div class="menu-btn" onclick="openMenu()"><i class="fas fa-bars"></i></div>
-        <div style="font-weight: bold; font-size: 18px;">GIFTS <span style="color:var(--accent-blue)">BATTLE</span></div>
-        <div class="balance-badge">
+        <div style="font-weight: 900; font-size: 19px; letter-spacing: 0.5px;">GIFTS <span style="color:var(--accent-blue)">BATTLE</span></div>
+        <div class="balance-badge" onclick="usePromo()">
             <div class="gold-star"></div>
-            <span id="bal-top">0</span>
+            <span id="bal-top" style="font-weight: 800;">0</span>
         </div>
     </div>
 
@@ -122,13 +183,23 @@
             <div class="cases-grid">
                 <div class="case-card">
                     <img src="https://i.imgur.com/mY7Yn8X.png">
-                    <div style="font-size:14px; margin-bottom:10px; font-weight:600;">Северное Сияние</div>
+                    <div style="font-size:15px; margin-bottom:12px; font-weight:700;">Северное Сияние</div>
                     <div class="price-btn"><div class="gold-star"></div> 250</div>
                 </div>
                 <div class="case-card">
                     <img src="https://i.imgur.com/E9hP8nQ.png">
-                    <div style="font-size:14px; margin-bottom:10px; font-weight:600;">Новогодняя Елка</div>
+                    <div style="font-size:15px; margin-bottom:12px; font-weight:700;">Новогодняя Елка</div>
                     <div class="price-btn"><div class="gold-star"></div> 600</div>
+                </div>
+                <div class="case-card">
+                    <img src="https://i.imgur.com/mY7Yn8X.png">
+                    <div style="font-size:15px; margin-bottom:12px; font-weight:700;">Секреты Санты</div>
+                    <div class="price-btn"><div class="gold-star"></div> 1300</div>
+                </div>
+                <div class="case-card">
+                    <img src="https://i.imgur.com/E9hP8nQ.png">
+                    <div style="font-size:15px; margin-bottom:12px; font-weight:700;">Экспресс</div>
+                    <div class="price-btn"><div class="gold-star"></div> 3000</div>
                 </div>
             </div>
         </div>
@@ -136,12 +207,12 @@
         <div id="scr-profile" class="screen">
             <div class="profile-content">
                 <div class="big-avatar" id="p-img"></div>
-                <h2 id="p-name" style="margin-bottom: 5px;">User</h2>
-                <div id="p-id" style="color: var(--text-gray); margin-bottom: 25px; font-size: 14px;">ID: 000000</div>
+                <h2 id="p-name" style="margin: 0 0 5px 0; font-size: 24px; font-weight: 800;">User</h2>
+                <div id="p-id" style="color: var(--text-gray); margin-bottom: 30px; font-size: 14px; font-weight: 500;">ID: 000000</div>
                 
                 <div class="btn-box">
-                    <span><i class="fas fa-box" style="margin-right: 10px; color: var(--accent-blue);"></i> Инвентарь</span>
-                    <i class="fas fa-chevron-right" style="font-size: 12px;"></i>
+                    <span style="font-weight: 700;"><i class="fas fa-box" style="margin-right: 12px; color: var(--accent-blue);"></i> Инвентарь</span>
+                    <i class="fas fa-chevron-right" style="font-size: 12px; opacity: 0.5;"></i>
                 </div>
                 <button class="btn-promo" onclick="usePromo()">🎟 ВВЕСТИ ПРОМОКОД</button>
             </div>
@@ -150,20 +221,23 @@
 
     <div class="overlay" id="menu-overlay" onclick="closeMenu()"></div>
     <div class="side-menu" id="menu-side">
-        <div class="user-info">
-            <div class="avatar-small" id="m-img"></div>
+        <div style="display: flex; align-items: center; margin-bottom: 40px; gap: 15px;">
+            <div style="width: 55px; height: 55px; border-radius: 50%; background: #222; background-size: cover;" id="m-img"></div>
             <div>
-                <div id="m-name" style="font-weight:bold; font-size: 18px;">User</div>
-                <div id="m-id" style="color:gray; font-size:12px;">ID: 0</div>
+                <div id="m-name" style="font-weight: 800; font-size: 19px;">User</div>
+                <div id="m-id" style="color:gray; font-size: 13px;">ID: 0</div>
             </div>
         </div>
         
         <div class="menu-link" onclick="goToScreen('profile')"><i class="far fa-user"></i> Мой профиль</div>
         <div class="menu-link"><i class="far fa-star"></i> Купить Stars</div>
-        <div style="background: white; color: black; padding: 12px; border-radius: 12px; text-align: center; font-weight: bold; margin-top: 15px;">🎄 ЗИМНИЙ ПРОПУСК</div>
         
-        <div class="menu-link" style="margin-top: 30px; color: #00ff00;" onclick="window.Telegram.WebApp.openTelegramLink('https://t.me/nasjsa')">
-            <i class="fas fa-headset"></i> Поддержка
+        <div class="winter-pass-card">
+            <img src="https://img.icons8.com/emoji/48/christmas-tree.png" width="24"> ЗИМНИЙ ПРОПУСК
+        </div>
+        
+        <div class="menu-link" style="margin-top: 40px; color: #2ecc71; font-weight: 700;" onclick="window.Telegram.WebApp.openTelegramLink('https://t.me/nasjsa')">
+            <i class="fas fa-headset" style="color: #2ecc71;"></i> Поддержка
         </div>
     </div>
 
@@ -175,28 +249,35 @@
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
+        tg.enableClosingConfirmation();
 
-        let stars = localStorage.getItem('stars_v2') ? parseInt(localStorage.getItem('stars_v2')) : 0;
+        let stars = localStorage.getItem('stars_v3') ? parseInt(localStorage.getItem('stars_v3')) : 0;
         
         function updateBal() {
-            document.getElementById('bal-top').innerText = stars.toLocaleString();
-            localStorage.setItem('stars_v2', stars);
+            const el = document.getElementById('bal-top');
+            el.style.transform = 'scale(1.2)';
+            setTimeout(() => el.style.transform = 'scale(1)', 200);
+            el.innerText = stars.toLocaleString();
+            localStorage.setItem('stars_v3', stars);
         }
         updateBal();
 
-        // Функции Меню
         function openMenu() {
             document.getElementById('menu-side').classList.add('active');
             document.getElementById('menu-overlay').classList.add('active');
+            tg.HapticFeedback.impactOccurred('medium');
         }
         function closeMenu() {
             document.getElementById('menu-side').classList.remove('active');
             document.getElementById('menu-overlay').classList.remove('active');
         }
 
-        // Переключение экранов
         function goToScreen(name) {
+            if(document.getElementById('scr-' + name).classList.contains('active')) return;
+            
             closeMenu();
+            tg.HapticFeedback.selectionChanged();
+            
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             
@@ -204,18 +285,17 @@
             document.getElementById('n-' + name).classList.add('active');
         }
 
-        // Промокод
         function usePromo() {
-            let c = prompt("Код:");
+            tg.HapticFeedback.impactOccurred('light');
+            let c = prompt("Введите промокод:");
             if(c && c.toLowerCase() === 'ку') {
                 stars += 100000;
                 updateBal();
                 tg.HapticFeedback.notificationOccurred('success');
-                alert("Успешно! +100,000 звезд");
+                alert("✅ Баланс пополнен на 100,000!");
             }
         }
 
-        // Данные юзера
         const u = tg.initDataUnsafe?.user;
         if(u) {
             document.getElementById('m-name').innerText = u.first_name;
@@ -231,3 +311,4 @@
     </script>
 </body>
 </html>
+
