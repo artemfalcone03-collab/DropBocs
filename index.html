@@ -9,11 +9,14 @@
     <style>
         :root {
             --bg-color: #0b0d17;
-            --card-bg: rgba(26, 28, 46, 0.9);
+            --card-bg: rgba(26, 28, 46, 0.95);
             --accent-blue: #246bfd;
             --star-gold: #ffcd00;
             --text-main: #ffffff;
             --text-gray: #8e8e93;
+            --rarity-common: #b0bec5;
+            --rarity-rare: #42a5f5;
+            --rarity-legend: #ffca28;
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -26,224 +29,255 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* ТА САМАЯ ЗВЕЗДОЧКА (TELEGRAM STARS) */
+        /* ЗВЕЗДА */
         .gold-star {
             display: inline-block;
-            width: 20px; height: 20px;
-            background: url('https://contest.com/icons/72/star.png') no-repeat center;
+            width: 18px; height: 18px;
+            background: url('https://img.icons8.com/emoji/48/star-emoji.png') no-repeat center;
             background-size: contain;
-            vertical-align: middle;
+            vertical-align: sub;
             filter: drop-shadow(0 0 4px rgba(255, 205, 0, 0.6));
-            animation: starPulse 2s infinite ease-in-out;
-        }
-
-        @keyframes starPulse {
-            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 4px rgba(255, 205, 0, 0.6)); }
-            50% { transform: scale(1.1); filter: drop-shadow(0 0 8px rgba(255, 205, 0, 0.9)); }
         }
 
         /* ШАПКА */
         .top-nav {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 15px 20px; background: rgba(11, 13, 23, 0.8);
+            padding: 15px 20px; background: rgba(11, 13, 23, 0.9);
             backdrop-filter: blur(15px); z-index: 80; position: relative;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
         .menu-btn { font-size: 22px; cursor: pointer; transition: var(--transition); padding: 5px; }
-        .menu-btn:active { transform: scale(0.9); opacity: 0.7; }
-
         .balance-badge {
             background: rgba(36, 107, 253, 0.15); padding: 6px 14px; border-radius: 20px;
             display: flex; align-items: center; gap: 8px; border: 1px solid rgba(36, 107, 253, 0.3);
-            cursor: pointer; transition: var(--transition);
+            cursor: pointer; transition: var(--transition); font-weight: 700;
         }
-        .balance-badge:active { transform: scale(0.95); }
 
-        /* КОНТЕНТ С АНИМАЦИЕЙ */
+        /* КОНТЕЙНЕРЫ */
         .main-container { height: calc(100vh - 140px); overflow-y: auto; position: relative; scroll-behavior: smooth; }
-        .screen { display: none; padding: 15px; animation: screenIn 0.4s ease-out; }
+        .screen { display: none; padding: 15px; animation: screenIn 0.3s ease-out; padding-bottom: 80px; }
         .screen.active { display: block; }
+        @keyframes screenIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        @keyframes screenIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* КЕЙСЫ С АНИМАЦИЕЙ ПРИ НАВЕДЕНИИ */
-        .cases-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding-bottom: 20px; }
+        /* ГРИД КЕЙСОВ (ГЛАВНАЯ) */
+        .cases-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .case-card {
-            background: var(--card-bg); border-radius: 24px; padding: 15px;
+            background: var(--card-bg); border-radius: 20px; padding: 12px;
             text-align: center; border: 1px solid rgba(255,255,255,0.05);
-            transition: var(--transition); position: relative;
-            overflow: hidden;
+            transition: var(--transition); position: relative; overflow: hidden;
         }
-        .case-card:hover, .case-card:active {
-            transform: translateY(-5px) scale(1.02);
-            border-color: var(--accent-blue);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.4), 0 0 15px rgba(36, 107, 253, 0.2);
-        }
-        .case-card img { 
-            width: 100%; border-radius: 15px; margin-bottom: 12px; 
-            transition: var(--transition);
-        }
-        .case-card:hover img { transform: scale(1.05); }
-
+        .case-card:active { transform: scale(0.96); }
+        .case-card img { width: 100%; border-radius: 12px; margin-bottom: 10px; }
         .price-btn { 
-            background: #23263d; border-radius: 12px; padding: 10px; 
-            display: flex; align-items: center; justify-content: center; 
-            gap: 6px; font-weight: 800; font-size: 15px;
-            transition: var(--transition);
+            background: #23263d; border-radius: 10px; padding: 8px; 
+            font-weight: 800; font-size: 14px; margin-top: 5px;
         }
-        .case-card:hover .price-btn { background: var(--accent-blue); color: #fff; }
 
-        /* ПРОФИЛЬ */
-        .profile-content { text-align: center; padding-top: 20px; }
-        .big-avatar {
-            width: 110px; height: 110px; border-radius: 50%; border: 3px solid var(--accent-blue);
-            margin: 0 auto 15px; background-size: cover; background-position: center;
-            box-shadow: 0 0 25px rgba(36, 107, 253, 0.4);
-            transition: var(--transition);
-        }
-        .big-avatar:hover { transform: rotate(5deg) scale(1.05); }
+        /* ЭКРАН ОТКРЫТИЯ КЕЙСА (НОВЫЙ) */
+        .case-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+        .back-btn { width: 32px; height: 32px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        
+        .main-case-img { width: 180px; height: 180px; margin: 0 auto; display: block; filter: drop-shadow(0 0 30px rgba(36, 107, 253, 0.4)); animation: float 3s infinite ease-in-out; }
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
 
-        .btn-box {
-            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.08);
-            padding: 18px; border-radius: 18px; display: flex; align-items: center;
-            justify-content: space-between; margin-bottom: 12px; transition: var(--transition);
-        }
-        .btn-box:active { transform: scale(0.98); background: rgba(255,255,255,0.05); }
-
-        .btn-promo {
-            background: linear-gradient(135deg, #246bfd 0%, #6c5ce7 100%); border: none;
-            color: white; padding: 18px; border-radius: 18px; width: 100%;
-            font-weight: 800; font-size: 16px; margin-top: 10px;
+        .control-panel { background: #151725; padding: 15px; border-radius: 20px; margin-top: 20px; border: 1px solid rgba(255,255,255,0.05); }
+        .spin-btn {
+            background: linear-gradient(135deg, #246bfd 0%, #1e5ad6 100%);
+            color: white; border: none; width: 100%; padding: 16px;
+            border-radius: 14px; font-weight: 800; font-size: 18px;
             box-shadow: 0 4px 15px rgba(36, 107, 253, 0.3);
-            transition: var(--transition); cursor: pointer;
+            margin-bottom: 15px; cursor: pointer; transition: var(--transition);
         }
-        .btn-promo:hover { filter: brightness(1.1); transform: translateY(-2px); }
-        .btn-promo:active { transform: translateY(0) scale(0.98); }
+        .spin-btn:disabled { opacity: 0.6; filter: grayscale(1); cursor: not-allowed; }
+        .spin-btn:active:not(:disabled) { transform: scale(0.98); }
 
-        /* МЕНЮ */
-        .overlay {
-            position: fixed; display: none; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 900; backdrop-filter: blur(5px);
-            animation: fadeIn 0.3s ease;
+        .multipliers { display: flex; gap: 8px; justify-content: center; margin-bottom: 15px; }
+        .mult-btn { 
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-gray); padding: 8px 16px; border-radius: 10px; font-weight: 700;
         }
-        .side-menu {
-            position: fixed; top: 0; left: -100%; width: 80%; height: 100%;
-            background: #0e0f19; z-index: 1000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 30px 25px; box-sizing: border-box;
-            border-right: 1px solid rgba(255,255,255,0.05);
+        .mult-btn.active { background: var(--accent-blue); color: white; border-color: var(--accent-blue); }
+
+        .items-label { font-size: 14px; color: var(--text-gray); margin: 20px 0 10px; display: flex; align-items: center; gap: 8px; }
+        
+        /* СЕТКА СОДЕРЖИМОГО КЕЙСА */
+        .case-contents { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .item-preview {
+            background: rgba(255,255,255,0.03); border-radius: 12px; padding: 10px;
+            text-align: center; border: 1px solid rgba(255,255,255,0.05); position: relative;
         }
+        .item-preview img { width: 50px; height: 50px; margin-bottom: 5px; display: block; margin: 0 auto; }
+        .item-preview .i-name { font-size: 10px; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .item-preview .i-val { font-size: 11px; font-weight: 700; color: var(--star-gold); margin-top: 4px; }
+        
+        /* РУЛЕТКА (АНИМАЦИЯ) */
+        .roulette-wrapper {
+            width: 100%; height: 110px; background: #0e0f19;
+            border-radius: 16px; border: 2px solid var(--accent-blue);
+            margin-bottom: 20px; overflow: hidden; position: relative;
+            display: none; /* Скрыта пока не нажали кнопку */
+            box-shadow: inset 0 0 20px #000;
+        }
+        .roulette-track {
+            display: flex; height: 100%; align-items: center;
+            width: max-content; /* Чтобы лента была длинной */
+            will-change: transform;
+        }
+        .roulette-card {
+            width: 90px; height: 90px; margin: 0 4px;
+            background: radial-gradient(circle at center, rgba(40,44,68,1) 0%, rgba(20,22,35,1) 100%);
+            border-radius: 10px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0;
+        }
+        .roulette-card img { width: 50px; height: 50px; }
+        .selector-line {
+            position: absolute; left: 50%; top: 0; bottom: 0; width: 4px;
+            background: #fff; transform: translateX(-50%); z-index: 10;
+            box-shadow: 0 0 10px rgba(255,255,255,0.8);
+            border-radius: 2px;
+        }
+
+        /* МОДАЛКА ВЫИГРЫША */
+        .reward-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 2000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(10px);
+        }
+        .reward-overlay.active { opacity: 1; pointer-events: all; }
+        .reward-card {
+            transform: scale(0.5); transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: center;
+        }
+        .reward-overlay.active .reward-card { transform: scale(1); }
+        .glow-bg {
+            width: 200px; height: 200px; background: radial-gradient(circle, var(--accent-blue) 0%, transparent 70%);
+            position: absolute; z-index: -1; animation: pulse 2s infinite;
+        }
+
+        /* ПРОФИЛЬ И МЕНЮ (Старое) */
+        .profile-content { text-align: center; padding-top: 20px; }
+        .big-avatar { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--accent-blue); margin: 0 auto 15px; background-size: cover; }
+        .btn-box { background: var(--card-bg); padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05); }
+
+        /* САЙДБАР */
+        .side-menu { position: fixed; top: 0; left: -100%; width: 80%; height: 100%; background: #0e0f19; z-index: 1000; transition: 0.3s; padding: 20px; border-right: 1px solid rgba(255,255,255,0.1); }
         .side-menu.active { left: 0; }
-        .overlay.active { display: block; }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .menu-link { 
-            padding: 16px 0; display: flex; align-items: center; gap: 15px; 
-            color: var(--text-gray); font-size: 17px; font-weight: 500;
-            transition: var(--transition); cursor: pointer;
-        }
-        .menu-link:active { color: #fff; transform: translateX(10px); }
-        .menu-link i { width: 24px; color: var(--accent-blue); font-size: 20px; }
-
-        .winter-pass-card {
-            background: #fff; color: #000; padding: 15px; border-radius: 15px;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            font-weight: 900; margin-top: 20px; transition: var(--transition);
-        }
-        .winter-pass-card:active { transform: scale(0.95); }
+        .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:900; display:none; }
+        .overlay.active { display:block; }
 
         /* НИЖНЯЯ ПАНЕЛЬ */
-        .bottom-nav {
-            position: fixed; bottom: 0; width: 100%; background: rgba(22, 25, 44, 0.9);
-            display: flex; justify-content: space-around; padding: 12px 0;
-            border-top: 1px solid rgba(255,255,255,0.05); z-index: 80; backdrop-filter: blur(10px);
-        }
-        .nav-item { text-align: center; font-size: 11px; color: var(--text-gray); transition: var(--transition); font-weight: 600; }
-        .nav-item i { font-size: 24px; display: block; margin-bottom: 5px; transition: var(--transition); }
-        .nav-item.active { color: var(--accent-blue); }
-        .nav-item.active i { transform: translateY(-3px); }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: rgba(22, 25, 44, 0.95); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.05); z-index: 80; backdrop-filter: blur(10px); }
+        .nav-item { text-align: center; font-size: 10px; color: var(--text-gray); opacity: 0.6; }
+        .nav-item.active { color: var(--accent-blue); opacity: 1; }
+        .nav-item i { font-size: 20px; display: block; margin-bottom: 4px; }
+
     </style>
 </head>
 <body>
 
     <div class="top-nav">
         <div class="menu-btn" onclick="openMenu()"><i class="fas fa-bars"></i></div>
-        <div style="font-weight: 900; font-size: 19px; letter-spacing: 0.5px;">GIFTS <span style="color:var(--accent-blue)">BATTLE</span></div>
-        <div class="balance-badge" onclick="usePromo()">
-            <div class="gold-star"></div>
-            <span id="bal-top" style="font-weight: 800;">0</span>
+        <div style="font-weight: 900; font-size: 18px;">GIFTS <span style="color:var(--accent-blue)">BATTLE</span></div>
+        <div class="balance-badge" onclick="addBal()">
+            <div class="gold-star"></div> <span id="bal-top" style="margin-left:5px">0</span>
         </div>
     </div>
 
     <div class="main-container">
+        
         <div id="scr-cases" class="screen active">
+            <h2 style="margin: 10px 0 20px;">Магазин Кейсов</h2>
             <div class="cases-grid">
-                <div class="case-card">
+                <div class="case-card" onclick="openCaseDetail('north')">
                     <img src="https://i.imgur.com/mY7Yn8X.png">
-                    <div style="font-size:15px; margin-bottom:12px; font-weight:700;">Северное Сияние</div>
+                    <div style="font-size:14px; font-weight:700;">Северное Сияние</div>
                     <div class="price-btn"><div class="gold-star"></div> 250</div>
                 </div>
+                
                 <div class="case-card">
                     <img src="https://i.imgur.com/E9hP8nQ.png">
-                    <div style="font-size:15px; margin-bottom:12px; font-weight:700;">Новогодняя Елка</div>
+                    <div style="font-size:14px; font-weight:700;">Новогодняя Елка</div>
                     <div class="price-btn"><div class="gold-star"></div> 600</div>
                 </div>
-                <div class="case-card">
-                    <img src="https://i.imgur.com/mY7Yn8X.png">
-                    <div style="font-size:15px; margin-bottom:12px; font-weight:700;">Секреты Санты</div>
-                    <div class="price-btn"><div class="gold-star"></div> 1300</div>
+                <div class="case-card" style="opacity:0.5"><img src="https://i.imgur.com/mY7Yn8X.png"><div style="font-size:13px">Секреты</div><div class="price-btn">1300</div></div>
+                <div class="case-card" style="opacity:0.5"><img src="https://i.imgur.com/E9hP8nQ.png"><div style="font-size:13px">Экспресс</div><div class="price-btn">3000</div></div>
+            </div>
+        </div>
+
+        <div id="scr-game" class="screen">
+            <div class="case-header">
+                <div class="back-btn" onclick="goToScreen('cases')"><i class="fas fa-arrow-left"></i></div>
+                <h3 style="margin:0">Северное Сияние</h3>
+            </div>
+
+            <img src="https://i.imgur.com/mY7Yn8X.png" class="main-case-img" id="static-case-img">
+
+            <div class="roulette-wrapper" id="roulette-box">
+                <div class="selector-line"></div>
+                <div class="roulette-track" id="track"></div>
+            </div>
+
+            <div class="control-panel">
+                <div class="multipliers">
+                    <div class="mult-btn active">x1</div>
+                    <div class="mult-btn">x2</div>
+                    <div class="mult-btn">x3</div>
                 </div>
-                <div class="case-card">
-                    <img src="https://i.imgur.com/E9hP8nQ.png">
-                    <div style="font-size:15px; margin-bottom:12px; font-weight:700;">Экспресс</div>
-                    <div class="price-btn"><div class="gold-star"></div> 3000</div>
+
+                <button class="spin-btn" id="btn-spin" onclick="playRoulette()">
+                    ОТКРЫТЬ ЗА <div class="gold-star"></div> 250
+                </button>
+
+                <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700; color:var(--accent-blue);">
+                    <span><i class="fas fa-play"></i> Демо</span>
+                    <span><i class="fas fa-gift"></i> Бонусы</span>
                 </div>
             </div>
+
+            <div class="items-label"><i class="fas fa-box-open"></i> Что в кейсе?</div>
+            <div class="case-contents" id="items-grid">
+                </div>
         </div>
 
         <div id="scr-profile" class="screen">
             <div class="profile-content">
                 <div class="big-avatar" id="p-img"></div>
-                <h2 id="p-name" style="margin: 0 0 5px 0; font-size: 24px; font-weight: 800;">User</h2>
-                <div id="p-id" style="color: var(--text-gray); margin-bottom: 30px; font-size: 14px; font-weight: 500;">ID: 000000</div>
-                
-                <div class="btn-box">
-                    <span style="font-weight: 700;"><i class="fas fa-box" style="margin-right: 12px; color: var(--accent-blue);"></i> Инвентарь</span>
-                    <i class="fas fa-chevron-right" style="font-size: 12px; opacity: 0.5;"></i>
-                </div>
-                <button class="btn-promo" onclick="usePromo()">🎟 ВВЕСТИ ПРОМОКОД</button>
+                <h2 id="p-name">User</h2>
+                <div style="color:gray; margin-bottom:20px">ID: 8453400444</div>
+                <div class="btn-box"><span>🎒 Инвентарь</span> <i class="fas fa-chevron-right"></i></div>
+                <div class="btn-box"><span>⚙️ Настройки</span> <i class="fas fa-chevron-right"></i></div>
             </div>
         </div>
     </div>
 
     <div class="overlay" id="menu-overlay" onclick="closeMenu()"></div>
     <div class="side-menu" id="menu-side">
-        <div style="display: flex; align-items: center; margin-bottom: 40px; gap: 15px;">
-            <div style="width: 55px; height: 55px; border-radius: 50%; background: #222; background-size: cover;" id="m-img"></div>
-            <div>
-                <div id="m-name" style="font-weight: 800; font-size: 19px;">User</div>
-                <div id="m-id" style="color:gray; font-size: 13px;">ID: 0</div>
-            </div>
-        </div>
-        
-        <div class="menu-link" onclick="goToScreen('profile')"><i class="far fa-user"></i> Мой профиль</div>
-        <div class="menu-link"><i class="far fa-star"></i> Купить Stars</div>
-        
-        <div class="winter-pass-card">
-            <img src="https://img.icons8.com/emoji/48/christmas-tree.png" width="24"> ЗИМНИЙ ПРОПУСК
-        </div>
-        
-        <div class="menu-link" style="margin-top: 40px; color: #2ecc71; font-weight: 700;" onclick="window.Telegram.WebApp.openTelegramLink('https://t.me/nasjsa')">
-            <i class="fas fa-headset" style="color: #2ecc71;"></i> Поддержка
-        </div>
+        <h3 style="color:white">Меню</h3>
+        <div style="padding:15px 0; border-bottom:1px solid #333" onclick="goToScreen('profile')">Профиль</div>
+        <div style="padding:15px 0; border-bottom:1px solid #333">Пополнить Stars</div>
+        <div style="padding:15px 0; color:#2ecc71">Поддержка</div>
     </div>
 
     <div class="bottom-nav">
-        <div class="nav-item active" id="n-cases" onclick="goToScreen('cases')"><i class="fas fa-box-open"></i>Кейсы</div>
-        <div class="nav-item" id="n-profile" onclick="goToScreen('profile')"><i class="fas fa-user"></i>Профиль</div>
+        <div class="nav-item active" id="n-cases" onclick="goToScreen('cases')">
+            <i class="fas fa-box"></i> Кейсы
+        </div>
+        <div class="nav-item" id="n-profile" onclick="goToScreen('profile')">
+            <i class="fas fa-user"></i> Профиль
+        </div>
+    </div>
+
+    <div class="reward-overlay" id="reward-modal" onclick="closeReward()">
+        <div class="glow-bg"></div>
+        <div class="reward-card">
+            <div style="font-size:20px; font-weight:800; margin-bottom:20px;">ВЫ ПОЛУЧИЛИ:</div>
+            <img id="rew-img" src="" style="width:120px; height:120px; margin-bottom:15px; border-radius:15px; box-shadow: 0 0 20px rgba(255,255,255,0.2);">
+            <div id="rew-name" style="font-size:18px; font-weight:700; margin-bottom:5px;">Item Name</div>
+            <div style="font-size:16px; color:var(--star-gold); font-weight:800;"><div class="gold-star"></div> <span id="rew-price">0</span></div>
+            <button onclick="closeReward()" style="margin-top:30px; background:var(--accent-blue); border:none; color:white; padding:12px 40px; border-radius:12px; font-weight:700;">ЗАБРАТЬ</button>
+        </div>
     </div>
 
     <script>
@@ -251,64 +285,221 @@
         tg.expand();
         tg.enableClosingConfirmation();
 
-        let stars = localStorage.getItem('stars_v3') ? parseInt(localStorage.getItem('stars_v3')) : 0;
+        // --- ДАННЫЕ (Баланс и Предметы) ---
+        let balance = localStorage.getItem('stars_v4') ? parseInt(localStorage.getItem('stars_v4')) : 1000;
         
+        // БД Предметов из видео (weight = шанс, чем больше, тем чаще падает)
+        // Цены взяты из видео
+        const caseItems = [
+            { id: 1, name: 'Snow Globe Pepe', price: 4950, img: 'https://img.icons8.com/3d-fluency/94/snow-globe.png', weight: 1 },    // Легендарка (0.1%)
+            { id: 2, name: 'Bonded Ring', price: 4884, img: 'https://img.icons8.com/3d-fluency/94/diamond-ring.png', weight: 2 },      // Редкое
+            { id: 3, name: 'Bling Binky', price: 3700, img: 'https://img.icons8.com/3d-fluency/94/jewelry.png', weight: 5 },
+            { id: 4, name: 'Toy Bear Polar', price: 2930, img: 'https://img.icons8.com/3d-fluency/94/bear.png', weight: 10 },
+            { id: 5, name: 'Ice Artifact', price: 2717, img: 'https://img.icons8.com/3d-fluency/94/crystal.png', weight: 15 },
+            { id: 6, name: 'Cupid Charm', price: 1615, img: 'https://img.icons8.com/3d-fluency/94/heart-with-arrow.png', weight: 25 },
+            { id: 7, name: 'Jolly Chimp', price: 1187, img: 'https://img.icons8.com/3d-fluency/94/monkey.png', weight: 35 },
+            { id: 8, name: 'Snow Globe House', price: 880, img: 'https://img.icons8.com/3d-fluency/94/gingerbread-house.png', weight: 50 },
+            { id: 9, name: 'Money Pot', price: 490, img: 'https://img.icons8.com/3d-fluency/94/money-bag.png', weight: 100 },
+            { id: 10, name: 'Lol Pop Icicle', price: 440, img: 'https://img.icons8.com/3d-fluency/94/lollipop.png', weight: 150 },     // Частое
+            { id: 11, name: 'Plush Pepe', price: 170, img: 'https://img.icons8.com/3d-fluency/94/frog.png', weight: 200 },
+            { id: 12, name: 'Heart Locket', price: 150, img: 'https://img.icons8.com/3d-fluency/94/necklace.png', weight: 250 },
+            { id: 13, name: 'Precious Peach', price: 100, img: 'https://img.icons8.com/3d-fluency/94/peach.png', weight: 300 },
+            { id: 14, name: 'Durov\'s Cap', price: 50, img: 'https://img.icons8.com/3d-fluency/94/baseball-cap.png', weight: 400 }, // Мусор
+        ];
+
+        // --- ЛОГИКА ИНТЕРФЕЙСА ---
+
         function updateBal() {
-            const el = document.getElementById('bal-top');
-            el.style.transform = 'scale(1.2)';
-            setTimeout(() => el.style.transform = 'scale(1)', 200);
-            el.innerText = stars.toLocaleString();
-            localStorage.setItem('stars_v3', stars);
+            document.getElementById('bal-top').innerText = balance.toLocaleString();
+            localStorage.setItem('stars_v4', balance);
         }
         updateBal();
+
+        function addBal() {
+            // Тестовая функция для пополнения
+            balance += 1000;
+            updateBal();
+            tg.HapticFeedback.notificationOccurred('success');
+        }
+
+        // Переключение экранов
+        function goToScreen(name) {
+            closeMenu();
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('scr-' + name).classList.add('active');
+            if(document.getElementById('n-' + name)) document.getElementById('n-' + name).classList.add('active');
+            
+            // Если уходим с экрана игры, сбрасываем состояние
+            if(name !== 'game') {
+                document.getElementById('roulette-box').style.display = 'none';
+                document.getElementById('static-case-img').style.display = 'block';
+            }
+        }
 
         function openMenu() {
             document.getElementById('menu-side').classList.add('active');
             document.getElementById('menu-overlay').classList.add('active');
-            tg.HapticFeedback.impactOccurred('medium');
+            tg.HapticFeedback.impactOccurred('light');
         }
         function closeMenu() {
             document.getElementById('menu-side').classList.remove('active');
             document.getElementById('menu-overlay').classList.remove('active');
         }
 
-        function goToScreen(name) {
-            if(document.getElementById('scr-' + name).classList.contains('active')) return;
+        // --- ЛОГИКА КЕЙСОВ И РУЛЕТКИ ---
+
+        function openCaseDetail(type) {
+            goToScreen('game');
+            // Отрисовка "Что в кейсе"
+            const grid = document.getElementById('items-grid');
+            grid.innerHTML = '';
+            // Сортируем: дорогие сверху
+            const sorted = [...caseItems].sort((a,b) => b.price - a.price);
             
-            closeMenu();
-            tg.HapticFeedback.selectionChanged();
-            
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            
-            document.getElementById('scr-' + name).classList.add('active');
-            document.getElementById('n-' + name).classList.add('active');
+            sorted.forEach(item => {
+                const el = document.createElement('div');
+                el.className = 'item-preview';
+                // Подсветка редких предметов
+                let glow = '';
+                if(item.price > 2000) glow = 'box-shadow: 0 0 10px rgba(66, 165, 245, 0.3); border-color: #42a5f5;';
+                if(item.price > 4000) glow = 'box-shadow: 0 0 10px rgba(255, 202, 40, 0.3); border-color: #ffca28;';
+                
+                el.style.cssText = glow;
+                el.innerHTML = `
+                    <img src="${item.img}">
+                    <div class="i-name">${item.name}</div>
+                    <div class="i-val"><div class="gold-star"></div> ${item.price}</div>
+                `;
+                grid.appendChild(el);
+            });
         }
 
-        function usePromo() {
-            tg.HapticFeedback.impactOccurred('light');
-            let c = prompt("Введите промокод:");
-            if(c && c.toLowerCase() === 'ку') {
-                stars += 100000;
-                updateBal();
-                tg.HapticFeedback.notificationOccurred('success');
-                alert("✅ Баланс пополнен на 100,000!");
+        // ВЫБОР ПОБЕДИТЕЛЯ ПО ВЕСАМ
+        function getRandomItem() {
+            let totalWeight = caseItems.reduce((sum, item) => sum + item.weight, 0);
+            let random = Math.random() * totalWeight;
+            for (let item of caseItems) {
+                if (random < item.weight) return item;
+                random -= item.weight;
             }
+            return caseItems[caseItems.length - 1];
         }
 
+        let isSpinning = false;
+
+        function playRoulette() {
+            if(isSpinning) return;
+            const cost = 250;
+            
+            if(balance < cost) {
+                tg.showAlert("Недостаточно Stars! Нажмите на баланс.");
+                tg.HapticFeedback.notificationOccurred('error');
+                return;
+            }
+
+            // Списываем баланс
+            balance -= cost;
+            updateBal();
+            isSpinning = true;
+            document.getElementById('btn-spin').disabled = true;
+            document.getElementById('btn-spin').innerText = "ОТКРЫТИЕ...";
+
+            // Подготовка UI
+            const staticImg = document.getElementById('static-case-img');
+            const rouletteBox = document.getElementById('roulette-box');
+            const track = document.getElementById('track');
+
+            staticImg.style.display = 'none';
+            rouletteBox.style.display = 'block';
+
+            // ГЕНЕРАЦИЯ ЛЕНТЫ
+            // Нам нужно много предметов, победитель будет примерно на 30-й позиции
+            track.innerHTML = '';
+            track.style.transition = 'none';
+            track.style.transform = 'translateX(0px)';
+
+            const winItem = getRandomItem(); // Заранее знаем кто выиграл
+            const cardWidth = 98; // 90px + 8px margin
+            const winIndex = 35; // Индекс победителя в ленте (чтобы долго крутилось)
+            
+            // Строим ленту
+            for(let i = 0; i < 50; i++) {
+                let item;
+                if(i === winIndex) {
+                    item = winItem;
+                } else {
+                    // Заполняем случайными (чаще дешевыми) для визуала
+                    item = caseItems[Math.floor(Math.random() * caseItems.length)];
+                }
+                
+                const card = document.createElement('div');
+                card.className = 'roulette-card';
+                // Подсветка в ленте
+                if(item.price > 2000) card.style.border = "1px solid #42a5f5";
+                if(item.price > 4000) card.style.border = "1px solid #ffca28";
+                
+                card.innerHTML = `<img src="${item.img}">`;
+                track.appendChild(card);
+            }
+
+            // ЗАПУСК АНИМАЦИИ
+            // Центр экрана (половина ширины контейнера) - половина карточки
+            const containerCenter = rouletteBox.offsetWidth / 2;
+            const cardCenter = cardWidth / 2;
+            // Смещение: (WinIndex * Width) - (ContainerCenter - CardCenter)
+            const finalPos = (winIndex * cardWidth) - (containerCenter - cardCenter);
+
+            // Небольшой рандом внутри карточки, чтобы не всегда ровно по центру останавливалось
+            const randomOffset = Math.floor(Math.random() * 20) - 10; 
+
+            setTimeout(() => {
+                track.style.transition = 'transform 4s cubic-bezier(0.15, 0, 0.10, 1)'; // Эффект замедления
+                track.style.transform = `translateX(-${finalPos + randomOffset}px)`;
+                
+                // Вибрация в начале
+                tg.HapticFeedback.impactOccurred('medium');
+            }, 50);
+
+            // ОКОНЧАНИЕ
+            setTimeout(() => {
+                tg.HapticFeedback.notificationOccurred('success');
+                showReward(winItem);
+                isSpinning = false;
+                document.getElementById('btn-spin').disabled = false;
+                document.getElementById('btn-spin').innerHTML = 'ОТКРЫТЬ ЕЩЕ <div class="gold-star"></div> 250';
+            }, 4100); // 4s анимация + 100ms запас
+        }
+
+        function showReward(item) {
+            const modal = document.getElementById('reward-modal');
+            document.getElementById('rew-img').src = item.img;
+            document.getElementById('rew-name').innerText = item.name;
+            document.getElementById('rew-price').innerText = item.price;
+            
+            modal.classList.add('active');
+            
+            // Зачисляем выигрыш (если это не предмет инвентаря, а сразу валюта. 
+            // Обычно в таких играх предмет падает в инвентарь, но тут для примера сразу продадим)
+            // balance += item.price; // Раскомментируй, если хочешь сразу возвращать деньги
+            // updateBal();
+        }
+
+        function closeReward() {
+            document.getElementById('reward-modal').classList.remove('active');
+            // Возвращаем вид
+            // document.getElementById('roulette-box').style.display = 'none';
+            // document.getElementById('static-case-img').style.display = 'block';
+        }
+
+        // Данные юзера из Телеграм
         const u = tg.initDataUnsafe?.user;
         if(u) {
-            document.getElementById('m-name').innerText = u.first_name;
             document.getElementById('p-name').innerText = u.first_name;
-            document.getElementById('m-id').innerText = "ID: " + u.id;
-            document.getElementById('p-id').innerText = "User ID: " + u.id;
             if(u.photo_url) {
-                const img = `url(${u.photo_url})`;
-                document.getElementById('m-img').style.backgroundImage = img;
-                document.getElementById('p-img').style.backgroundImage = img;
+                document.getElementById('p-img').style.backgroundImage = `url(${u.photo_url})`;
             }
         }
     </script>
 </body>
 </html>
-
