@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gifts Battle Premium</title>
+    <title>Gifts Battle Ultimate</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -11,13 +11,11 @@
             --bg-color: #0b0d17;
             --card-bg: rgba(26, 28, 46, 0.95);
             --accent-blue: #246bfd;
+            --btn-green: #2ecc71;
             --star-gold: #ffcd00;
             --text-main: #ffffff;
             --text-gray: #8e8e93;
-            --rarity-common: #b0bec5;
-            --rarity-rare: #42a5f5;
-            --rarity-legend: #ffca28;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
         body {
@@ -27,257 +25,267 @@
             margin: 0; padding: 0; 
             overflow: hidden;
             -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
 
-        /* ЗВЕЗДА */
+        /* Анимации */
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        /* ЭЛЕМЕНТЫ */
         .gold-star {
-            display: inline-block;
-            width: 18px; height: 18px;
+            display: inline-block; width: 18px; height: 18px;
             background: url('https://img.icons8.com/emoji/48/star-emoji.png') no-repeat center;
-            background-size: contain;
-            vertical-align: sub;
-            filter: drop-shadow(0 0 4px rgba(255, 205, 0, 0.6));
+            background-size: contain; vertical-align: sub;
+            filter: drop-shadow(0 0 5px rgba(255, 205, 0, 0.5));
         }
 
-        /* ШАПКА */
         .top-nav {
             display: flex; align-items: center; justify-content: space-between;
             padding: 15px 20px; background: rgba(11, 13, 23, 0.9);
-            backdrop-filter: blur(15px); z-index: 80; position: relative;
+            backdrop-filter: blur(20px); z-index: 100; position: relative;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
-        .menu-btn { font-size: 22px; cursor: pointer; transition: var(--transition); padding: 5px; }
+        
         .balance-badge {
             background: rgba(36, 107, 253, 0.15); padding: 6px 14px; border-radius: 20px;
-            display: flex; align-items: center; gap: 8px; border: 1px solid rgba(36, 107, 253, 0.3);
-            cursor: pointer; transition: var(--transition); font-weight: 700;
+            display: flex; align-items: center; gap: 6px; border: 1px solid rgba(36, 107, 253, 0.3);
+            cursor: pointer; transition: var(--transition); font-weight: 700; font-size: 14px;
         }
+        .balance-badge:active { transform: scale(0.95); background: rgba(36, 107, 253, 0.25); }
 
-        /* КОНТЕЙНЕРЫ */
-        .main-container { height: calc(100vh - 140px); overflow-y: auto; position: relative; scroll-behavior: smooth; }
-        .screen { display: none; padding: 15px; animation: screenIn 0.3s ease-out; padding-bottom: 80px; }
+        /* ЭКРАНЫ */
+        .main-container { height: calc(100vh - 135px); overflow-y: auto; scroll-behavior: smooth; padding-bottom: 20px; }
+        .screen { display: none; padding: 15px; animation: fadeUp 0.3s ease-out; }
         .screen.active { display: block; }
-        @keyframes screenIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ГРИД КЕЙСОВ (ГЛАВНАЯ) */
+        /* КЕЙСЫ */
         .cases-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .case-card {
-            background: var(--card-bg); border-radius: 20px; padding: 12px;
+            background: var(--card-bg); border-radius: 20px; padding: 15px 10px;
             text-align: center; border: 1px solid rgba(255,255,255,0.05);
-            transition: var(--transition); position: relative; overflow: hidden;
+            transition: var(--transition); position: relative;
         }
         .case-card:active { transform: scale(0.96); }
-        .case-card img { width: 100%; border-radius: 12px; margin-bottom: 10px; }
+        .case-card img { width: 80%; border-radius: 12px; margin-bottom: 10px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3)); }
+        
         .price-btn { 
             background: #23263d; border-radius: 10px; padding: 8px; 
-            font-weight: 800; font-size: 14px; margin-top: 5px;
+            font-weight: 800; font-size: 13px; margin-top: 5px; display: inline-flex; align-items: center; gap: 5px;
         }
 
-        /* ЭКРАН ОТКРЫТИЯ КЕЙСА (НОВЫЙ) */
+        /* ИГРА (РУЛЕТКА) */
         .case-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
-        .back-btn { width: 32px; height: 32px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        
-        .main-case-img { width: 180px; height: 180px; margin: 0 auto; display: block; filter: drop-shadow(0 0 30px rgba(36, 107, 253, 0.4)); animation: float 3s infinite ease-in-out; }
-        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+        .back-btn { width: 36px; height: 36px; background: rgba(255,255,255,0.05); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+        .back-btn:active { background: rgba(255,255,255,0.1); }
 
-        .control-panel { background: #151725; padding: 15px; border-radius: 20px; margin-top: 20px; border: 1px solid rgba(255,255,255,0.05); }
-        .spin-btn {
-            background: linear-gradient(135deg, #246bfd 0%, #1e5ad6 100%);
-            color: white; border: none; width: 100%; padding: 16px;
-            border-radius: 14px; font-weight: 800; font-size: 18px;
-            box-shadow: 0 4px 15px rgba(36, 107, 253, 0.3);
-            margin-bottom: 15px; cursor: pointer; transition: var(--transition);
-        }
-        .spin-btn:disabled { opacity: 0.6; filter: grayscale(1); cursor: not-allowed; }
-        .spin-btn:active:not(:disabled) { transform: scale(0.98); }
+        .main-case-img { width: 160px; height: 160px; margin: 10px auto 30px; display: block; filter: drop-shadow(0 0 40px rgba(36, 107, 253, 0.3)); animation: float 4s infinite ease-in-out; }
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
 
-        .multipliers { display: flex; gap: 8px; justify-content: center; margin-bottom: 15px; }
-        .mult-btn { 
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            color: var(--text-gray); padding: 8px 16px; border-radius: 10px; font-weight: 700;
-        }
-        .mult-btn.active { background: var(--accent-blue); color: white; border-color: var(--accent-blue); }
-
-        .items-label { font-size: 14px; color: var(--text-gray); margin: 20px 0 10px; display: flex; align-items: center; gap: 8px; }
-        
-        /* СЕТКА СОДЕРЖИМОГО КЕЙСА */
-        .case-contents { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .item-preview {
-            background: rgba(255,255,255,0.03); border-radius: 12px; padding: 10px;
-            text-align: center; border: 1px solid rgba(255,255,255,0.05); position: relative;
-        }
-        .item-preview img { width: 50px; height: 50px; margin-bottom: 5px; display: block; margin: 0 auto; }
-        .item-preview .i-name { font-size: 10px; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .item-preview .i-val { font-size: 11px; font-weight: 700; color: var(--star-gold); margin-top: 4px; }
-        
-        /* РУЛЕТКА (АНИМАЦИЯ) */
+        /* ЛЕНТА */
         .roulette-wrapper {
             width: 100%; height: 110px; background: #0e0f19;
             border-radius: 16px; border: 2px solid var(--accent-blue);
-            margin-bottom: 20px; overflow: hidden; position: relative;
-            display: none; /* Скрыта пока не нажали кнопку */
-            box-shadow: inset 0 0 20px #000;
+            margin-bottom: 25px; overflow: hidden; position: relative;
+            display: none; box-shadow: inset 0 0 30px #000;
         }
-        .roulette-track {
-            display: flex; height: 100%; align-items: center;
-            width: max-content; /* Чтобы лента была длинной */
-            will-change: transform;
-        }
+        .roulette-track { display: flex; height: 100%; align-items: center; width: max-content; will-change: transform; }
         .roulette-card {
             width: 90px; height: 90px; margin: 0 4px;
-            background: radial-gradient(circle at center, rgba(40,44,68,1) 0%, rgba(20,22,35,1) 100%);
-            border-radius: 10px; display: flex; flex-direction: column;
+            background: radial-gradient(circle, #23263d 0%, #151725 100%);
+            border-radius: 12px; display: flex; flex-direction: column;
             align-items: center; justify-content: center;
-            border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0;
+            border: 1px solid rgba(255,255,255,0.05); flex-shrink: 0;
         }
-        .roulette-card img { width: 50px; height: 50px; }
+        .roulette-card img { width: 55px; height: 55px; margin-bottom: 5px; }
         .selector-line {
             position: absolute; left: 50%; top: 0; bottom: 0; width: 4px;
             background: #fff; transform: translateX(-50%); z-index: 10;
-            box-shadow: 0 0 10px rgba(255,255,255,0.8);
-            border-radius: 2px;
+            box-shadow: 0 0 15px white; border-radius: 2px;
         }
+
+        .spin-btn {
+            background: linear-gradient(135deg, #246bfd 0%, #1a50c4 100%);
+            color: white; border: none; width: 100%; padding: 18px;
+            border-radius: 16px; font-weight: 800; font-size: 17px;
+            box-shadow: 0 5px 20px rgba(36, 107, 253, 0.3);
+            margin-bottom: 15px; cursor: pointer; transition: var(--transition);
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .spin-btn:active { transform: scale(0.97); }
+        .spin-btn:disabled { opacity: 0.6; filter: grayscale(1); }
+
+        /* СЕТКА ПРЕДМЕТОВ */
+        .items-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding-bottom: 20px; }
+        .item-box {
+            background: rgba(255,255,255,0.03); border-radius: 14px; padding: 10px 5px;
+            text-align: center; border: 1px solid rgba(255,255,255,0.05); position: relative;
+        }
+        .item-box img { width: 50px; height: 50px; display: block; margin: 0 auto 5px; }
+        .item-name { font-size: 10px; color: #ccc; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+        .item-price { font-size: 11px; font-weight: 700; color: var(--star-gold); margin-top: 3px; }
+
+        /* ПРОФИЛЬ */
+        .profile-header { text-align: center; margin-bottom: 30px; }
+        .big-avatar { width: 100px; height: 100px; border-radius: 50%; border: 4px solid var(--accent-blue); margin: 0 auto 15px; background-size: cover; background-position: center; box-shadow: 0 0 30px rgba(36, 107, 253, 0.2); }
+        .menu-row {
+            background: var(--card-bg); padding: 18px; border-radius: 18px; 
+            margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;
+            border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: var(--transition);
+        }
+        .menu-row:active { transform: scale(0.98); background: rgba(255,255,255,0.08); }
+
+        /* ИНВЕНТАРЬ */
+        .inventory-empty { text-align: center; color: var(--text-gray); margin-top: 50px; font-size: 14px; }
+        .inv-item { position: relative; }
+        .sell-hint { font-size: 9px; color: var(--btn-green); font-weight: 700; margin-top: 2px; }
 
         /* МОДАЛКА ВЫИГРЫША */
         .reward-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 2000;
+            background: rgba(0,0,0,0.92); z-index: 2000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(10px);
         }
         .reward-overlay.active { opacity: 1; pointer-events: all; }
         .reward-card {
-            transform: scale(0.5); transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            text-align: center;
+            width: 85%; background: #151725; border-radius: 24px; padding: 25px; text-align: center;
+            border: 1px solid rgba(255,255,255,0.1); transform: scale(0.8); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
         .reward-overlay.active .reward-card { transform: scale(1); }
-        .glow-bg {
-            width: 200px; height: 200px; background: radial-gradient(circle, var(--accent-blue) 0%, transparent 70%);
-            position: absolute; z-index: -1; animation: pulse 2s infinite;
-        }
-
-        /* ПРОФИЛЬ И МЕНЮ (Старое) */
-        .profile-content { text-align: center; padding-top: 20px; }
-        .big-avatar { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--accent-blue); margin: 0 auto 15px; background-size: cover; }
-        .btn-box { background: var(--card-bg); padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05); }
-
-        /* САЙДБАР */
-        .side-menu { position: fixed; top: 0; left: -100%; width: 80%; height: 100%; background: #0e0f19; z-index: 1000; transition: 0.3s; padding: 20px; border-right: 1px solid rgba(255,255,255,0.1); }
-        .side-menu.active { left: 0; }
-        .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:900; display:none; }
-        .overlay.active { display:block; }
+        
+        .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 25px; }
+        .btn-act { padding: 14px; border-radius: 12px; font-weight: 700; border: none; font-size: 13px; cursor: pointer; color: white; }
+        .btn-keep { background: rgba(255,255,255,0.1); }
+        .btn-sell { background: var(--btn-green); color: #000; }
 
         /* НИЖНЯЯ ПАНЕЛЬ */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: rgba(22, 25, 44, 0.95); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.05); z-index: 80; backdrop-filter: blur(10px); }
-        .nav-item { text-align: center; font-size: 10px; color: var(--text-gray); opacity: 0.6; }
-        .nav-item.active { color: var(--accent-blue); opacity: 1; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: rgba(22, 25, 44, 0.95); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.05); z-index: 80; backdrop-filter: blur(10px); padding-bottom: env(safe-area-inset-bottom); }
+        .nav-item { text-align: center; font-size: 10px; color: var(--text-gray); opacity: 0.6; transition: 0.2s; }
+        .nav-item.active { color: var(--accent-blue); opacity: 1; transform: translateY(-2px); }
         .nav-item i { font-size: 20px; display: block; margin-bottom: 4px; }
-
     </style>
 </head>
 <body>
 
     <div class="top-nav">
-        <div class="menu-btn" onclick="openMenu()"><i class="fas fa-bars"></i></div>
         <div style="font-weight: 900; font-size: 18px;">GIFTS <span style="color:var(--accent-blue)">BATTLE</span></div>
         <div class="balance-badge" onclick="addBal()">
-            <div class="gold-star"></div> <span id="bal-top" style="margin-left:5px">0</span>
+            <div class="gold-star"></div> <span id="bal-top">0</span>
         </div>
     </div>
 
     <div class="main-container">
         
         <div id="scr-cases" class="screen active">
-            <h2 style="margin: 10px 0 20px;">Магазин Кейсов</h2>
+            <h2 style="margin: 10px 0 20px; font-size: 22px;">Магазин Кейсов</h2>
             <div class="cases-grid">
-                <div class="case-card" onclick="openCaseDetail('north')">
-                    <img src="https://i.imgur.com/mY7Yn8X.png">
-                    <div style="font-size:14px; font-weight:700;">Северное Сияние</div>
+                <div class="case-card" onclick="openCaseGame()">
+                    <img src="https://img.icons8.com/3d-fluency/188/gift.png">
+                    <div style="font-size:15px; font-weight:700;">Северное Сияние</div>
                     <div class="price-btn"><div class="gold-star"></div> 250</div>
                 </div>
-                
-                <div class="case-card">
-                    <img src="https://i.imgur.com/E9hP8nQ.png">
-                    <div style="font-size:14px; font-weight:700;">Новогодняя Елка</div>
+                <div class="case-card" style="opacity: 0.7;">
+                    <img src="https://img.icons8.com/3d-fluency/188/christmas-tree.png">
+                    <div style="font-size:15px; font-weight:700;">Новогодняя Елка</div>
                     <div class="price-btn"><div class="gold-star"></div> 600</div>
                 </div>
-                <div class="case-card" style="opacity:0.5"><img src="https://i.imgur.com/mY7Yn8X.png"><div style="font-size:13px">Секреты</div><div class="price-btn">1300</div></div>
-                <div class="case-card" style="opacity:0.5"><img src="https://i.imgur.com/E9hP8nQ.png"><div style="font-size:13px">Экспресс</div><div class="price-btn">3000</div></div>
+                <div class="case-card" style="opacity: 0.7;">
+                    <img src="https://img.icons8.com/3d-fluency/188/santa-claus.png">
+                    <div style="font-size:15px; font-weight:700;">Секреты Санты</div>
+                    <div class="price-btn"><div class="gold-star"></div> 1300</div>
+                </div>
+                <div class="case-card" style="opacity: 0.7;">
+                    <img src="https://img.icons8.com/3d-fluency/188/sleigh.png">
+                    <div style="font-size:15px; font-weight:700;">Экспресс</div>
+                    <div class="price-btn"><div class="gold-star"></div> 3000</div>
+                </div>
             </div>
         </div>
 
         <div id="scr-game" class="screen">
             <div class="case-header">
                 <div class="back-btn" onclick="goToScreen('cases')"><i class="fas fa-arrow-left"></i></div>
-                <h3 style="margin:0">Северное Сияние</h3>
+                <h3 style="margin:0; font-size: 18px;">Северное Сияние</h3>
             </div>
 
-            <img src="https://i.imgur.com/mY7Yn8X.png" class="main-case-img" id="static-case-img">
+            <img src="https://img.icons8.com/3d-fluency/188/gift.png" class="main-case-img" id="static-case-img">
 
             <div class="roulette-wrapper" id="roulette-box">
                 <div class="selector-line"></div>
                 <div class="roulette-track" id="track"></div>
             </div>
 
-            <div class="control-panel">
-                <div class="multipliers">
-                    <div class="mult-btn active">x1</div>
-                    <div class="mult-btn">x2</div>
-                    <div class="mult-btn">x3</div>
-                </div>
-
+            <div style="background: #151725; padding: 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);">
                 <button class="spin-btn" id="btn-spin" onclick="playRoulette()">
                     ОТКРЫТЬ ЗА <div class="gold-star"></div> 250
                 </button>
-
-                <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700; color:var(--accent-blue);">
-                    <span><i class="fas fa-play"></i> Демо</span>
-                    <span><i class="fas fa-gift"></i> Бонусы</span>
+                <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-gray);">
+                    <span><i class="fas fa-check-circle" style="color:var(--btn-green)"></i> Честные шансы</span>
+                    <span>Везение: <b>x1</b></span>
                 </div>
             </div>
 
-            <div class="items-label"><i class="fas fa-box-open"></i> Что в кейсе?</div>
-            <div class="case-contents" id="items-grid">
-                </div>
+            <div style="margin: 25px 0 10px; font-size: 14px; font-weight: 700; color:var(--text-gray);">СОДЕРЖИМОЕ КЕЙСА:</div>
+            <div class="items-grid" id="case-contents"></div>
         </div>
 
         <div id="scr-profile" class="screen">
-            <div class="profile-content">
-                <div class="big-avatar" id="p-img"></div>
-                <h2 id="p-name">User</h2>
-                <div style="color:gray; margin-bottom:20px">ID: 8453400444</div>
-                <div class="btn-box"><span>🎒 Инвентарь</span> <i class="fas fa-chevron-right"></i></div>
-                <div class="btn-box"><span>⚙️ Настройки</span> <i class="fas fa-chevron-right"></i></div>
+            <div class="profile-header">
+                <div class="big-avatar" id="p-img" style="background-image: url('https://img.icons8.com/3d-fluency/188/user-male-circle.png');"></div>
+                <h2 id="p-name" style="margin: 0;">Игрок</h2>
+                <div style="font-size: 13px; color: var(--text-gray); margin-top: 5px;" id="p-id">ID: Загрузка...</div>
+            </div>
+
+            <div class="menu-row" onclick="goToScreen('inventory')">
+                <span style="font-weight: 700;"><i class="fas fa-box" style="color:var(--accent-blue); width:25px;"></i> Инвентарь</span>
+                <i class="fas fa-chevron-right" style="opacity: 0.5; font-size: 12px;"></i>
+            </div>
+            <div class="menu-row">
+                <span style="font-weight: 700;"><i class="fas fa-star" style="color:var(--star-gold); width:25px;"></i> Купить Stars</span>
+                <i class="fas fa-chevron-right" style="opacity: 0.5; font-size: 12px;"></i>
+            </div>
+            <div class="menu-row">
+                <span style="font-weight: 700;"><i class="fas fa-cog" style="color: #95a5a6; width:25px;"></i> Настройки</span>
+                <i class="fas fa-chevron-right" style="opacity: 0.5; font-size: 12px;"></i>
+            </div>
+        </div>
+
+        <div id="scr-inventory" class="screen">
+            <div class="case-header">
+                <div class="back-btn" onclick="goToScreen('profile')"><i class="fas fa-arrow-left"></i></div>
+                <h3 style="margin:0; font-size: 18px;">Мой инвентарь</h3>
+            </div>
+            <div class="items-grid" id="inv-grid"></div>
+            <div id="inv-empty" class="inventory-empty" style="display:none;">Пусто... Открой пару кейсов! 📦</div>
+        </div>
+
+    </div>
+
+    <div class="reward-overlay" id="reward-modal">
+        <div class="reward-card">
+            <div style="font-size:12px; color:var(--text-gray); font-weight:700; letter-spacing: 1px; margin-bottom: 15px;">ТВОЙ ВЫИГРЫШ</div>
+            <div style="width: 150px; height: 150px; background: radial-gradient(closest-side, rgba(36,107,253,0.3), transparent); margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                <img id="rew-img" src="" style="width:100px; height:100px; filter: drop-shadow(0 0 15px rgba(255,255,255,0.3));">
+            </div>
+            <div id="rew-name" style="font-size:20px; font-weight:800; margin: 10px 0 5px;">Item Name</div>
+            <div style="font-size:15px; color:var(--text-gray);">Стоимость: <span style="color:var(--star-gold); font-weight:700;"><div class="gold-star"></div> <span id="rew-price">0</span></span></div>
+
+            <div class="action-btns">
+                <button class="btn-act btn-sell" onclick="finishReward('sell')">
+                    ПРОДАТЬ<br><span style="font-size:10px; opacity:0.8">+<span id="btn-sell-price">0</span> Stars</span>
+                </button>
+                <button class="btn-act btn-keep" onclick="finishReward('keep')">
+                    ЗАБРАТЬ<br><span style="font-size:10px; opacity:0.6">В инвентарь</span>
+                </button>
             </div>
         </div>
     </div>
 
-    <div class="overlay" id="menu-overlay" onclick="closeMenu()"></div>
-    <div class="side-menu" id="menu-side">
-        <h3 style="color:white">Меню</h3>
-        <div style="padding:15px 0; border-bottom:1px solid #333" onclick="goToScreen('profile')">Профиль</div>
-        <div style="padding:15px 0; border-bottom:1px solid #333">Пополнить Stars</div>
-        <div style="padding:15px 0; color:#2ecc71">Поддержка</div>
-    </div>
-
     <div class="bottom-nav">
-        <div class="nav-item active" id="n-cases" onclick="goToScreen('cases')">
-            <i class="fas fa-box"></i> Кейсы
-        </div>
-        <div class="nav-item" id="n-profile" onclick="goToScreen('profile')">
-            <i class="fas fa-user"></i> Профиль
-        </div>
-    </div>
-
-    <div class="reward-overlay" id="reward-modal" onclick="closeReward()">
-        <div class="glow-bg"></div>
-        <div class="reward-card">
-            <div style="font-size:20px; font-weight:800; margin-bottom:20px;">ВЫ ПОЛУЧИЛИ:</div>
-            <img id="rew-img" src="" style="width:120px; height:120px; margin-bottom:15px; border-radius:15px; box-shadow: 0 0 20px rgba(255,255,255,0.2);">
-            <div id="rew-name" style="font-size:18px; font-weight:700; margin-bottom:5px;">Item Name</div>
-            <div style="font-size:16px; color:var(--star-gold); font-weight:800;"><div class="gold-star"></div> <span id="rew-price">0</span></div>
-            <button onclick="closeReward()" style="margin-top:30px; background:var(--accent-blue); border:none; color:white; padding:12px 40px; border-radius:12px; font-weight:700;">ЗАБРАТЬ</button>
-        </div>
+        <div class="nav-item active" id="n-cases" onclick="goToScreen('cases')"><i class="fas fa-box-open"></i>Кейсы</div>
+        <div class="nav-item" id="n-profile" onclick="goToScreen('profile')"><i class="fas fa-user-circle"></i>Профиль</div>
     </div>
 
     <script>
@@ -285,221 +293,232 @@
         tg.expand();
         tg.enableClosingConfirmation();
 
-        // --- ДАННЫЕ (Баланс и Предметы) ---
-        let balance = localStorage.getItem('stars_v4') ? parseInt(localStorage.getItem('stars_v4')) : 1000;
+        // === ДАННЫЕ ===
+        let balance = parseInt(localStorage.getItem('balance_v5')) || 2000;
+        let inventory = JSON.parse(localStorage.getItem('inventory_v5')) || [];
         
-        // БД Предметов из видео (weight = шанс, чем больше, тем чаще падает)
-        // Цены взяты из видео
-        const caseItems = [
-            { id: 1, name: 'Snow Globe Pepe', price: 4950, img: 'https://img.icons8.com/3d-fluency/94/snow-globe.png', weight: 1 },    // Легендарка (0.1%)
-            { id: 2, name: 'Bonded Ring', price: 4884, img: 'https://img.icons8.com/3d-fluency/94/diamond-ring.png', weight: 2 },      // Редкое
-            { id: 3, name: 'Bling Binky', price: 3700, img: 'https://img.icons8.com/3d-fluency/94/jewelry.png', weight: 5 },
-            { id: 4, name: 'Toy Bear Polar', price: 2930, img: 'https://img.icons8.com/3d-fluency/94/bear.png', weight: 10 },
-            { id: 5, name: 'Ice Artifact', price: 2717, img: 'https://img.icons8.com/3d-fluency/94/crystal.png', weight: 15 },
-            { id: 6, name: 'Cupid Charm', price: 1615, img: 'https://img.icons8.com/3d-fluency/94/heart-with-arrow.png', weight: 25 },
-            { id: 7, name: 'Jolly Chimp', price: 1187, img: 'https://img.icons8.com/3d-fluency/94/monkey.png', weight: 35 },
-            { id: 8, name: 'Snow Globe House', price: 880, img: 'https://img.icons8.com/3d-fluency/94/gingerbread-house.png', weight: 50 },
-            { id: 9, name: 'Money Pot', price: 490, img: 'https://img.icons8.com/3d-fluency/94/money-bag.png', weight: 100 },
-            { id: 10, name: 'Lol Pop Icicle', price: 440, img: 'https://img.icons8.com/3d-fluency/94/lollipop.png', weight: 150 },     // Частое
-            { id: 11, name: 'Plush Pepe', price: 170, img: 'https://img.icons8.com/3d-fluency/94/frog.png', weight: 200 },
-            { id: 12, name: 'Heart Locket', price: 150, img: 'https://img.icons8.com/3d-fluency/94/necklace.png', weight: 250 },
-            { id: 13, name: 'Precious Peach', price: 100, img: 'https://img.icons8.com/3d-fluency/94/peach.png', weight: 300 },
-            { id: 14, name: 'Durov\'s Cap', price: 50, img: 'https://img.icons8.com/3d-fluency/94/baseball-cap.png', weight: 400 }, // Мусор
+        // Полный список предметов (Цены и шансы настроены для экономики)
+        // weight: чем больше число, тем выше шанс
+        const itemsDB = [
+            { id: 1, name: 'Snow Globe Pepe', price: 5000, img: 'https://img.icons8.com/3d-fluency/94/snow-globe.png', weight: 1, rare: true },
+            { id: 2, name: 'Diamond Ring', price: 4800, img: 'https://img.icons8.com/3d-fluency/94/diamond-ring.png', weight: 2, rare: true },
+            { id: 3, name: 'Golden Pacifier', price: 3700, img: 'https://img.icons8.com/3d-fluency/94/pacifier.png', weight: 5 },
+            { id: 4, name: 'Polar Bear', price: 2900, img: 'https://img.icons8.com/3d-fluency/94/bear.png', weight: 8 },
+            { id: 5, name: 'Ice Crystal', price: 2700, img: 'https://img.icons8.com/3d-fluency/94/crystal.png', weight: 12 },
+            { id: 6, name: 'Cupid Heart', price: 1600, img: 'https://img.icons8.com/3d-fluency/94/heart-with-arrow.png', weight: 20 },
+            { id: 7, name: 'Monkey Toy', price: 1200, img: 'https://img.icons8.com/3d-fluency/94/monkey.png', weight: 30 },
+            { id: 8, name: 'Ginger House', price: 900, img: 'https://img.icons8.com/3d-fluency/94/gingerbread-house.png', weight: 45 },
+            { id: 9, name: 'Money Bag', price: 500, img: 'https://img.icons8.com/3d-fluency/94/money-bag.png', weight: 70 },
+            { id: 10, name: 'Lollipop', price: 450, img: 'https://img.icons8.com/3d-fluency/94/lollipop.png', weight: 100 },
+            { id: 11, name: 'Frog Plush', price: 180, img: 'https://img.icons8.com/3d-fluency/94/frog.png', weight: 150 },
+            { id: 12, name: 'Love Locket', price: 150, img: 'https://img.icons8.com/3d-fluency/94/necklace.png', weight: 200 },
+            { id: 13, name: 'Peach', price: 100, img: 'https://img.icons8.com/3d-fluency/94/peach.png', weight: 300 },
+            { id: 14, name: 'Blue Cap', price: 50, img: 'https://img.icons8.com/3d-fluency/94/baseball-cap.png', weight: 400 }
         ];
 
-        // --- ЛОГИКА ИНТЕРФЕЙСА ---
-
-        function updateBal() {
+        // === СИСТЕМА ===
+        function updateUI() {
             document.getElementById('bal-top').innerText = balance.toLocaleString();
-            localStorage.setItem('stars_v4', balance);
+            localStorage.setItem('balance_v5', balance);
+            localStorage.setItem('inventory_v5', JSON.stringify(inventory));
         }
-        updateBal();
+        updateUI();
 
         function addBal() {
-            // Тестовая функция для пополнения
-            balance += 1000;
-            updateBal();
+            balance += 1000; 
+            updateUI(); 
             tg.HapticFeedback.notificationOccurred('success');
         }
 
-        // Переключение экранов
+        // Навигация
         function goToScreen(name) {
-            closeMenu();
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById('scr-' + name).classList.add('active');
-            if(document.getElementById('n-' + name)) document.getElementById('n-' + name).classList.add('active');
             
-            // Если уходим с экрана игры, сбрасываем состояние
+            // Меню
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            if(name === 'cases' || name === 'game') document.getElementById('n-cases').classList.add('active');
+            if(name === 'profile' || name === 'inventory') document.getElementById('n-profile').classList.add('active');
+
+            // Сброс игры
             if(name !== 'game') {
                 document.getElementById('roulette-box').style.display = 'none';
                 document.getElementById('static-case-img').style.display = 'block';
             }
+
+            // Загрузка инвентаря
+            if(name === 'inventory') renderInventory();
         }
 
-        function openMenu() {
-            document.getElementById('menu-side').classList.add('active');
-            document.getElementById('menu-overlay').classList.add('active');
-            tg.HapticFeedback.impactOccurred('light');
-        }
-        function closeMenu() {
-            document.getElementById('menu-side').classList.remove('active');
-            document.getElementById('menu-overlay').classList.remove('active');
-        }
-
-        // --- ЛОГИКА КЕЙСОВ И РУЛЕТКИ ---
-
-        function openCaseDetail(type) {
+        // === ИГРА ===
+        function openCaseGame() {
             goToScreen('game');
-            // Отрисовка "Что в кейсе"
-            const grid = document.getElementById('items-grid');
+            const grid = document.getElementById('case-contents');
             grid.innerHTML = '';
-            // Сортируем: дорогие сверху
-            const sorted = [...caseItems].sort((a,b) => b.price - a.price);
-            
+            // Сортировка: дорогие первыми
+            const sorted = [...itemsDB].sort((a,b) => b.price - a.price);
             sorted.forEach(item => {
-                const el = document.createElement('div');
-                el.className = 'item-preview';
-                // Подсветка редких предметов
-                let glow = '';
-                if(item.price > 2000) glow = 'box-shadow: 0 0 10px rgba(66, 165, 245, 0.3); border-color: #42a5f5;';
-                if(item.price > 4000) glow = 'box-shadow: 0 0 10px rgba(255, 202, 40, 0.3); border-color: #ffca28;';
-                
-                el.style.cssText = glow;
-                el.innerHTML = `
+                const div = document.createElement('div');
+                div.className = 'item-box';
+                // Подсветка редких
+                if(item.price > 2000) div.style.borderColor = item.price > 4000 ? '#ffcd00' : '#246bfd';
+                div.innerHTML = `
                     <img src="${item.img}">
-                    <div class="i-name">${item.name}</div>
-                    <div class="i-val"><div class="gold-star"></div> ${item.price}</div>
+                    <div class="item-name">${item.name}</div>
+                    <div class="item-price">${item.price}</div>
                 `;
-                grid.appendChild(el);
+                grid.appendChild(div);
             });
         }
 
-        // ВЫБОР ПОБЕДИТЕЛЯ ПО ВЕСАМ
+        let isSpinning = false;
+        let currentWinItem = null;
+
         function getRandomItem() {
-            let totalWeight = caseItems.reduce((sum, item) => sum + item.weight, 0);
-            let random = Math.random() * totalWeight;
-            for (let item of caseItems) {
-                if (random < item.weight) return item;
-                random -= item.weight;
+            let total = itemsDB.reduce((acc, i) => acc + i.weight, 0);
+            let rand = Math.random() * total;
+            for(let i of itemsDB) {
+                if(rand < i.weight) return i;
+                rand -= i.weight;
             }
-            return caseItems[caseItems.length - 1];
+            return itemsDB[itemsDB.length-1];
         }
 
-        let isSpinning = false;
-
         function playRoulette() {
-            if(isSpinning) return;
-            const cost = 250;
-            
-            if(balance < cost) {
-                tg.showAlert("Недостаточно Stars! Нажмите на баланс.");
-                tg.HapticFeedback.notificationOccurred('error');
+            if(isSpinning || balance < 250) {
+                if(balance < 250) tg.showAlert("Не хватает Stars!");
                 return;
             }
-
-            // Списываем баланс
-            balance -= cost;
-            updateBal();
+            
+            balance -= 250;
+            updateUI();
             isSpinning = true;
             document.getElementById('btn-spin').disabled = true;
-            document.getElementById('btn-spin').innerText = "ОТКРЫТИЕ...";
-
+            
             // Подготовка UI
-            const staticImg = document.getElementById('static-case-img');
-            const rouletteBox = document.getElementById('roulette-box');
+            document.getElementById('static-case-img').style.display = 'none';
+            const box = document.getElementById('roulette-box');
+            box.style.display = 'block';
             const track = document.getElementById('track');
-
-            staticImg.style.display = 'none';
-            rouletteBox.style.display = 'block';
-
-            // ГЕНЕРАЦИЯ ЛЕНТЫ
-            // Нам нужно много предметов, победитель будет примерно на 30-й позиции
+            
+            // Генерация ленты
             track.innerHTML = '';
             track.style.transition = 'none';
-            track.style.transform = 'translateX(0px)';
-
-            const winItem = getRandomItem(); // Заранее знаем кто выиграл
-            const cardWidth = 98; // 90px + 8px margin
-            const winIndex = 35; // Индекс победителя в ленте (чтобы долго крутилось)
+            track.style.transform = 'translateX(0)';
             
-            // Строим ленту
-            for(let i = 0; i < 50; i++) {
-                let item;
-                if(i === winIndex) {
-                    item = winItem;
-                } else {
-                    // Заполняем случайными (чаще дешевыми) для визуала
-                    item = caseItems[Math.floor(Math.random() * caseItems.length)];
-                }
-                
-                const card = document.createElement('div');
-                card.className = 'roulette-card';
-                // Подсветка в ленте
-                if(item.price > 2000) card.style.border = "1px solid #42a5f5";
-                if(item.price > 4000) card.style.border = "1px solid #ffca28";
-                
-                card.innerHTML = `<img src="${item.img}">`;
-                track.appendChild(card);
+            const winItem = getRandomItem();
+            currentWinItem = winItem;
+            const winIndex = 30; // Позиция выигрыша
+            
+            for(let i=0; i<45; i++) {
+                let item = (i === winIndex) ? winItem : itemsDB[Math.floor(Math.random()*itemsDB.length)];
+                let div = document.createElement('div');
+                div.className = 'roulette-card';
+                if(item.rare) div.style.border = '1px solid ' + (item.price > 4000 ? '#ffcd00' : '#246bfd');
+                div.innerHTML = `<img src="${item.img}">`;
+                track.appendChild(div);
             }
 
-            // ЗАПУСК АНИМАЦИИ
-            // Центр экрана (половина ширины контейнера) - половина карточки
-            const containerCenter = rouletteBox.offsetWidth / 2;
-            const cardCenter = cardWidth / 2;
-            // Смещение: (WinIndex * Width) - (ContainerCenter - CardCenter)
-            const finalPos = (winIndex * cardWidth) - (containerCenter - cardCenter);
-
-            // Небольшой рандом внутри карточки, чтобы не всегда ровно по центру останавливалось
-            const randomOffset = Math.floor(Math.random() * 20) - 10; 
-
+            // Вычисляем смещение
+            // box width = 100vw - 40px (approx), let's say center is relative
+            // card width 90 + 8 margin = 98px
+            // Center of winner needs to align with center of box
+            const cardWidth = 98;
+            const boxCenter = box.offsetWidth / 2;
+            const itemCenter = cardWidth / 2;
+            const scrollPos = (winIndex * cardWidth) - boxCenter + itemCenter;
+            
+            // Старт с задержкой для рендера
             setTimeout(() => {
-                track.style.transition = 'transform 4s cubic-bezier(0.15, 0, 0.10, 1)'; // Эффект замедления
-                track.style.transform = `translateX(-${finalPos + randomOffset}px)`;
-                
-                // Вибрация в начале
+                track.style.transition = 'transform 4.5s cubic-bezier(0.1, 0, 0.1, 1)';
+                // Добавляем рандомное смещение внутри карточки +- 20px
+                const randOffset = Math.floor(Math.random() * 30) - 15;
+                track.style.transform = `translateX(-${scrollPos + randOffset}px)`;
                 tg.HapticFeedback.impactOccurred('medium');
             }, 50);
 
-            // ОКОНЧАНИЕ
             setTimeout(() => {
-                tg.HapticFeedback.notificationOccurred('success');
-                showReward(winItem);
+                showRewardModal(winItem);
                 isSpinning = false;
                 document.getElementById('btn-spin').disabled = false;
-                document.getElementById('btn-spin').innerHTML = 'ОТКРЫТЬ ЕЩЕ <div class="gold-star"></div> 250';
-            }, 4100); // 4s анимация + 100ms запас
+            }, 4600);
         }
 
-        function showReward(item) {
-            const modal = document.getElementById('reward-modal');
+        // === МОДАЛКА ВЫИГРЫША ===
+        function showRewardModal(item) {
+            tg.HapticFeedback.notificationOccurred('success');
+            const m = document.getElementById('reward-modal');
             document.getElementById('rew-img').src = item.img;
             document.getElementById('rew-name').innerText = item.name;
             document.getElementById('rew-price').innerText = item.price;
-            
-            modal.classList.add('active');
-            
-            // Зачисляем выигрыш (если это не предмет инвентаря, а сразу валюта. 
-            // Обычно в таких играх предмет падает в инвентарь, но тут для примера сразу продадим)
-            // balance += item.price; // Раскомментируй, если хочешь сразу возвращать деньги
-            // updateBal();
+            document.getElementById('btn-sell-price').innerText = item.price;
+            m.classList.add('active');
         }
 
-        function closeReward() {
-            document.getElementById('reward-modal').classList.remove('active');
-            // Возвращаем вид
-            // document.getElementById('roulette-box').style.display = 'none';
-            // document.getElementById('static-case-img').style.display = 'block';
+        function finishReward(action) {
+            const m = document.getElementById('reward-modal');
+            m.classList.remove('active');
+            
+            if(action === 'sell') {
+                balance += currentWinItem.price;
+                tg.showAlert(`Продано за ${currentWinItem.price} Stars`);
+            } else {
+                inventory.push(currentWinItem);
+                // Показываем уведомление
+                tg.showAlert("Предмет добавлен в инвентарь");
+            }
+            updateUI();
         }
 
-        // Данные юзера из Телеграм
-        const u = tg.initDataUnsafe?.user;
-        if(u) {
-            document.getElementById('p-name').innerText = u.first_name;
-            if(u.photo_url) {
-                document.getElementById('p-img').style.backgroundImage = `url(${u.photo_url})`;
+        // === ИНВЕНТАРЬ ===
+        function renderInventory() {
+            const grid = document.getElementById('inv-grid');
+            grid.innerHTML = '';
+            
+            if(inventory.length === 0) {
+                document.getElementById('inv-empty').style.display = 'block';
+                return;
+            }
+            document.getElementById('inv-empty').style.display = 'none';
+
+            // Рисуем в обратном порядке (новые сверху)
+            [...inventory].reverse().forEach((item, index) => {
+                // Находим реальный индекс в исходном массиве для удаления
+                const realIndex = inventory.length - 1 - index;
+                
+                const div = document.createElement('div');
+                div.className = 'item-box inv-item';
+                div.onclick = () => sellFromInventory(realIndex, item);
+                div.innerHTML = `
+                    <img src="${item.img}">
+                    <div class="item-name">${item.name}</div>
+                    <div class="sell-hint">ПРОДАТЬ: ${item.price}</div>
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        function sellFromInventory(index, item) {
+            if(confirm(`Продать ${item.name} за ${item.price} Stars?`)) {
+                inventory.splice(index, 1);
+                balance += item.price;
+                updateUI();
+                renderInventory();
+                tg.HapticFeedback.selectionChanged();
             }
         }
+
+        // === ИНИЦИАЛИЗАЦИЯ USER ===
+        const u = tg.initDataUnsafe?.user;
+        if(u) {
+            document.getElementById('p-name').innerText = u.first_name + (u.last_name ? ' ' + u.last_name : '');
+            document.getElementById('p-id').innerText = "ID: " + u.id;
+            if(u.photo_url) document.getElementById('p-img').style.backgroundImage = `url(${u.photo_url})`;
+        } else {
+            // Фейк данные если не в ТГ
+            document.getElementById('p-id').innerText = "ID: 12345678";
+        }
+
     </script>
 </body>
 </html>
