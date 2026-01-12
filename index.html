@@ -3,629 +3,599 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gifts Battle Ultimate - BullDrop Edition</title>
+    <title>Gifts Battle LUXURY VIP Edition</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     
     <style>
-        /* =========================================
-           БАЗОВЫЕ ПЕРЕМЕННЫЕ И ЦВЕТА
-           ========================================= */
+        /* ==========================================================================
+           1. ПЕРЕМЕННЫЕ И ОСНОВНЫЕ ЦВЕТА (LUXURY PALETTE)
+           ========================================================================== */
         :root {
-            --bg-color: #0b0d17;
-            --card-bg: rgba(26, 28, 46, 0.95);
-            --accent-blue: #246bfd;
-            --btn-green: #2ecc71;
-            --star-gold: #ffcd00;
-            --text-main: #ffffff;
-            --text-gray: #8e8e93;
-            --transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+            --luxury-gold: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            --luxury-bg: #05070a;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
             
-            /* Цветовая палитра BullDrop рулетки */
-            --bull-grey: #2d3446;
-            --bull-green: #10b981;
-            --bull-red: #ef4444;
-            --bull-gold: #f59e0b;
+            --common: #b2bec3;
+            --rare: #00cec9;
+            --epic: #a29bfe;
+            --legendary: #fdcb6e;
+            --mythic: #ff7675;
+            
+            --accent-blue: #3d5afe;
+            --danger: #ff4757;
+            --success: #2ed573;
+            
+            --font-main: 'Inter', -apple-system, sans-serif;
         }
 
-        /* =========================================
-           ОБЩИЕ СТИЛИ СТРАНИЦЫ
-           ========================================= */
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0; 
-            padding: 0; 
-            overflow: hidden;
+        /* ==========================================================================
+           2. ГЛОБАЛЬНЫЕ СТИЛИ
+           ========================================================================== */
+        * {
+            box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--luxury-bg);
+            color: #fff;
+            font-family: var(--font-main);
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
             user-select: none;
-            -webkit-user-select: none;
         }
 
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* Кастомный скроллбар */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+        /* ==========================================================================
+           3. АНИМАЦИИ (PULSE, SHAKE, GLOW)
+           ========================================================================== */
+        @keyframes luxuryPulse {
+            0% { box-shadow: 0 0 0 0 rgba(189, 149, 63, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(189, 149, 63, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(189, 149, 63, 0); }
         }
 
-        /* Шапка приложения */
-        .top-nav {
-            display: flex; 
-            align-items: center; 
+        @keyframes bgGlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .pulse-gold { animation: luxuryPulse 2s infinite; }
+
+        /* ==========================================================================
+           4. ШАПКА (PREMIUM HEADER)
+           ========================================================================== */
+        .luxury-header {
+            display: flex;
             justify-content: space-between;
-            padding: 15px 20px; 
-            background: rgba(11, 13, 23, 0.9);
-            backdrop-filter: blur(20px); 
-            z-index: 100; 
+            align-items: center;
+            padding: 20px;
+            background: rgba(5, 7, 10, 0.8);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--glass-border);
             position: sticky;
             top: 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        
-        .balance-badge {
-            background: rgba(36, 107, 253, 0.15); 
-            padding: 8px 16px; 
-            border-radius: 20px;
-            display: flex; 
-            align-items: center; 
-            gap: 8px; 
-            border: 1px solid rgba(36, 107, 253, 0.3);
-            cursor: pointer; 
-            transition: var(--transition); 
-            font-weight: 800; 
-            font-size: 14px;
+            z-index: 1000;
         }
 
-        .gold-star {
-            display: inline-block; 
-            width: 18px; 
-            height: 18px;
-            background: url('https://img.icons8.com/emoji/48/star-emoji.png') no-repeat center;
-            background-size: contain;
+        .brand-logo {
+            font-size: 20px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: var(--luxury-gold);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        /* Контейнер для экранов */
-        .main-container { 
-            height: calc(100vh - 135px); 
-            overflow-y: auto; 
-            scroll-behavior: smooth; 
-            padding-bottom: 40px; 
-        }
-
-        .screen { 
-            display: none; 
-            padding: 15px; 
-            animation: fadeUp 0.4s ease-out; 
-        }
-
-        .screen.active { 
-            display: block; 
-        }
-
-        /* =========================================
-           СТИЛИ BULLDROP (DOUBLE WHEEL)
-           ========================================= */
-        .bull-container {
-            background: var(--card-bg); 
-            border-radius: 28px; 
-            padding: 25px 0;
-            margin-bottom: 20px; 
-            border: 1px solid rgba(255,255,255,0.05); 
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-
-        .roulette-viewport {
-            width: 100%; 
-            height: 100px; 
-            position: relative;
-            background: #090a13; 
-            margin: 20px 0; 
-            overflow: hidden;
-            border-top: 1px solid rgba(255,255,255,0.03); 
-            border-bottom: 1px solid rgba(255,255,255,0.03);
-        }
-
-        .center-pointer {
-            position: absolute; 
-            left: 50%; 
-            top: 0; 
-            bottom: 0; 
-            width: 4px;
-            background: #ffffff; 
-            transform: translateX(-50%); 
-            z-index: 20;
-            box-shadow: 0 0 20px rgba(255,255,255,0.5);
-        }
-
-        .center-pointer::before {
-            content: '';
-            position: absolute;
-            top: -5px; left: -3px;
-            border-left: 5px solid transparent;
-            border-right: 5px solid transparent;
-            border-top: 10px solid #fff;
-        }
-
-        .tape-track { 
-            display: flex; 
-            position: absolute; 
-            left: 0; 
-            height: 100%; 
-            align-items: center; 
-            will-change: transform; 
-        }
-
-        .tape-item {
-            min-width: 80px; 
-            height: 80px; 
-            margin: 0 5px; 
-            border-radius: 16px;
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            font-size: 20px; 
-            font-weight: 900; 
-            color: #ffffff; 
-            position: relative;
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.2);
-        }
-
-        /* Категории множителей */
-        .tape-item.x2 { background: var(--bull-grey); }
-        .tape-item.x3 { background: var(--bull-green); }
-        .tape-item.x5 { background: var(--bull-red); }
-        .tape-item.x50 { 
-            background: var(--bull-gold); 
-            color: #000;
-            box-shadow: 0 0 15px var(--bull-gold);
-        }
-
-        /* Выбор ставок */
-        .bet-grid { 
-            display: grid; 
-            grid-template-columns: repeat(4, 1fr); 
-            gap: 10px; 
-            padding: 0 20px; 
-        }
-
-        .bet-option {
-            background: #1c1f2e; 
-            padding: 15px 5px; 
-            border-radius: 18px; 
-            text-align: center;
-            border: 2px solid transparent; 
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-
-        .bet-option.active { 
-            border-color: var(--accent-blue); 
-            background: rgba(36, 107, 253, 0.1);
-            transform: scale(1.05);
-        }
-
-        .bet-option b { display: block; font-size: 18px; margin-bottom: 2px; }
-        .bet-option span { font-size: 9px; opacity: 0.7; font-weight: 800; text-transform: uppercase; }
-
-        /* Поле ввода суммы */
-        .bet-input-area { padding: 20px; }
-        
-        .input-box {
-            display: flex; 
-            background: #090a13; 
-            border-radius: 16px; 
-            padding: 12px;
-            border: 1px solid rgba(255,255,255,0.1); 
+        .wallet-container {
+            display: flex;
             align-items: center;
             gap: 10px;
+            background: var(--glass-bg);
+            padding: 8px 16px;
+            border-radius: 50px;
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
         }
 
-        .input-box input {
-            flex: 1; 
-            background: transparent; 
-            border: none; 
-            color: #ffffff; 
-            font-size: 20px;
-            font-weight: 800; 
-            outline: none;
+        .wallet-container:active { transform: scale(0.95); }
+
+        /* ==========================================================================
+           5. ГЛАВНЫЙ КОНТЕЙНЕР
+           ========================================================================== */
+        .main-view {
+            height: calc(100vh - 150px);
+            overflow-y: auto;
+            padding: 15px;
+            padding-bottom: 100px;
         }
 
-        .btn-small { 
-            background: #2d3446; 
-            border: none; 
-            color: #ffffff; 
-            padding: 8px 12px; 
-            border-radius: 8px; 
-            font-weight: 700;
-            font-size: 12px;
-            transition: 0.2s;
+        .screen { display: none; opacity: 0; transform: translateY(20px); transition: all 0.4s ease; }
+        .screen.active { display: block; opacity: 1; transform: translateY(0); }
+
+        /* ==========================================================================
+           6. МОДУЛЬ: BULLDROP DOUBLE
+           ========================================================================== */
+        .game-card {
+            background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
+            border-radius: 30px;
+            border: 1px solid var(--glass-border);
+            padding: 25px 0;
+            margin-bottom: 20px;
+            position: relative;
         }
 
-        .btn-small:active { transform: scale(0.9); }
-
-        .main-btn {
-            width: 100%; 
-            padding: 20px; 
-            border-radius: 18px; 
-            border: none;
-            background: linear-gradient(135deg, #246bfd 0%, #1a50c4 100%);
-            color: #ffffff; 
-            font-weight: 900; 
-            font-size: 18px; 
-            margin-top: 20px;
-            box-shadow: 0 8px 25px rgba(36, 107, 253, 0.4);
-            transition: var(--transition);
+        .roulette-wrapper {
+            width: 100%;
+            height: 110px;
+            background: #000;
+            margin: 20px 0;
+            overflow: hidden;
+            position: relative;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
 
-        .main-btn:disabled { opacity: 0.5; filter: grayscale(1); }
-
-        /* =========================================
-           ПРОФИЛЬ И ИНВЕНТАРЬ
-           ========================================= */
-        .profile-header { text-align: center; margin-bottom: 35px; margin-top: 20px; }
-        
-        .big-avatar { 
-            width: 110px; 
-            height: 110px; 
-            border-radius: 50%; 
-            border: 4px solid var(--accent-blue); 
-            margin: 0 auto 15px; 
-            background-size: cover; 
-            background-position: center;
-            box-shadow: 0 0 30px rgba(36, 107, 253, 0.3);
+        .pointer {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: gold;
+            z-index: 50;
+            transform: translateX(-50%);
+            box-shadow: 0 0 20px gold;
         }
 
-        .menu-row {
-            background: var(--card-bg); 
-            padding: 20px; 
-            border-radius: 20px; 
-            margin-bottom: 12px; 
-            display: flex; 
-            justify-content: space-between; 
+        .track {
+            display: flex;
+            position: absolute;
+            left: 0;
+            height: 100%;
             align-items: center;
-            border: 1px solid rgba(255,255,255,0.05); 
-            transition: var(--transition);
+            will-change: transform;
         }
 
-        .menu-row:active { transform: scale(0.98); background: rgba(255,255,255,0.05); }
-        
-        .items-grid { 
-            display: grid; 
-            grid-template-columns: repeat(3, 1fr); 
-            gap: 12px; 
+        .cell {
+            min-width: 80px;
+            height: 80px;
+            margin: 0 6px;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 22px;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
-        .item-box { 
-            background: rgba(255,255,255,0.03); 
-            border-radius: 18px; 
-            padding: 15px 5px; 
-            text-align: center; 
-            border: 1px solid rgba(255,255,255,0.05); 
-        }
-
-        .item-box img { width: 60px; height: 60px; object-fit: contain; }
-
-        /* Нижняя навигация */
-        .bottom-nav { 
-            position: fixed; 
-            bottom: 0; 
-            width: 100%; 
-            background: #16192c; 
-            display: flex; 
-            justify-content: space-around; 
-            padding: 15px 0; 
-            border-top: 1px solid rgba(255,255,255,0.05); 
-            z-index: 1000; 
-            padding-bottom: calc(15px + env(safe-area-inset-bottom));
-        }
-
-        .nav-item { 
-            text-align: center; 
-            font-size: 11px; 
-            color: var(--text-gray); 
-            opacity: 0.6; 
+        /* ==========================================================================
+           7. ИНВЕНТАРЬ И ПРЕДМЕТЫ
+           ========================================================================== */
+        .item-card {
+            background: var(--glass-bg);
+            border-radius: 24px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid var(--glass-border);
+            position: relative;
+            overflow: hidden;
             transition: 0.3s;
         }
 
-        .nav-item.active { color: var(--accent-blue); opacity: 1; }
-        .nav-item i { font-size: 24px; display: block; margin-bottom: 5px; }
-
-        /* История последних игр */
-        .history-dot {
-            width: 12px; height: 12px; border-radius: 50%;
+        .item-card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 5px;
         }
+
+        .item-card.common::after { background: var(--common); }
+        .item-card.rare::after { background: var(--rare); box-shadow: 0 0 15px var(--rare); }
+        .item-card.epic::after { background: var(--epic); box-shadow: 0 0 15px var(--epic); }
+        .item-card.legendary::after { background: var(--legendary); box-shadow: 0 0 15px var(--legendary); }
+
+        /* ==========================================================================
+           8. ПРОМОКОДЫ (VOUCHERS)
+           ========================================================================== */
+        .promo-input-group {
+            display: flex;
+            gap: 10px;
+            background: var(--glass-bg);
+            padding: 10px;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .promo-input-group input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #fff;
+            padding-left: 10px;
+            font-weight: 700;
+            outline: none;
+        }
+
+        /* ==========================================================================
+           9. НИЖНЯЯ ПАНЕЛЬ (TAB BAR)
+           ========================================================================== */
+        .tab-bar {
+            position: fixed;
+            bottom: 25px;
+            left: 20px;
+            right: 20px;
+            background: rgba(15, 15, 15, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            height: 70px;
+            border-radius: 25px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .tab-item {
+            color: #666;
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        .tab-item.active {
+            color: #fff;
+            transform: translateY(-5px);
+        }
+
+        .tab-item i { font-size: 24px; display: block; }
+        .tab-item span { font-size: 10px; font-weight: 700; }
     </style>
 </head>
 <body>
 
-    <div class="top-nav">
-        <div style="font-weight: 900; font-size: 20px; letter-spacing: 1px;">
-            GIFTS <span style="color:var(--accent-blue)">BATTLE</span>
+    <header class="luxury-header">
+        <div class="brand-logo">LUXURY BATTLE</div>
+        <div class="wallet-container pulse-gold" onclick="hapticSoft()">
+            <img src="https://img.icons8.com/emoji/48/star-emoji.png" width="20">
+            <span id="balance-val" style="font-weight: 900;">10,000</span>
         </div>
-        <div class="balance-badge" onclick="addBal()">
-            <div class="gold-star"></div>
-            <span id="bal-top">0</span>
-        </div>
-    </div>
+    </header>
 
-    <div class="main-container">
+    <main class="main-view">
         
-        <div id="scr-cases" class="screen active">
-            <h2 style="margin: 10px 0 20px; font-size: 24px;">Кормилец (Double)</h2>
-            
-            <div class="bull-container">
-                <div class="roulette-viewport">
-                    <div class="center-pointer"></div>
-                    <div class="tape-track" id="tape"></div>
+        <div id="scr-games" class="screen active">
+            <div style="margin-bottom: 20px;">
+                <h1 style="margin:0; font-size: 28px;">The Double</h1>
+                <p style="color: var(--text-gray); font-size: 13px; margin: 5px 0;">Испытай удачу в Luxury сегменте</p>
+            </div>
+
+            <div class="game-card">
+                <div class="roulette-wrapper">
+                    <div class="pointer"></div>
+                    <div id="roulette-track" class="track"></div>
                 </div>
 
-                <div class="bet-grid">
-                    <div class="bet-option" onclick="setMult(2, this)" style="color:var(--bull-grey)">
-                        <b>2x</b><span>Gray</span>
-                    </div>
-                    <div class="bet-option" onclick="setMult(3, this)" style="color:var(--bull-green)">
-                        <b>3x</b><span>Green</span>
-                    </div>
-                    <div class="bet-option" onclick="setMult(5, this)" style="color:var(--bull-red)">
-                        <b>5x</b><span>Red</span>
-                    </div>
-                    <div class="bet-option" onclick="setMult(50, this)" style="color:var(--bull-gold)">
-                        <b>50x</b><span>Gold</span>
-                    </div>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 0 15px;">
+                    <button class="bet-btn" onclick="selectColor(2, this)" style="background: #2d3436; border-radius: 15px; border: 2px solid transparent; padding: 15px 0; color: #fff;">
+                        <b>2x</b><br><small>GRAY</small>
+                    </button>
+                    <button class="bet-btn" onclick="selectColor(3, this)" style="background: var(--success); border-radius: 15px; border: 2px solid transparent; padding: 15px 0; color: #fff;">
+                        <b>3x</b><br><small>GREEN</small>
+                    </button>
+                    <button class="bet-btn" onclick="selectColor(5, this)" style="background: var(--danger); border-radius: 15px; border: 2px solid transparent; padding: 15px 0; color: #fff;">
+                        <b>5x</b><br><small>RED</small>
+                    </button>
+                    <button class="bet-btn" onclick="selectColor(50, this)" style="background: var(--luxury-gold); border-radius: 15px; border: 2px solid transparent; padding: 15px 0; color: #000;">
+                        <b>50x</b><br><small>GOLD</small>
+                    </button>
                 </div>
 
-                <div class="bet-input-area">
-                    <div class="input-box">
-                        <i class="fas fa-coins" style="color:var(--star-gold)"></i>
-                        <input type="number" id="bet-val" value="100" min="10">
-                        <button class="btn-small" onclick="modBet(0.5)">1/2</button>
-                        <button class="btn-small" onclick="modBet(2)">x2</button>
+                <div style="padding: 20px;">
+                    <div class="promo-input-group">
+                        <i class="fas fa-coins" style="margin: auto 0; color: gold;"></i>
+                        <input type="number" id="bet-input" value="100" placeholder="Ставка...">
+                        <button onclick="setBet('max')" style="background: none; border: none; color: gold; font-weight: 800;">MAX</button>
                     </div>
-                    <button class="main-btn" id="spin-btn" onclick="playBull()">ПОСТАВИТЬ СТАВКУ</button>
+                    <button id="spin-btn" class="main-btn pulse-gold" onclick="startLuxurySpin()" style="width: 100%; margin-top: 15px; padding: 20px; border-radius: 20px; border: none; background: #fff; color: #000; font-weight: 900; font-size: 18px;">
+                        ЗАКРУТИТЬ БАРАБАН
+                    </button>
                 </div>
             </div>
 
-            <div style="margin: 30px 0 12px; font-size: 14px; font-weight: 800; color:var(--text-gray); letter-spacing: 1px;">
-                ПОСЛЕДНИЕ РЕЗУЛЬТАТЫ:
-            </div>
-            <div id="history-dots" style="display:flex; gap:8px; flex-wrap: wrap;">
+            <div id="history-line" style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px;"></div>
+        </div>
+
+        <div id="scr-cases" class="screen">
+            <h1 style="margin:0 0 20px;">Premium Cases</h1>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="item-card rare" onclick="openCase('tech')">
+                    <img src="https://img.icons8.com/3d-fluency/94/iphone-14-pro.png" width="60">
+                    <h3>Apple Case</h3>
+                    <p style="font-size: 12px; color: gold;">500 Stars</p>
                 </div>
+                <div class="item-card legendary" onclick="openCase('luxury')">
+                    <img src="https://img.icons8.com/3d-fluency/94/diamond.png" width="60">
+                    <h3>CEO Case</h3>
+                    <p style="font-size: 12px; color: gold;">2,500 Stars</p>
+                </div>
+            </div>
         </div>
 
         <div id="scr-profile" class="screen">
-            <div class="profile-header">
-                <div class="big-avatar" id="p-img" style="background-image: url('https://img.icons8.com/3d-fluency/188/user-male-circle.png');"></div>
-                <h2 id="p-name" style="margin: 0; font-size: 26px;">Player</h2>
-                <div style="font-size: 14px; color: var(--text-gray); margin-top: 8px;" id="p-id">ID: 00000000</div>
+            <div style="text-align: center; padding: 20px 0;">
+                <div id="user-avatar" class="pulse-gold" style="width: 100px; height: 100px; border-radius: 50%; margin: 0 auto; background-size: cover; border: 3px solid #fff;"></div>
+                <h2 id="user-name" style="margin: 15px 0 5px;">Player Name</h2>
+                <span style="color: var(--legendary); font-weight: 800;">LUXURY MEMBER</span>
             </div>
 
-            <div class="menu-row" onclick="goToScreen('inventory')">
-                <span style="font-weight: 800; font-size: 16px;">
-                    <i class="fas fa-box" style="color:var(--accent-blue); width:30px; font-size: 20px;"></i> Мой Инвентарь
-                </span>
-                <i class="fas fa-chevron-right" style="opacity: 0.3; font-size: 14px;"></i>
-            </div>
-
-            <div class="menu-row" onclick="tg.showAlert('Система промокодов временно на тех-обслуживании!')">
-                <span style="font-weight: 800; font-size: 16px;">
-                    <i class="fas fa-ticket-alt" style="color:var(--btn-green); width:30px; font-size: 20px;"></i> Промокоды
-                </span>
-                <i class="fas fa-chevron-right" style="opacity: 0.3; font-size: 14px;"></i>
-            </div>
-
-            <div class="menu-row" onclick="tg.openLink('https://t.me/your_channel')">
-                <span style="font-weight: 800; font-size: 16px;">
-                    <i class="fas fa-headset" style="color:#ff4757; width:30px; font-size: 20px;"></i> Поддержка
-                </span>
-                <i class="fas fa-external-link-alt" style="opacity: 0.3; font-size: 14px;"></i>
-            </div>
-        </div>
-
-        <div id="scr-inventory" class="screen">
-            <div style="display:flex; align-items:center; gap:15px; margin-bottom:25px;">
-                <div onclick="goToScreen('profile')" style="width:40px; height:40px; background:rgba(255,255,255,0.05); border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;">
-                    <i class="fas fa-arrow-left"></i>
+            <div style="margin-top: 20px;">
+                <label style="font-size: 12px; color: #666; margin-left: 10px;">АКТИВАЦИЯ ВАУЧЕРА</label>
+                <div class="promo-input-group" style="margin-top: 5px;">
+                    <input type="text" id="promo-code" placeholder="Введите промокод...">
+                    <button onclick="activatePromo()" style="background: var(--luxury-gold); border: none; padding: 0 20px; border-radius: 12px; font-weight: 900;">OK</button>
                 </div>
-                <h3 style="margin:0; font-size: 22px;">Ваши предметы</h3>
             </div>
-            <div class="items-grid" id="inv-grid">
+
+            <h3 style="margin-top: 30px;">Инвентарь</h3>
+            <div id="inventory-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
                 </div>
         </div>
 
-    </div>
+    </main>
 
-    <div class="bottom-nav">
-        <div class="nav-item active" id="n-cases" onclick="goToScreen('cases')">
-            <i class="fas fa-gamepad"></i>Игры
+    <nav class="tab-bar">
+        <div class="tab-item active" onclick="switchTab('games', this)">
+            <i class="fas fa-gamepad"></i>
+            <span>ИГРЫ</span>
         </div>
-        <div class="nav-item" id="n-profile" onclick="goToScreen('profile')">
-            <i class="fas fa-user-circle"></i>Профиль
+        <div class="tab-item" onclick="switchTab('cases', this)">
+            <i class="fas fa-briefcase"></i>
+            <span>КЕЙСЫ</span>
         </div>
-    </div>
+        <div class="tab-item" onclick="switchTab('profile', this)">
+            <i class="fas fa-user-tie"></i>
+            <span>VIP</span>
+        </div>
+    </nav>
 
     <script>
+        /* ==========================================================================
+           10. ЛОГИКА И СКРИПТЫ (CORE ENGINE)
+           ========================================================================== */
         const tg = window.Telegram.WebApp;
         tg.expand();
-        tg.enableClosingConfirmation();
 
-        // Данные пользователя
-        let balance = parseInt(localStorage.getItem('bal_v6')) || 10000;
-        let inventory = JSON.parse(localStorage.getItem('inv_v6')) || [];
-        let selectedM = null;
-        let isSpinning = false;
+        // СОСТОЯНИЕ (STATE)
+        let state = {
+            balance: parseInt(localStorage.getItem('lux_bal')) || 15000,
+            inventory: JSON.parse(localStorage.getItem('lux_inv')) || [],
+            activeColor: null,
+            isSpinning: false,
+            usedPromos: JSON.parse(localStorage.getItem('lux_promos')) || []
+        };
 
-        // Паттерн ленты (числа множителей)
-        const tapePattern = [2, 3, 2, 5, 2, 3, 2, 5, 2, 3, 2, 50, 2, 5, 2, 3, 2, 5, 2, 3, 2, 3, 2, 5];
-        const tapeEl = document.getElementById('tape');
+        // БАЗА ДАННЫХ ПРЕДМЕТОВ
+        const ITEMS_DB = {
+            tech: [
+                { id: 1, name: 'AirPods 3', price: 150, rarity: 'rare', img: 'https://img.icons8.com/3d-fluency/94/airpods-pro.png' },
+                { id: 2, name: 'iPhone 15', price: 1200, rarity: 'epic', img: 'https://img.icons8.com/3d-fluency/94/iphone-14-pro.png' },
+                { id: 3, name: 'MacBook M3', price: 2500, rarity: 'legendary', img: 'https://img.icons8.com/3d-fluency/94/macbook.png' }
+            ],
+            luxury: [
+                { id: 4, name: 'Rolex Sub', price: 15000, rarity: 'mythic', img: 'https://img.icons8.com/3d-fluency/94/watch.png' },
+                { id: 5, name: 'Gold Bar', price: 5000, rarity: 'legendary', img: 'https://img.icons8.com/3d-fluency/94/ingot.png' }
+            ]
+        };
 
-        // Инициализация ленты рулетки
-        function initTape() {
-            tapeEl.innerHTML = '';
-            // Создаем длинную ленту (100 элементов для плавного скролла)
-            for(let i=0; i < 120; i++) {
-                const val = tapePattern[i % tapePattern.length];
-                const item = document.createElement('div');
-                item.className = `tape-item x${val}`;
-                item.innerText = val + 'x';
-                tapeEl.appendChild(item);
+        // ИНИЦИАЛИЗАЦИЯ ТРЕКА РУЛЕТКИ
+        const pattern = [2, 3, 2, 5, 2, 3, 2, 5, 2, 3, 2, 50, 2, 5, 2, 3, 2, 5, 2, 3];
+        function buildTrack() {
+            const track = document.getElementById('roulette-track');
+            track.innerHTML = '';
+            for(let i=0; i<100; i++) {
+                const val = pattern[i % pattern.length];
+                const div = document.createElement('div');
+                div.className = 'cell';
+                if(val === 2) div.style.background = '#2d3436';
+                if(val === 3) div.style.background = '#2ed573';
+                if(val === 5) div.style.background = '#ff4757';
+                if(val === 50) div.style.background = 'gold', div.style.color = '#000';
+                div.innerHTML = `<small style="font-size:10px; opacity:0.5">X</small>${val}`;
+                track.appendChild(div);
             }
         }
-        initTape();
+        buildTrack();
 
-        // Обновление интерфейса
-        function updateUI() {
-            document.getElementById('bal-top').innerText = balance.toLocaleString();
-            localStorage.setItem('bal_v6', balance);
-            localStorage.setItem('inv_v6', JSON.stringify(inventory));
-        }
-        updateUI();
-
-        // Навигация между экранами
-        function goToScreen(name) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById('scr-' + name).classList.add('active');
-            
-            // Смена активной иконки в меню
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            if(name === 'cases') document.getElementById('n-cases').classList.add('active');
-            if(name === 'profile') document.getElementById('n-profile').classList.add('active');
-            
-            // Если зашли в инвентарь - рендерим его
-            if(name === 'inventory') renderInventory();
-            
-            tg.HapticFeedback.impactOccurred('light');
+        // СИСТЕМА ОБНОВЛЕНИЯ UI
+        function syncUI() {
+            document.getElementById('balance-val').innerText = state.balance.toLocaleString();
+            localStorage.setItem('lux_bal', state.balance);
+            localStorage.setItem('lux_inv', JSON.stringify(state.inventory));
+            localStorage.setItem('lux_promos', JSON.stringify(state.usedPromos));
+            renderInventory();
         }
 
-        // Выбор множителя (ставки)
-        function setMult(m, el) {
-            if(isSpinning) return;
-            selectedM = m;
-            document.querySelectorAll('.bet-option').forEach(opt => opt.classList.remove('active'));
-            el.classList.add('active');
+        // КНОПКИ СТАВОК
+        function selectColor(mul, btn) {
+            if(state.isSpinning) return;
+            state.activeColor = mul;
+            document.querySelectorAll('.bet-btn').forEach(b => b.style.borderColor = 'transparent');
+            btn.style.borderColor = '#fff';
             tg.HapticFeedback.selectionChanged();
         }
 
-        // Кнопки 1/2 и x2
-        function modBet(factor) {
-            const input = document.getElementById('bet-val');
-            let current = parseInt(input.value);
-            input.value = Math.floor(current * factor);
-            if(input.value < 10) input.value = 10;
+        function setBet(type) {
+            const input = document.getElementById('bet-input');
+            if(type === 'max') input.value = state.balance;
+            hapticSoft();
         }
 
-        // ГЛАВНАЯ ФУНКЦИЯ ИГРЫ
-        function playBull() {
-            const betAmount = parseInt(document.getElementById('bet-val').value);
-
-            if(isSpinning) return;
-            if(!selectedM) {
-                tg.showAlert("Сначала выбери цвет (множитель)!");
-                return;
-            }
-            if(betAmount > balance || betAmount <= 0) {
-                tg.showAlert("Недостаточно Stars или неверная сумма!");
+        // ЛОГИКА СПИНА
+        function startLuxurySpin() {
+            const bet = parseInt(document.getElementById('bet-input').value);
+            if(state.isSpinning || !state.activeColor || bet > state.balance || bet <= 0) {
+                tg.showAlert("Проверьте ставку или цвет!");
                 return;
             }
 
-            // Списываем баланс
-            balance -= betAmount;
-            updateUI();
-            isSpinning = true;
-            document.getElementById('spin-btn').disabled = true;
+            state.isSpinning = true;
+            state.balance -= bet;
+            syncUI();
+            hapticHeavy();
 
-            // Генерируем победный индекс (далеко в конце ленты)
-            const winIdx = 85 + Math.floor(Math.random() * 20);
-            const winVal = tapePattern[winIdx % tapePattern.length];
+            const track = document.getElementById('roulette-track');
+            const winIdx = 70 + Math.floor(Math.random() * 20);
+            const winVal = pattern[winIdx % pattern.length];
             
-            const itemFullWidth = 90; // Ширина 80px + margin 5px + 5px
-            const viewportCenter = window.innerWidth / 2;
-            const finalTranslate = (winIdx * itemFullWidth) - viewportCenter + (itemFullWidth / 2);
+            const cellWidth = 92; // 80 + 12 margin
+            const offset = (winIdx * cellWidth) - (window.innerWidth / 2) + (cellWidth / 2);
 
-            // Запускаем анимацию
-            tapeEl.style.transition = 'transform 6s cubic-bezier(0.15, 0, 0.15, 1)';
-            tapeEl.style.transform = `translateX(-${finalTranslate}px)`;
+            track.style.transition = 'transform 7s cubic-bezier(0.15, 0, 0.05, 1)';
+            track.style.transform = `translateX(-${offset}px)`;
 
-            // Ждем завершения
+            // Звуковая имитация тиканья через вибрацию
+            let ticks = 0;
+            const tickInterval = setInterval(() => {
+                ticks++;
+                if(ticks < 50) tg.HapticFeedback.impactOccurred('light');
+                if(ticks > 60) clearInterval(tickInterval);
+            }, 100);
+
             setTimeout(() => {
-                isSpinning = false;
-                document.getElementById('spin-btn').disabled = false;
-
-                // Проверка выигрыша
-                if(winVal === selectedM) {
-                    const winTotal = betAmount * winVal;
-                    balance += winTotal;
-                    tg.showAlert(`🔥 ПОБЕДА! Вы получили ${winTotal} Stars!`);
+                state.isSpinning = false;
+                if(winVal === state.activeColor) {
+                    const winAmount = bet * winVal;
+                    state.balance += winAmount;
+                    tg.showPopup({ title: 'LUXURY WIN', message: `Вы выиграли ${winAmount} Stars!`, buttons: [{type:'ok'}] });
                     tg.HapticFeedback.notificationOccurred('success');
                 } else {
                     tg.HapticFeedback.notificationOccurred('error');
                 }
-
-                // Добавляем в историю
+                
                 addHistory(winVal);
-                updateUI();
+                syncUI();
 
-                // Сброс ленты через секунду
                 setTimeout(() => {
-                    tapeEl.style.transition = 'none';
-                    tapeEl.style.transform = 'translateX(0)';
-                    initTape();
-                }, 1500);
-
-            }, 6200);
+                    track.style.transition = 'none';
+                    track.style.transform = 'translateX(0)';
+                    buildTrack();
+                }, 1000);
+            }, 7500);
         }
 
-        // История игр
         function addHistory(val) {
-            const hist = document.getElementById('history-dots');
-            const dot = document.createElement('div');
-            dot.className = 'history-dot';
-            let color = '#2d3446';
-            if(val === 3) color = '#10b981';
-            if(val === 5) color = '#ef4444';
-            if(val === 50) color = '#f59e0b';
-            dot.style.background = color;
-            hist.prepend(dot);
-            if(hist.children.length > 15) hist.lastChild.remove();
+            const container = document.getElementById('history-line');
+            const item = document.createElement('div');
+            item.style.minWidth = '30px';
+            item.style.height = '30px';
+            item.style.borderRadius = '8px';
+            item.style.background = val === 2 ? '#2d3436' : (val === 3 ? '#2ed573' : (val === 5 ? '#ff4757' : 'gold'));
+            container.prepend(item);
         }
 
-        // Рендер инвентаря
-        function renderInventory() {
-            const grid = document.getElementById('inv-grid');
-            grid.innerHTML = '';
-            
-            if(inventory.length === 0) {
-                grid.innerHTML = '<div style="grid-column:1/4; text-align:center; opacity:0.3; padding-top:40px;">У вас пока нет предметов</div>';
+        // МОДУЛЬ КЕЙСОВ
+        function openCase(type) {
+            const cost = type === 'tech' ? 500 : 2500;
+            if(state.balance < cost) {
+                tg.showAlert("Недостаточно средств!");
                 return;
             }
 
-            inventory.forEach((item) => {
-                const box = document.createElement('div');
-                box.className = 'item-box';
-                box.innerHTML = `
-                    <img src="${item.img}">
-                    <div style="font-size:11px; font-weight:700; margin-top:5px;">${item.name}</div>
-                `;
-                grid.appendChild(box);
+            state.balance -= cost;
+            hapticHeavy();
+            
+            // Простая логика выпадения
+            const pool = ITEMS_DB[type];
+            const drop = pool[Math.floor(Math.random() * pool.length)];
+            
+            state.inventory.push(drop);
+            syncUI();
+            
+            tg.showPopup({
+                title: 'НОВЫЙ ПРЕДМЕТ',
+                message: `Вы выбили: ${drop.name}`,
+                buttons: [{type: 'ok'}]
             });
         }
 
-        function addBal() { 
-            balance += 1000; 
-            updateUI(); 
-            tg.HapticFeedback.impactOccurred('medium');
-        }
+        // МОДУЛЬ ПРОМОКОДОВ (РАБОЧИЕ)
+        function activatePromo() {
+            const code = document.getElementById('promo-code').value.toUpperCase();
+            
+            if(state.usedPromos.includes(code)) {
+                tg.showAlert("Вы уже использовали этот код!");
+                return;
+            }
 
-        // Загрузка данных ТГ
-        const user = tg.initDataUnsafe?.user;
-        if(user) {
-            document.getElementById('p-name').innerText = user.first_name || "User";
-            document.getElementById('p-id').innerText = "ID: " + (user.id || "Unknown");
-            if(user.photo_url) {
-                document.getElementById('p-img').style.backgroundImage = `url(${user.photo_url})`;
+            const rewards = {
+                "LUXURY": 5000,
+                "GIFT2024": 1000,
+                "TON": 2500,
+                "ADMIN": 100000
+            };
+
+            if(rewards[code]) {
+                state.balance += rewards[code];
+                state.usedPromos.push(code);
+                syncUI();
+                tg.showPopup({ title: 'УСПЕХ', message: `Начислено ${rewards[code]} Stars!`, buttons: [{type:'ok'}] });
+                tg.HapticFeedback.notificationOccurred('success');
+                document.getElementById('promo-code').value = '';
+            } else {
+                tg.showAlert("Неверный промокод!");
+                tg.HapticFeedback.notificationOccurred('error');
             }
         }
+
+        // РЕНДЕР ИНВЕНТАРЯ
+        function renderInventory() {
+            const grid = document.getElementById('inventory-grid');
+            grid.innerHTML = '';
+            state.inventory.forEach(item => {
+                const div = document.createElement('div');
+                div.className = `item-card ${item.rarity} animate__animated animate__fadeIn`;
+                div.innerHTML = `
+                    <img src="${item.img}" width="40">
+                    <p style="font-size:10px; margin:5px 0 0;">${item.name}</p>
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        // НАВИГАЦИЯ
+        function switchTab(id, el) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('scr-' + id).classList.add('active');
+            
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            hapticSoft();
+        }
+
+        // ХАПТИК (ВИБРАЦИЯ)
+        function hapticSoft() { tg.HapticFeedback.impactOccurred('medium'); }
+        function hapticHeavy() { tg.HapticFeedback.impactOccurred('heavy'); }
+
+        // ДАННЫЕ ЮЗЕРА
+        const user = tg.initDataUnsafe?.user;
+        if(user) {
+            document.getElementById('user-name').innerText = user.first_name;
+            if(user.photo_url) document.getElementById('user-avatar').style.backgroundImage = `url(${user.photo_url})`;
+        }
+
+        // Старт
+        syncUI();
     </script>
 </body>
 </html>
