@@ -3,522 +3,546 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gifts Battle Ultimate</title>
+    <title>Wheel Battle</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --bg-color: #0b0d17;
-            --card-bg: rgba(26, 28, 46, 0.95);
+            --card-bg: #1a1c26;
             --accent-blue: #246bfd;
-            --btn-green: #2ecc71;
-            --star-gold: #ffcd00;
             --text-main: #ffffff;
             --text-gray: #8e8e93;
-            --transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+            
+            /* Colors from video style */
+            --c-grey: #4b5069; /* 2x */
+            --c-red: #e54d42;  /* 3x */
+            --c-blue: #3d8aff; /* 5x */
+            --c-gold: #ffcd00; /* 50x */
         }
 
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
-            font-family: -apple-system, system-ui, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             margin: 0; padding: 0; 
             overflow: hidden;
             -webkit-tap-highlight-color: transparent;
             user-select: none;
         }
 
-        /* Анимации */
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-
-        /* ЭЛЕМЕНТЫ */
-        .gold-star {
-            display: inline-block; width: 18px; height: 18px;
-            background: url('https://img.icons8.com/emoji/48/star-emoji.png') no-repeat center;
-            background-size: contain; vertical-align: sub;
-            filter: drop-shadow(0 0 5px rgba(255, 205, 0, 0.5));
-        }
-
+        /* --- UI ELEMENTS --- */
         .top-nav {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 15px 20px; background: rgba(11, 13, 23, 0.9);
-            backdrop-filter: blur(20px); z-index: 100; position: relative;
+            padding: 15px 20px; background: rgba(11, 13, 23, 0.95);
+            z-index: 100; position: relative;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
         
         .balance-badge {
-            background: rgba(36, 107, 253, 0.15); padding: 6px 14px; border-radius: 20px;
-            display: flex; align-items: center; gap: 6px; border: 1px solid rgba(36, 107, 253, 0.3);
-            cursor: pointer; transition: var(--transition); font-weight: 700; font-size: 14px;
+            background: rgba(255, 255, 255, 0.1); padding: 6px 14px; border-radius: 20px;
+            display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
         }
-        .balance-badge:active { transform: scale(0.95); background: rgba(36, 107, 253, 0.25); }
 
-        /* ЭКРАНЫ */
-        .main-container { height: calc(100vh - 135px); overflow-y: auto; scroll-behavior: smooth; padding-bottom: 20px; }
+        .main-container { height: calc(100vh - 130px); overflow-y: auto; padding-bottom: 20px; }
         .screen { display: none; padding: 15px; animation: fadeUp 0.3s ease-out; }
         .screen.active { display: block; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* КЕЙСЫ */
-        .cases-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .case-card {
-            background: var(--card-bg); border-radius: 20px; padding: 15px 10px;
-            text-align: center; border: 1px solid rgba(255,255,255,0.05);
-            transition: var(--transition); position: relative;
+        /* --- WHEEL GAME STYLES --- */
+        .wheel-container {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            margin: 20px auto;
+            border-radius: 50%;
+            border: 4px solid #2a2d3e;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            background: #151720;
+            overflow: hidden;
         }
-        .case-card:active { transform: scale(0.96); }
-        .case-card img { width: 80%; border-radius: 12px; margin-bottom: 10px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3)); }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0; height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 25px solid #fff;
+            z-index: 20;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1); /* Custom easing for realistic spin */
+        }
+
+        .segment {
+            position: absolute;
+            top: 0; right: 0; bottom: 0; left: 0;
+            clip-path: polygon(100% 0, 50% 50%, 0 0); /* Triangle slice - simplified approximation for CSS */
+            transform-origin: 50% 50%;
+            display: flex; justify-content: center; padding-top: 25px;
+            font-weight: 900; font-size: 14px; color: white;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        }
+        /* Since pure CSS conic gradients don't allow content easily, we use a DOM approach with rotation */
+        .seg-wrapper {
+            position: absolute;
+            width: 100%; height: 100%;
+            transform-origin: center;
+        }
+        .seg-content {
+            position: absolute;
+            left: 50%; top: 10px;
+            transform: translateX(-50%);
+            text-align: center;
+        }
+        .seg-icon { width: 24px; height: 24px; display: block; margin: 0 auto 2px; }
+
+        /* BETTING CONTROLS */
+        .bet-panel {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .input-group {
+            display: flex; gap: 10px; margin-bottom: 15px;
+        }
+        .bet-input {
+            flex: 1;
+            background: #111319;
+            border: 1px solid #2a2d3e;
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            outline: none;
+            text-align: center;
+        }
+        .bet-input:focus { border-color: var(--accent-blue); }
+
+        .multipliers-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+        }
+
+        .mult-btn {
+            background: #232633;
+            border-radius: 10px;
+            padding: 10px 0;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .mult-btn.selected { border-color: white; transform: scale(1.05); box-shadow: 0 0 15px rgba(255,255,255,0.2); }
+        .mult-btn:active { transform: scale(0.95); }
         
-        .price-btn { 
-            background: #23263d; border-radius: 10px; padding: 8px; 
-            font-weight: 800; font-size: 13px; margin-top: 5px; display: inline-flex; align-items: center; gap: 5px;
-        }
+        .m-val { font-size: 16px; font-weight: 900; display: block; }
+        .m-sub { font-size: 10px; opacity: 0.7; }
 
-        /* ИГРА (РУЛЕТКА) */
-        .case-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
-        .back-btn { width: 36px; height: 36px; background: rgba(255,255,255,0.05); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
-        .back-btn:active { background: rgba(255,255,255,0.1); }
-
-        .main-case-img { width: 160px; height: 160px; margin: 10px auto 30px; display: block; filter: drop-shadow(0 0 40px rgba(36, 107, 253, 0.3)); animation: float 4s infinite ease-in-out; }
-        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
-
-        /* ЛЕНТА */
-        .roulette-wrapper {
-            width: 100%; height: 110px; background: #0e0f19;
-            border-radius: 16px; border: 2px solid var(--accent-blue);
-            margin-bottom: 25px; overflow: hidden; position: relative;
-            display: none; box-shadow: inset 0 0 30px #000;
-        }
-        .roulette-track { display: flex; height: 100%; align-items: center; width: max-content; will-change: transform; }
-        .roulette-card {
-            width: 90px; height: 90px; margin: 0 4px;
-            background: radial-gradient(circle, #23263d 0%, #151725 100%);
-            border-radius: 12px; display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            border: 1px solid rgba(255,255,255,0.05); flex-shrink: 0;
-        }
-        .roulette-card img { width: 55px; height: 55px; margin-bottom: 5px; }
-        .selector-line {
-            position: absolute; left: 50%; top: 0; bottom: 0; width: 4px;
-            background: #fff; transform: translateX(-50%); z-index: 10;
-            box-shadow: 0 0 15px white; border-radius: 2px;
-        }
+        /* Colors for buttons */
+        .btn-2x { color: #aeb4c6; } .btn-2x.selected { background: var(--c-grey); color: white; }
+        .btn-3x { color: var(--c-red); } .btn-3x.selected { background: var(--c-red); color: white; }
+        .btn-5x { color: var(--c-blue); } .btn-5x.selected { background: var(--c-blue); color: white; }
+        .btn-50x { color: var(--c-gold); } .btn-50x.selected { background: var(--c-gold); color: white; }
 
         .spin-btn {
+            width: 100%;
             background: linear-gradient(135deg, #246bfd 0%, #1a50c4 100%);
-            color: white; border: none; width: 100%; padding: 18px;
-            border-radius: 16px; font-weight: 800; font-size: 17px;
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 900;
+            margin-top: 20px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
             box-shadow: 0 5px 20px rgba(36, 107, 253, 0.3);
-            margin-bottom: 15px; cursor: pointer; transition: var(--transition);
-            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: 0.3s;
         }
-        .spin-btn:active { transform: scale(0.97); }
-        .spin-btn:disabled { opacity: 0.6; filter: grayscale(1); }
+        .spin-btn:disabled { opacity: 0.5; filter: grayscale(1); cursor: not-allowed; }
 
-        /* СЕТКА ПРЕДМЕТОВ */
-        .items-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding-bottom: 20px; }
-        .item-box {
-            background: rgba(255,255,255,0.03); border-radius: 14px; padding: 10px 5px;
-            text-align: center; border: 1px solid rgba(255,255,255,0.05); position: relative;
+        /* HISTORY */
+        .history-bar {
+            display: flex; gap: 5px; justify-content: center; margin-bottom: 15px;
+            height: 30px; overflow: hidden;
         }
-        .item-box img { width: 50px; height: 50px; display: block; margin: 0 auto 5px; }
-        .item-name { font-size: 10px; color: #ccc; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-        .item-price { font-size: 11px; font-weight: 700; color: var(--star-gold); margin-top: 3px; }
-
-        /* ПРОФИЛЬ */
-        .profile-header { text-align: center; margin-bottom: 30px; }
-        .big-avatar { width: 100px; height: 100px; border-radius: 50%; border: 4px solid var(--accent-blue); margin: 0 auto 15px; background-size: cover; background-position: center; box-shadow: 0 0 30px rgba(36, 107, 253, 0.2); }
-        .menu-row {
-            background: var(--card-bg); padding: 18px; border-radius: 18px; 
-            margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;
-            border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: var(--transition);
+        .hist-dot {
+            width: 30px; height: 30px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; font-weight: 800; color: rgba(0,0,0,0.7);
         }
-        .menu-row:active { transform: scale(0.98); background: rgba(255,255,255,0.08); }
 
-        /* ИНВЕНТАРЬ */
-        .inventory-empty { text-align: center; color: var(--text-gray); margin-top: 50px; font-size: 14px; }
-        .inv-item { position: relative; }
-        .sell-hint { font-size: 9px; color: var(--btn-green); font-weight: 700; margin-top: 2px; }
+        /* --- PROFILE --- */
+        .profile-header { text-align: center; margin-top: 20px; }
+        .big-avatar { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 15px; background-size: cover; border: 3px solid var(--accent-blue); }
+        .menu-row { background: var(--card-bg); padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05); }
 
-        /* МОДАЛКА ВЫИГРЫША */
-        .reward-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.92); z-index: 2000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(10px);
+        /* --- BOTTOM NAV --- */
+        .bottom-nav { 
+            position: fixed; bottom: 0; width: 100%; 
+            background: rgba(22, 25, 44, 0.95); backdrop-filter: blur(10px);
+            display: flex; justify-content: space-around; padding: 12px 0; 
+            border-top: 1px solid rgba(255,255,255,0.05); z-index: 80; 
+            padding-bottom: env(safe-area-inset-bottom);
         }
-        .reward-overlay.active { opacity: 1; pointer-events: all; }
-        .reward-card {
-            width: 85%; background: #151725; border-radius: 24px; padding: 25px; text-align: center;
-            border: 1px solid rgba(255,255,255,0.1); transform: scale(0.8); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        }
-        .reward-overlay.active .reward-card { transform: scale(1); }
-        
-        .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 25px; }
-        .btn-act { padding: 14px; border-radius: 12px; font-weight: 700; border: none; font-size: 13px; cursor: pointer; color: white; }
-        .btn-keep { background: rgba(255,255,255,0.1); }
-        .btn-sell { background: var(--btn-green); color: #000; }
-
-        /* НИЖНЯЯ ПАНЕЛЬ */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: rgba(22, 25, 44, 0.95); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.05); z-index: 80; backdrop-filter: blur(10px); padding-bottom: env(safe-area-inset-bottom); }
-        .nav-item { text-align: center; font-size: 10px; color: var(--text-gray); opacity: 0.6; transition: 0.2s; }
+        .nav-item { text-align: center; font-size: 10px; color: var(--text-gray); transition: 0.2s; opacity: 0.6; }
         .nav-item.active { color: var(--accent-blue); opacity: 1; transform: translateY(-2px); }
         .nav-item i { font-size: 20px; display: block; margin-bottom: 4px; }
+
+        /* RESULT POPUP */
+        .win-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            pointer-events: none; z-index: 50;
+        }
+        .win-msg {
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+            padding: 15px 30px; border-radius: 20px;
+            color: #2ecc71; font-weight: 900; font-size: 24px;
+            transform: scale(0); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 2px solid #2ecc71;
+        }
+        .win-msg.loss { color: #e74c3c; border-color: #e74c3c; }
+        .win-msg.show { transform: scale(1); }
+
     </style>
 </head>
 <body>
 
     <div class="top-nav">
-        <div style="font-weight: 900; font-size: 18px;">GIFTS <span style="color:var(--accent-blue)">BATTLE</span></div>
-        <div class="balance-badge" onclick="addBal()">
-            <div class="gold-star"></div> <span id="bal-top">0</span>
+        <div style="font-weight: 900; font-size: 20px; display:flex; align-items:center; gap:5px;">
+            <i class="fas fa-bullseye" style="color:var(--accent-blue)"></i> WHEEL
+        </div>
+        <div class="balance-badge">
+            <i class="fas fa-star" style="color: gold;"></i> <span id="balance">0</span>
         </div>
     </div>
 
     <div class="main-container">
-        
-        <div id="scr-cases" class="screen active">
-            <h2 style="margin: 10px 0 20px; font-size: 22px;">Магазин Кейсов</h2>
-            <div class="cases-grid">
-                <div class="case-card" onclick="openCaseGame()">
-                    <img src="https://img.icons8.com/3d-fluency/188/gift.png">
-                    <div style="font-size:15px; font-weight:700;">Северное Сияние</div>
-                    <div class="price-btn"><div class="gold-star"></div> 250</div>
-                </div>
-                <div class="case-card" style="opacity: 0.7;">
-                    <img src="https://img.icons8.com/3d-fluency/188/christmas-tree.png">
-                    <div style="font-size:15px; font-weight:700;">Новогодняя Елка</div>
-                    <div class="price-btn"><div class="gold-star"></div> 600</div>
-                </div>
-                <div class="case-card" style="opacity: 0.7;">
-                    <img src="https://img.icons8.com/3d-fluency/188/santa-claus.png">
-                    <div style="font-size:15px; font-weight:700;">Секреты Санты</div>
-                    <div class="price-btn"><div class="gold-star"></div> 1300</div>
-                </div>
-                <div class="case-card" style="opacity: 0.7;">
-                    <img src="https://img.icons8.com/3d-fluency/188/sleigh.png">
-                    <div style="font-size:15px; font-weight:700;">Экспресс</div>
-                    <div class="price-btn"><div class="gold-star"></div> 3000</div>
-                </div>
-            </div>
-        </div>
 
-        <div id="scr-game" class="screen">
-            <div class="case-header">
-                <div class="back-btn" onclick="goToScreen('cases')"><i class="fas fa-arrow-left"></i></div>
-                <h3 style="margin:0; font-size: 18px;">Северное Сияние</h3>
+        <div id="scr-game" class="screen active">
+            
+            <div class="history-bar" id="history-track">
+                </div>
+
+            <div class="wheel-container">
+                <div class="wheel-pointer"></div>
+                <div class="win-overlay"><div class="win-msg" id="win-popup">WIN!</div></div>
+                <div class="wheel" id="wheel">
+                    </div>
             </div>
 
-            <img src="https://img.icons8.com/3d-fluency/188/gift.png" class="main-case-img" id="static-case-img">
-
-            <div class="roulette-wrapper" id="roulette-box">
-                <div class="selector-line"></div>
-                <div class="roulette-track" id="track"></div>
-            </div>
-
-            <div style="background: #151725; padding: 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);">
-                <button class="spin-btn" id="btn-spin" onclick="playRoulette()">
-                    ОТКРЫТЬ ЗА <div class="gold-star"></div> 250
-                </button>
-                <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-gray);">
-                    <span><i class="fas fa-check-circle" style="color:var(--btn-green)"></i> Честные шансы</span>
-                    <span>Везение: <b>x1</b></span>
+            <div class="bet-panel">
+                <div class="input-group">
+                    <input type="number" id="bet-amount" class="bet-input" value="100" placeholder="Сумма">
+                    <div style="display:flex; gap:5px;">
+                        <button class="bet-input" style="width:50px; flex:none; background:#232633; cursor:pointer;" onclick="setBet('half')">1/2</button>
+                        <button class="bet-input" style="width:50px; flex:none; background:#232633; cursor:pointer;" onclick="setBet('x2')">x2</button>
+                    </div>
                 </div>
-            </div>
 
-            <div style="margin: 25px 0 10px; font-size: 14px; font-weight: 700; color:var(--text-gray);">СОДЕРЖИМОЕ КЕЙСА:</div>
-            <div class="items-grid" id="case-contents"></div>
+                <div class="multipliers-grid">
+                    <div class="mult-btn btn-2x" onclick="selectMode(2, this)">
+                        <span class="m-val">2x</span>
+                        <span class="m-sub">GREY</span>
+                    </div>
+                    <div class="mult-btn btn-3x" onclick="selectMode(3, this)">
+                        <span class="m-val">3x</span>
+                        <span class="m-sub">RED</span>
+                    </div>
+                    <div class="mult-btn btn-5x" onclick="selectMode(5, this)">
+                        <span class="m-val">5x</span>
+                        <span class="m-sub">BLUE</span>
+                    </div>
+                    <div class="mult-btn btn-50x" onclick="selectMode(50, this)">
+                        <span class="m-val">50x</span>
+                        <span class="m-sub">GOLD</span>
+                    </div>
+                </div>
+
+                <button class="spin-btn" id="btn-spin" onclick="spin()">КРУТИТЬ</button>
+            </div>
         </div>
 
         <div id="scr-profile" class="screen">
             <div class="profile-header">
                 <div class="big-avatar" id="p-img" style="background-image: url('https://img.icons8.com/3d-fluency/188/user-male-circle.png');"></div>
-                <h2 id="p-name" style="margin: 0;">Игрок</h2>
-                <div style="font-size: 13px; color: var(--text-gray); margin-top: 5px;" id="p-id">ID: Загрузка...</div>
+                <h2 id="p-name" style="margin:0;">Игрок</h2>
+                <div style="color:var(--text-gray); font-size:13px; margin-top:5px;" id="p-id">ID: ...</div>
             </div>
-
-            <div class="menu-row" onclick="goToScreen('inventory')">
-                <span style="font-weight: 700;"><i class="fas fa-box" style="color:var(--accent-blue); width:25px;"></i> Инвентарь</span>
-                <i class="fas fa-chevron-right" style="opacity: 0.5; font-size: 12px;"></i>
-            </div>
-            <div class="menu-row">
-                <span style="font-weight: 700;"><i class="fas fa-star" style="color:var(--star-gold); width:25px;"></i> Купить Stars</span>
-                <i class="fas fa-chevron-right" style="opacity: 0.5; font-size: 12px;"></i>
-            </div>
-            <div class="menu-row">
-                <span style="font-weight: 700;"><i class="fas fa-cog" style="color: #95a5a6; width:25px;"></i> Настройки</span>
-                <i class="fas fa-chevron-right" style="opacity: 0.5; font-size: 12px;"></i>
-            </div>
-        </div>
-
-        <div id="scr-inventory" class="screen">
-            <div class="case-header">
-                <div class="back-btn" onclick="goToScreen('profile')"><i class="fas fa-arrow-left"></i></div>
-                <h3 style="margin:0; font-size: 18px;">Мой инвентарь</h3>
-            </div>
-            <div class="items-grid" id="inv-grid"></div>
-            <div id="inv-empty" class="inventory-empty" style="display:none;">Пусто... Открой пару кейсов! 📦</div>
-        </div>
-
-    </div>
-
-    <div class="reward-overlay" id="reward-modal">
-        <div class="reward-card">
-            <div style="font-size:12px; color:var(--text-gray); font-weight:700; letter-spacing: 1px; margin-bottom: 15px;">ТВОЙ ВЫИГРЫШ</div>
-            <div style="width: 150px; height: 150px; background: radial-gradient(closest-side, rgba(36,107,253,0.3), transparent); margin: 0 auto; display: flex; align-items: center; justify-content: center;">
-                <img id="rew-img" src="" style="width:100px; height:100px; filter: drop-shadow(0 0 15px rgba(255,255,255,0.3));">
-            </div>
-            <div id="rew-name" style="font-size:20px; font-weight:800; margin: 10px 0 5px;">Item Name</div>
-            <div style="font-size:15px; color:var(--text-gray);">Стоимость: <span style="color:var(--star-gold); font-weight:700;"><div class="gold-star"></div> <span id="rew-price">0</span></span></div>
-
-            <div class="action-btns">
-                <button class="btn-act btn-sell" onclick="finishReward('sell')">
-                    ПРОДАТЬ<br><span style="font-size:10px; opacity:0.8">+<span id="btn-sell-price">0</span> Stars</span>
-                </button>
-                <button class="btn-act btn-keep" onclick="finishReward('keep')">
-                    ЗАБРАТЬ<br><span style="font-size:10px; opacity:0.6">В инвентарь</span>
-                </button>
+            <div style="margin-top: 30px;">
+                <div class="menu-row">
+                    <span><i class="fas fa-wallet" style="color:#2ecc71; width:25px;"></i> Пополнить баланс</span>
+                    <i class="fas fa-chevron-right" style="opacity:0.5"></i>
+                </div>
+                <div class="menu-row">
+                    <span><i class="fas fa-history" style="color:#f1c40f; width:25px;"></i> История игр</span>
+                    <i class="fas fa-chevron-right" style="opacity:0.5"></i>
+                </div>
+                <div class="menu-row">
+                    <span><i class="fas fa-headset" style="color:#3498db; width:25px;"></i> Поддержка</span>
+                    <i class="fas fa-chevron-right" style="opacity:0.5"></i>
+                </div>
             </div>
         </div>
+
     </div>
 
     <div class="bottom-nav">
-        <div class="nav-item active" id="n-cases" onclick="goToScreen('cases')"><i class="fas fa-box-open"></i>Кейсы</div>
-        <div class="nav-item" id="n-profile" onclick="goToScreen('profile')"><i class="fas fa-user-circle"></i>Профиль</div>
+        <div class="nav-item active" id="n-game" onclick="nav('game')">
+            <i class="fas fa-gamepad"></i> Игра
+        </div>
+        <div class="nav-item" id="n-profile" onclick="nav('profile')">
+            <i class="fas fa-user"></i> Профиль
+        </div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        tg.enableClosingConfirmation();
 
-        // === ДАННЫЕ ===
-        let balance = parseInt(localStorage.getItem('balance_v5')) || 2000;
-        let inventory = JSON.parse(localStorage.getItem('inventory_v5')) || [];
+        // --- GAME CONFIG ---
+        // 54 segments total (standard for this type of game)
+        // 2x (Grey) = 26 segments
+        // 3x (Red) = 17 segments
+        // 5x (Blue) = 10 segments
+        // 50x (Gold) = 1 segment
         
-        // Полный список предметов (Цены и шансы настроены для экономики)
-        // weight: чем больше число, тем выше шанс
-        const itemsDB = [
-            { id: 1, name: 'Snow Globe Pepe', price: 5000, img: 'https://img.icons8.com/3d-fluency/94/snow-globe.png', weight: 1, rare: true },
-            { id: 2, name: 'Diamond Ring', price: 4800, img: 'https://img.icons8.com/3d-fluency/94/diamond-ring.png', weight: 2, rare: true },
-            { id: 3, name: 'Golden Pacifier', price: 3700, img: 'https://img.icons8.com/3d-fluency/94/pacifier.png', weight: 5 },
-            { id: 4, name: 'Polar Bear', price: 2900, img: 'https://img.icons8.com/3d-fluency/94/bear.png', weight: 8 },
-            { id: 5, name: 'Ice Crystal', price: 2700, img: 'https://img.icons8.com/3d-fluency/94/crystal.png', weight: 12 },
-            { id: 6, name: 'Cupid Heart', price: 1600, img: 'https://img.icons8.com/3d-fluency/94/heart-with-arrow.png', weight: 20 },
-            { id: 7, name: 'Monkey Toy', price: 1200, img: 'https://img.icons8.com/3d-fluency/94/monkey.png', weight: 30 },
-            { id: 8, name: 'Ginger House', price: 900, img: 'https://img.icons8.com/3d-fluency/94/gingerbread-house.png', weight: 45 },
-            { id: 9, name: 'Money Bag', price: 500, img: 'https://img.icons8.com/3d-fluency/94/money-bag.png', weight: 70 },
-            { id: 10, name: 'Lollipop', price: 450, img: 'https://img.icons8.com/3d-fluency/94/lollipop.png', weight: 100 },
-            { id: 11, name: 'Frog Plush', price: 180, img: 'https://img.icons8.com/3d-fluency/94/frog.png', weight: 150 },
-            { id: 12, name: 'Love Locket', price: 150, img: 'https://img.icons8.com/3d-fluency/94/necklace.png', weight: 200 },
-            { id: 13, name: 'Peach', price: 100, img: 'https://img.icons8.com/3d-fluency/94/peach.png', weight: 300 },
-            { id: 14, name: 'Blue Cap', price: 50, img: 'https://img.icons8.com/3d-fluency/94/baseball-cap.png', weight: 400 }
-        ];
+        const WHEEL_SIZE = 54;
+        const SEGMENT_ANGLE = 360 / WHEEL_SIZE;
+        
+        // Define colors
+        const C_GREY = '#4b5069';
+        const C_RED = '#e54d42';
+        const C_BLUE = '#3d8aff';
+        const C_GOLD = '#ffcd00';
 
-        // === СИСТЕМА ===
-        function updateUI() {
-            document.getElementById('bal-top').innerText = balance.toLocaleString();
-            localStorage.setItem('balance_v5', balance);
-            localStorage.setItem('inventory_v5', JSON.stringify(inventory));
-        }
-        updateUI();
+        // Generate Wheel Data
+        let segments = [];
+        // Pattern logic to distribute them somewhat evenly visually
+        for(let i=0; i<26; i++) segments.push({m:2, c:C_GREY});
+        for(let i=0; i<17; i++) segments.push({m:3, c:C_RED});
+        for(let i=0; i<10; i++) segments.push({m:5, c:C_BLUE});
+        for(let i=0; i<1; i++) segments.push({m:50, c:C_GOLD});
+        
+        // Shuffle randomly for layout
+        segments = segments.sort(() => Math.random() - 0.5);
 
-        function addBal() {
-            balance += 1000; 
-            updateUI(); 
-            tg.HapticFeedback.notificationOccurred('success');
-        }
-
-        // Навигация
-        function goToScreen(name) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById('scr-' + name).classList.add('active');
-            
-            // Меню
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            if(name === 'cases' || name === 'game') document.getElementById('n-cases').classList.add('active');
-            if(name === 'profile' || name === 'inventory') document.getElementById('n-profile').classList.add('active');
-
-            // Сброс игры
-            if(name !== 'game') {
-                document.getElementById('roulette-box').style.display = 'none';
-                document.getElementById('static-case-img').style.display = 'block';
-            }
-
-            // Загрузка инвентаря
-            if(name === 'inventory') renderInventory();
-        }
-
-        // === ИГРА ===
-        function openCaseGame() {
-            goToScreen('game');
-            const grid = document.getElementById('case-contents');
-            grid.innerHTML = '';
-            // Сортировка: дорогие первыми
-            const sorted = [...itemsDB].sort((a,b) => b.price - a.price);
-            sorted.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'item-box';
-                // Подсветка редких
-                if(item.price > 2000) div.style.borderColor = item.price > 4000 ? '#ffcd00' : '#246bfd';
-                div.innerHTML = `
-                    <img src="${item.img}">
-                    <div class="item-name">${item.name}</div>
-                    <div class="item-price">${item.price}</div>
-                `;
-                grid.appendChild(div);
-            });
-        }
-
+        // State
+        let balance = parseInt(localStorage.getItem('w_bal')) || 5000;
+        let selectedMult = 0;
+        let currentRotation = 0;
         let isSpinning = false;
-        let currentWinItem = null;
 
-        function getRandomItem() {
-            let total = itemsDB.reduce((acc, i) => acc + i.weight, 0);
-            let rand = Math.random() * total;
-            for(let i of itemsDB) {
-                if(rand < i.weight) return i;
-                rand -= i.weight;
-            }
-            return itemsDB[itemsDB.length-1];
+        // Init
+        document.getElementById('balance').innerText = balance;
+        renderWheel();
+        updateHistoryDisplay();
+
+        // --- RENDER WHEEL ---
+        function renderWheel() {
+            const wheelEl = document.getElementById('wheel');
+            wheelEl.innerHTML = ''; // clear
+            
+            // To create the wheel visually using conic-gradient would be hard with gaps
+            // We use rotated divs. 
+            // Note: Clip-path triangle logic is tricky for exact fits.
+            // Simplified approach: Conic gradient for background, Divs for text.
+            
+            let gradientStr = '';
+            let currentDeg = 0;
+            
+            segments.forEach((seg, index) => {
+                // Build DOM Element for Text/Icon
+                const wrapper = document.createElement('div');
+                wrapper.className = 'seg-wrapper';
+                const rotation = (index * SEGMENT_ANGLE) + (SEGMENT_ANGLE / 2); // Center text in segment
+                wrapper.style.transform = `rotate(${rotation}deg)`;
+                
+                const content = document.createElement('div');
+                content.className = 'seg-content';
+                
+                // Icon based on multiplier
+                let iconClass = 'fa-gem'; // default
+                if(seg.m === 2) iconClass = 'fa-cube'; // simple box
+                if(seg.m === 3) iconClass = 'fa-fire';
+                if(seg.m === 5) iconClass = 'fa-diamond';
+                if(seg.m === 50) iconClass = 'fa-crown';
+
+                content.innerHTML = `<i class="fas ${iconClass}" style="color:rgba(255,255,255,0.8); font-size:16px; display:block; margin-bottom:2px;"></i>`;
+                
+                wrapper.appendChild(content);
+                wheelEl.appendChild(wrapper);
+
+                // Build Gradient String
+                gradientStr += `${seg.c} ${currentDeg}deg ${currentDeg + SEGMENT_ANGLE}deg, `;
+                currentDeg += SEGMENT_ANGLE;
+            });
+
+            // Remove trailing comma
+            gradientStr = gradientStr.slice(0, -2);
+            wheelEl.style.background = `conic-gradient(${gradientStr})`;
         }
 
-        function playRoulette() {
-            if(isSpinning || balance < 250) {
-                if(balance < 250) tg.showAlert("Не хватает Stars!");
-                return;
-            }
+        // --- GAME LOGIC ---
+        function selectMode(mult, btn) {
+            if(isSpinning) return;
+            selectedMult = mult;
             
-            balance -= 250;
-            updateUI();
+            // UI Update
+            document.querySelectorAll('.mult-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            
+            tg.HapticFeedback.selectionChanged();
+        }
+
+        function setBet(type) {
+            const input = document.getElementById('bet-amount');
+            let val = parseInt(input.value) || 0;
+            if(type === 'half') val = Math.floor(val / 2);
+            if(type === 'x2') val = val * 2;
+            input.value = Math.max(0, val);
+        }
+
+        function spin() {
+            const betInput = document.getElementById('bet-amount');
+            const amount = parseInt(betInput.value);
+
+            if(isSpinning) return;
+            if(!selectedMult) { tg.showAlert('Выберите цвет (x2, x3...)'); return; }
+            if(isNaN(amount) || amount <= 0) { tg.showAlert('Введите сумму ставки'); return; }
+            if(amount > balance) { tg.showAlert('Недостаточно средств'); return; }
+
+            // Deduct balance
+            balance -= amount;
+            updateBalance();
+            
             isSpinning = true;
             document.getElementById('btn-spin').disabled = true;
-            
-            // Подготовка UI
-            document.getElementById('static-case-img').style.display = 'none';
-            const box = document.getElementById('roulette-box');
-            box.style.display = 'block';
-            const track = document.getElementById('track');
-            
-            // Генерация ленты
-            track.innerHTML = '';
-            track.style.transition = 'none';
-            track.style.transform = 'translateX(0)';
-            
-            const winItem = getRandomItem();
-            currentWinItem = winItem;
-            const winIndex = 30; // Позиция выигрыша
-            
-            for(let i=0; i<45; i++) {
-                let item = (i === winIndex) ? winItem : itemsDB[Math.floor(Math.random()*itemsDB.length)];
-                let div = document.createElement('div');
-                div.className = 'roulette-card';
-                if(item.rare) div.style.border = '1px solid ' + (item.price > 4000 ? '#ffcd00' : '#246bfd');
-                div.innerHTML = `<img src="${item.img}">`;
-                track.appendChild(div);
-            }
+            document.getElementById('win-popup').classList.remove('show');
 
-            // Вычисляем смещение
-            // box width = 100vw - 40px (approx), let's say center is relative
-            // card width 90 + 8 margin = 98px
-            // Center of winner needs to align with center of box
-            const cardWidth = 98;
-            const boxCenter = box.offsetWidth / 2;
-            const itemCenter = cardWidth / 2;
-            const scrollPos = (winIndex * cardWidth) - boxCenter + itemCenter;
-            
-            // Старт с задержкой для рендера
-            setTimeout(() => {
-                track.style.transition = 'transform 4.5s cubic-bezier(0.1, 0, 0.1, 1)';
-                // Добавляем рандомное смещение внутри карточки +- 20px
-                const randOffset = Math.floor(Math.random() * 30) - 15;
-                track.style.transform = `translateX(-${scrollPos + randOffset}px)`;
-                tg.HapticFeedback.impactOccurred('medium');
-            }, 50);
+            // 1. Determine Winning Segment
+            // Weighted random is inherent in the segments array distribution
+            const winningIndex = Math.floor(Math.random() * segments.length);
+            const winSegment = segments[winningIndex];
 
+            // 2. Calculate Rotation
+            // We need to land on winningIndex.
+            // Index 0 starts at 0deg (top). 
+            // To land on Index X, we rotate NEGATIVE (Counter Clockwise) or POSITIVE logic.
+            // Let's rely on the pointer being at TOP (0 deg).
+            // Rotation required to put segment X at top = - (X * SEGMENT_ANGLE + SEGMENT_ANGLE/2)
+            
+            const segmentCenter = (winningIndex * SEGMENT_ANGLE) + (SEGMENT_ANGLE / 2);
+            // Add extra spins (e.g. 5 full rotations = 1800 deg)
+            // Note: Since we are adding to currentRotation, we need to handle the math carefully
+            // Target Rotation = currentRotation + (360 * 5) + (360 - (segmentCenter - (currentRotation % 360))); 
+            // Simplified: Just calculate target absolute rotation.
+            
+            const extraSpins = 360 * 8; // 8 spins
+            // Random jitter within the segment (+- 2 deg) for realism
+            const jitter = (Math.random() * 4) - 2;
+            
+            // To land segment at top (0deg), we rotate the WHEEL so that the segment angle is at -90deg (if 0 is right) or -270...
+            // CSS 0deg is usually Top in conic gradient? Yes.
+            // So if we want segment at 10deg to be at 0deg, we rotate wheel -10deg.
+            
+            const targetRotation = currentRotation + extraSpins + (360 - segmentCenter) + jitter;
+            
+            // 3. Animate
+            const wheelEl = document.getElementById('wheel');
+            wheelEl.style.transform = `rotate(${targetRotation}deg)`;
+            
+            currentRotation = targetRotation; // save for next spin so we don't snap back
+
+            // 4. End Game
             setTimeout(() => {
-                showRewardModal(winItem);
-                isSpinning = false;
-                document.getElementById('btn-spin').disabled = false;
-            }, 4600);
+                finishSpin(winSegment, amount);
+            }, 5000); // Matches CSS transition time
         }
 
-        // === МОДАЛКА ВЫИГРЫША ===
-        function showRewardModal(item) {
-            tg.HapticFeedback.notificationOccurred('success');
-            const m = document.getElementById('reward-modal');
-            document.getElementById('rew-img').src = item.img;
-            document.getElementById('rew-name').innerText = item.name;
-            document.getElementById('rew-price').innerText = item.price;
-            document.getElementById('btn-sell-price').innerText = item.price;
-            m.classList.add('active');
-        }
-
-        function finishReward(action) {
-            const m = document.getElementById('reward-modal');
-            m.classList.remove('active');
+        function finishSpin(result, bet) {
+            isSpinning = false;
+            document.getElementById('btn-spin').disabled = false;
             
-            if(action === 'sell') {
-                balance += currentWinItem.price;
-                tg.showAlert(`Продано за ${currentWinItem.price} Stars`);
+            const isWin = result.m === selectedMult;
+            const popup = document.getElementById('win-popup');
+            
+            if(isWin) {
+                const profit = bet * result.m;
+                balance += profit;
+                popup.innerText = `+${profit}`;
+                popup.className = 'win-msg show'; // Green default
+                tg.HapticFeedback.notificationOccurred('success');
             } else {
-                inventory.push(currentWinItem);
-                // Показываем уведомление
-                tg.showAlert("Предмет добавлен в инвентарь");
+                popup.innerText = `${result.m}x`;
+                popup.className = 'win-msg loss show'; // Red
+                tg.HapticFeedback.notificationOccurred('error');
             }
-            updateUI();
+            
+            updateBalance();
+            addToHistory(result);
         }
 
-        // === ИНВЕНТАРЬ ===
-        function renderInventory() {
-            const grid = document.getElementById('inv-grid');
-            grid.innerHTML = '';
-            
-            if(inventory.length === 0) {
-                document.getElementById('inv-empty').style.display = 'block';
-                return;
-            }
-            document.getElementById('inv-empty').style.display = 'none';
+        function updateBalance() {
+            document.getElementById('balance').innerText = balance;
+            localStorage.setItem('w_bal', balance);
+        }
 
-            // Рисуем в обратном порядке (новые сверху)
-            [...inventory].reverse().forEach((item, index) => {
-                // Находим реальный индекс в исходном массиве для удаления
-                const realIndex = inventory.length - 1 - index;
-                
-                const div = document.createElement('div');
-                div.className = 'item-box inv-item';
-                div.onclick = () => sellFromInventory(realIndex, item);
-                div.innerHTML = `
-                    <img src="${item.img}">
-                    <div class="item-name">${item.name}</div>
-                    <div class="sell-hint">ПРОДАТЬ: ${item.price}</div>
-                `;
-                grid.appendChild(div);
+        // --- HISTORY LOGIC ---
+        let history = [];
+        function addToHistory(seg) {
+            history.unshift(seg);
+            if(history.length > 10) history.pop();
+            updateHistoryDisplay();
+        }
+        function updateHistoryDisplay() {
+            const track = document.getElementById('history-track');
+            track.innerHTML = '';
+            history.forEach(h => {
+                const dot = document.createElement('div');
+                dot.className = 'hist-dot';
+                dot.style.background = h.c;
+                dot.style.color = (h.m === 50) ? '#000' : '#fff';
+                dot.innerText = h.m + 'x';
+                track.appendChild(dot);
             });
         }
 
-        function sellFromInventory(index, item) {
-            if(confirm(`Продать ${item.name} за ${item.price} Stars?`)) {
-                inventory.splice(index, 1);
-                balance += item.price;
-                updateUI();
-                renderInventory();
-                tg.HapticFeedback.selectionChanged();
-            }
+        // --- NAVIGATION ---
+        function nav(screen) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('scr-' + screen).classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('n-' + screen).classList.add('active');
         }
 
-        // === ИНИЦИАЛИЗАЦИЯ USER ===
+        // User Data
         const u = tg.initDataUnsafe?.user;
         if(u) {
-            document.getElementById('p-name').innerText = u.first_name + (u.last_name ? ' ' + u.last_name : '');
+            document.getElementById('p-name').innerText = u.first_name;
             document.getElementById('p-id').innerText = "ID: " + u.id;
-            if(u.photo_url) document.getElementById('p-img').style.backgroundImage = `url(${u.photo_url})`;
-        } else {
-            // Фейк данные если не в ТГ
-            document.getElementById('p-id').innerText = "ID: 12345678";
         }
 
     </script>
 </body>
 </html>
+
