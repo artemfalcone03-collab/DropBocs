@@ -3,546 +3,563 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wheel Battle</title>
+    <title>WHEEL X - ULTIMATE</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --bg-color: #0b0d17;
-            --card-bg: #1a1c26;
-            --accent-blue: #246bfd;
-            --text-main: #ffffff;
-            --text-gray: #8e8e93;
+            --bg-body: #0f111a;
+            --bg-card: #1a1d2e;
+            --bg-input: #131522;
             
-            /* Colors from video style */
-            --c-grey: #4b5069; /* 2x */
-            --c-red: #e54d42;  /* 3x */
-            --c-blue: #3d8aff; /* 5x */
-            --c-gold: #ffcd00; /* 50x */
+            --c-grey: #30354a;
+            --c-grey-accent: #6c7394;
+            --c-red: #ff4949;
+            --c-blue: #4287ff;
+            --c-gold: #ffc400;
+            
+            --shadow: 0 10px 30px -5px rgba(0,0,0,0.5);
+            --neon-blue: 0 0 15px rgba(66, 135, 255, 0.4);
         }
 
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            margin: 0; padding: 0; 
-            overflow: hidden;
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
+            background-color: var(--bg-body);
+            color: white;
+            font-family: 'Inter', sans-serif;
+            margin: 0; padding: 0;
+            height: 100vh; overflow: hidden;
+            display: flex; flex-direction: column;
         }
 
-        /* --- UI ELEMENTS --- */
-        .top-nav {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 15px 20px; background: rgba(11, 13, 23, 0.95);
-            z-index: 100; position: relative;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        /* --- HEADER --- */
+        .header {
+            padding: 15px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(15, 17, 26, 0.9);
+            backdrop-filter: blur(10px); z-index: 10;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .logo { font-weight: 900; font-size: 18px; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; }
+        .balance-box {
+            background: #232738; padding: 6px 12px; border-radius: 8px;
+            font-weight: 700; font-size: 14px; color: #fff;
+            display: flex; align-items: center; gap: 6px;
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        /* --- HISTORY --- */
+        .history-wrap {
+            padding: 12px 0;
+            background: var(--bg-card);
+            border-bottom: 1px solid rgba(255,255,255,0.02);
+            white-space: nowrap; overflow: hidden; position: relative;
+        }
+        .history-track {
+            display: flex; gap: 8px; padding: 0 20px;
+            justify-content: flex-start; /* Старые слева, новые добавляются */
+            flex-direction: row-reverse; /* Чтобы новые появлялись "с начала" визуально */
+            overflow-x: auto;
+        }
+        .hist-badge {
+            flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; font-weight: 800; border: 2px solid rgba(0,0,0,0.2);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        /* --- GAME AREA (CANVAS) --- */
+        .game-area {
+            flex: 1; position: relative;
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden;
         }
         
-        .balance-badge {
-            background: rgba(255, 255, 255, 0.1); padding: 6px 14px; border-radius: 20px;
-            display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .main-container { height: calc(100vh - 130px); overflow-y: auto; padding-bottom: 20px; }
-        .screen { display: none; padding: 15px; animation: fadeUp 0.3s ease-out; }
-        .screen.active { display: block; }
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* --- WHEEL GAME STYLES --- */
-        .wheel-container {
+        .wheel-wrapper {
             position: relative;
-            width: 320px;
-            height: 320px;
-            margin: 20px auto;
+            width: 320px; height: 320px;
             border-radius: 50%;
-            border: 4px solid #2a2d3e;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
-            background: #151720;
-            overflow: hidden;
+            box-shadow: 0 0 60px rgba(0,0,0,0.6), inset 0 0 20px rgba(0,0,0,0.8);
+            border: 4px solid #232738;
         }
-
-        .wheel-pointer {
-            position: absolute;
-            top: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0; height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-top: 25px solid #fff;
-            z-index: 20;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
-        }
-
-        .wheel {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            position: relative;
-            transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1); /* Custom easing for realistic spin */
-        }
-
-        .segment {
-            position: absolute;
-            top: 0; right: 0; bottom: 0; left: 0;
-            clip-path: polygon(100% 0, 50% 50%, 0 0); /* Triangle slice - simplified approximation for CSS */
-            transform-origin: 50% 50%;
-            display: flex; justify-content: center; padding-top: 25px;
-            font-weight: 900; font-size: 14px; color: white;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-        }
-        /* Since pure CSS conic gradients don't allow content easily, we use a DOM approach with rotation */
-        .seg-wrapper {
-            position: absolute;
+        
+        canvas {
             width: 100%; height: 100%;
-            transform-origin: center;
+            border-radius: 50%;
+            transform: rotate(-90deg); /* Чтобы 0 градусов было справа, канвас крутим, чтобы 0 был сверху */
         }
-        .seg-content {
-            position: absolute;
-            left: 50%; top: 10px;
-            transform: translateX(-50%);
-            text-align: center;
-        }
-        .seg-icon { width: 24px; height: 24px; display: block; margin: 0 auto 2px; }
 
-        /* BETTING CONTROLS */
-        .bet-panel {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 20px;
-            margin-top: 20px;
+        .pointer {
+            position: absolute; top: -18px; left: 50%;
+            transform: translateX(-50%);
+            width: 30px; height: 40px;
+            z-index: 5;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));
+        }
+        .pointer svg { width: 100%; height: 100%; fill: #fff; }
+
+        .center-knob {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px; height: 50px;
+            background: radial-gradient(circle at 30% 30%, #3e445b, #1a1d2e);
+            border-radius: 50%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            border: 2px solid rgba(255,255,255,0.1);
+            z-index: 4;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .center-knob img { width: 24px; opacity: 0.8; }
+
+        /* --- CONTROLS --- */
+        .controls {
+            background: var(--bg-card);
+            padding: 20px 20px 30px 20px;
+            border-radius: 24px 24px 0 0;
+            box-shadow: 0 -5px 30px rgba(0,0,0,0.3);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            position: relative; z-index: 20;
+        }
+
+        .bet-input-row {
+            display: flex; gap: 10px; margin-bottom: 20px;
+            background: var(--bg-input); padding: 5px; border-radius: 12px;
             border: 1px solid rgba(255,255,255,0.05);
         }
-
-        .input-group {
-            display: flex; gap: 10px; margin-bottom: 15px;
+        .coin-icon { width: 40px; display: flex; align-items: center; justify-content: center; color: var(--c-gold); }
+        .inp-field {
+            flex: 1; background: transparent; border: none; color: #fff;
+            font-size: 18px; font-weight: 700; outline: none; padding: 10px 0;
         }
-        .bet-input {
-            flex: 1;
-            background: #111319;
-            border: 1px solid #2a2d3e;
-            color: white;
-            padding: 12px;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: bold;
-            outline: none;
-            text-align: center;
+        .btn-action {
+            padding: 0 15px; background: #2a2e40; border: none; border-radius: 8px;
+            color: #8b92b0; font-weight: 700; cursor: pointer; transition: 0.2s;
         }
-        .bet-input:focus { border-color: var(--accent-blue); }
+        .btn-action:active { background: #353b50; transform: scale(0.95); }
 
-        .multipliers-grid {
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+        .color-grid {
+            display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px;
+            margin-bottom: 20px;
         }
-
-        .mult-btn {
-            background: #232633;
-            border-radius: 10px;
-            padding: 10px 0;
-            text-align: center;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.2s;
+        .c-btn {
             position: relative;
+            height: 60px; border-radius: 12px;
+            background: #232738;
+            border: 2px solid transparent;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.2s;
             overflow: hidden;
         }
-        .mult-btn.selected { border-color: white; transform: scale(1.05); box-shadow: 0 0 15px rgba(255,255,255,0.2); }
-        .mult-btn:active { transform: scale(0.95); }
+        .c-btn span:first-child { font-size: 16px; font-weight: 900; z-index: 2; }
+        .c-btn span:last-child { font-size: 10px; opacity: 0.6; z-index: 2; margin-top: 2px; }
         
-        .m-val { font-size: 16px; font-weight: 900; display: block; }
-        .m-sub { font-size: 10px; opacity: 0.7; }
+        /* Цвета кнопок */
+        .c-btn.b-2x { color: #a0a6c0; }
+        .c-btn.b-2x.active { background: var(--c-grey); border-color: #fff; color: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.2); }
+        
+        .c-btn.b-3x { color: var(--c-red); }
+        .c-btn.b-3x.active { background: var(--c-red); border-color: #fff; color: #fff; box-shadow: 0 0 15px var(--c-red); }
+        
+        .c-btn.b-5x { color: var(--c-blue); }
+        .c-btn.b-5x.active { background: var(--c-blue); border-color: #fff; color: #fff; box-shadow: 0 0 15px var(--c-blue); }
 
-        /* Colors for buttons */
-        .btn-2x { color: #aeb4c6; } .btn-2x.selected { background: var(--c-grey); color: white; }
-        .btn-3x { color: var(--c-red); } .btn-3x.selected { background: var(--c-red); color: white; }
-        .btn-5x { color: var(--c-blue); } .btn-5x.selected { background: var(--c-blue); color: white; }
-        .btn-50x { color: var(--c-gold); } .btn-50x.selected { background: var(--c-gold); color: white; }
+        .c-btn.b-50x { color: var(--c-gold); }
+        .c-btn.b-50x.active { background: var(--c-gold); border-color: #fff; color: #000; box-shadow: 0 0 15px var(--c-gold); }
 
-        .spin-btn {
-            width: 100%;
-            background: linear-gradient(135deg, #246bfd 0%, #1a50c4 100%);
-            color: white;
-            border: none;
-            padding: 16px;
-            border-radius: 12px;
-            font-size: 18px;
-            font-weight: 900;
-            margin-top: 20px;
-            cursor: pointer;
+        .play-btn {
+            width: 100%; padding: 18px;
+            background: linear-gradient(90deg, #4287ff, #3260c9);
+            border: none; border-radius: 14px;
+            color: white; font-size: 16px; font-weight: 800; letter-spacing: 1px;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 5px 20px rgba(36, 107, 253, 0.3);
-            transition: 0.3s;
+            box-shadow: 0 8px 25px rgba(66, 135, 255, 0.3);
+            transition: 0.2s; cursor: pointer;
         }
-        .spin-btn:disabled { opacity: 0.5; filter: grayscale(1); cursor: not-allowed; }
+        .play-btn:active { transform: scale(0.98); }
+        .play-btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
 
-        /* HISTORY */
-        .history-bar {
-            display: flex; gap: 5px; justify-content: center; margin-bottom: 15px;
-            height: 30px; overflow: hidden;
+        /* WIN MODAL */
+        .win-splash {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+            z-index: 50; opacity: 0; pointer-events: none; transition: 0.3s;
         }
-        .hist-dot {
-            width: 30px; height: 30px; border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 10px; font-weight: 800; color: rgba(0,0,0,0.7);
-        }
-
-        /* --- PROFILE --- */
-        .profile-header { text-align: center; margin-top: 20px; }
-        .big-avatar { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 15px; background-size: cover; border: 3px solid var(--accent-blue); }
-        .menu-row { background: var(--card-bg); padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05); }
-
-        /* --- BOTTOM NAV --- */
-        .bottom-nav { 
-            position: fixed; bottom: 0; width: 100%; 
-            background: rgba(22, 25, 44, 0.95); backdrop-filter: blur(10px);
-            display: flex; justify-content: space-around; padding: 12px 0; 
-            border-top: 1px solid rgba(255,255,255,0.05); z-index: 80; 
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-        .nav-item { text-align: center; font-size: 10px; color: var(--text-gray); transition: 0.2s; opacity: 0.6; }
-        .nav-item.active { color: var(--accent-blue); opacity: 1; transform: translateY(-2px); }
-        .nav-item i { font-size: 20px; display: block; margin-bottom: 4px; }
-
-        /* RESULT POPUP */
-        .win-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; align-items: center; justify-content: center;
-            pointer-events: none; z-index: 50;
-        }
-        .win-msg {
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
-            padding: 15px 30px; border-radius: 20px;
-            color: #2ecc71; font-weight: 900; font-size: 24px;
-            transform: scale(0); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 2px solid #2ecc71;
-        }
-        .win-msg.loss { color: #e74c3c; border-color: #e74c3c; }
-        .win-msg.show { transform: scale(1); }
+        .win-splash.active { opacity: 1; pointer-events: all; }
+        .win-val { font-size: 50px; font-weight: 900; color: #fff; text-shadow: 0 0 30px currentColor; transform: scale(0.5); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .win-splash.active .win-val { transform: scale(1); }
+        .win-label { font-size: 14px; font-weight: 700; color: #ccc; letter-spacing: 2px; margin-bottom: 10px; }
 
     </style>
 </head>
 <body>
 
-    <div class="top-nav">
-        <div style="font-weight: 900; font-size: 20px; display:flex; align-items:center; gap:5px;">
-            <i class="fas fa-bullseye" style="color:var(--accent-blue)"></i> WHEEL
+    <div class="header">
+        <div class="logo">
+            <i class="fas fa-biohazard" style="color: var(--c-blue);"></i> CS:WHEEL
         </div>
-        <div class="balance-badge">
-            <i class="fas fa-star" style="color: gold;"></i> <span id="balance">0</span>
-        </div>
-    </div>
-
-    <div class="main-container">
-
-        <div id="scr-game" class="screen active">
-            
-            <div class="history-bar" id="history-track">
-                </div>
-
-            <div class="wheel-container">
-                <div class="wheel-pointer"></div>
-                <div class="win-overlay"><div class="win-msg" id="win-popup">WIN!</div></div>
-                <div class="wheel" id="wheel">
-                    </div>
-            </div>
-
-            <div class="bet-panel">
-                <div class="input-group">
-                    <input type="number" id="bet-amount" class="bet-input" value="100" placeholder="Сумма">
-                    <div style="display:flex; gap:5px;">
-                        <button class="bet-input" style="width:50px; flex:none; background:#232633; cursor:pointer;" onclick="setBet('half')">1/2</button>
-                        <button class="bet-input" style="width:50px; flex:none; background:#232633; cursor:pointer;" onclick="setBet('x2')">x2</button>
-                    </div>
-                </div>
-
-                <div class="multipliers-grid">
-                    <div class="mult-btn btn-2x" onclick="selectMode(2, this)">
-                        <span class="m-val">2x</span>
-                        <span class="m-sub">GREY</span>
-                    </div>
-                    <div class="mult-btn btn-3x" onclick="selectMode(3, this)">
-                        <span class="m-val">3x</span>
-                        <span class="m-sub">RED</span>
-                    </div>
-                    <div class="mult-btn btn-5x" onclick="selectMode(5, this)">
-                        <span class="m-val">5x</span>
-                        <span class="m-sub">BLUE</span>
-                    </div>
-                    <div class="mult-btn btn-50x" onclick="selectMode(50, this)">
-                        <span class="m-val">50x</span>
-                        <span class="m-sub">GOLD</span>
-                    </div>
-                </div>
-
-                <button class="spin-btn" id="btn-spin" onclick="spin()">КРУТИТЬ</button>
-            </div>
-        </div>
-
-        <div id="scr-profile" class="screen">
-            <div class="profile-header">
-                <div class="big-avatar" id="p-img" style="background-image: url('https://img.icons8.com/3d-fluency/188/user-male-circle.png');"></div>
-                <h2 id="p-name" style="margin:0;">Игрок</h2>
-                <div style="color:var(--text-gray); font-size:13px; margin-top:5px;" id="p-id">ID: ...</div>
-            </div>
-            <div style="margin-top: 30px;">
-                <div class="menu-row">
-                    <span><i class="fas fa-wallet" style="color:#2ecc71; width:25px;"></i> Пополнить баланс</span>
-                    <i class="fas fa-chevron-right" style="opacity:0.5"></i>
-                </div>
-                <div class="menu-row">
-                    <span><i class="fas fa-history" style="color:#f1c40f; width:25px;"></i> История игр</span>
-                    <i class="fas fa-chevron-right" style="opacity:0.5"></i>
-                </div>
-                <div class="menu-row">
-                    <span><i class="fas fa-headset" style="color:#3498db; width:25px;"></i> Поддержка</span>
-                    <i class="fas fa-chevron-right" style="opacity:0.5"></i>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <div class="bottom-nav">
-        <div class="nav-item active" id="n-game" onclick="nav('game')">
-            <i class="fas fa-gamepad"></i> Игра
-        </div>
-        <div class="nav-item" id="n-profile" onclick="nav('profile')">
-            <i class="fas fa-user"></i> Профиль
+        <div class="balance-box">
+            <i class="fas fa-coins" style="color: var(--c-gold);"></i>
+            <span id="balance">10000</span>
         </div>
     </div>
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
+    <div class="history-wrap">
+        <div class="history-track" id="history-track">
+            </div>
+    </div>
 
-        // --- GAME CONFIG ---
-        // 54 segments total (standard for this type of game)
-        // 2x (Grey) = 26 segments
-        // 3x (Red) = 17 segments
-        // 5x (Blue) = 10 segments
-        // 50x (Gold) = 1 segment
+    <div class="game-area">
+        <div class="wheel-wrapper">
+            <canvas id="wheelCanvas" width="640" height="640"></canvas>
+            <div class="center-knob"><i class="fas fa-crosshairs" style="color:white;"></i></div>
+            <div class="pointer">
+                <svg viewBox="0 0 30 40">
+                    <path d="M15 40 L0 0 L30 0 Z" fill="#ffffff"/>
+                </svg>
+            </div>
+        </div>
+        <div class="win-splash" id="winSplash">
+            <div class="win-label">YOU WON</div>
+            <div class="win-val" id="winVal">0</div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="bet-input-row">
+            <div class="coin-icon"><i class="fas fa-coins"></i></div>
+            <input type="number" id="betInput" class="inp-field" value="100" placeholder="0">
+            <button class="btn-action" onclick="modBet(0.5)">1/2</button>
+            <button class="btn-action" style="margin-left:5px;" onclick="modBet(2)">x2</button>
+            <button class="btn-action" style="margin-left:5px;" onclick="modBet('max')">MAX</button>
+        </div>
+
+        <div class="color-grid">
+            <div class="c-btn b-2x" onclick="selectColor(2, this)">
+                <span>2x</span><span>GREY</span>
+            </div>
+            <div class="c-btn b-3x" onclick="selectColor(3, this)">
+                <span>3x</span><span>RED</span>
+            </div>
+            <div class="c-btn b-5x" onclick="selectColor(5, this)">
+                <span>5x</span><span>BLUE</span>
+            </div>
+            <div class="c-btn b-50x" onclick="selectColor(50, this)">
+                <span>50x</span><span>GOLD</span>
+            </div>
+        </div>
+
+        <button class="play-btn" id="spinBtn" onclick="startGame()">КРУТИТЬ</button>
+    </div>
+
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+    tg.enableClosingConfirmation();
+
+    // --- CONFIGURATION ---
+    const SEGMENTS_COUNT = 54;
+    const SEGMENT_ANGLE = (2 * Math.PI) / SEGMENTS_COUNT; // in radians
+    
+    // Pattern: 1 Gold, 10 Blue, 17 Red, 26 Grey. Total 54.
+    // Order matters for the visual. We shuffle once to create the "Random" layout of the wheel
+    // But to match server seeds in real life, we usually have a fixed pattern.
+    // Let's generate a nice looking mixed pattern.
+    
+    let segmentsData = [];
+    const colors = {
+        2:  { color: '#30354a', text: '#a0a6c0' },
+        3:  { color: '#ff4949', text: '#ffffff' },
+        5:  { color: '#4287ff', text: '#ffffff' },
+        50: { color: '#ffc400', text: '#000000' }
+    };
+
+    // Filling array
+    let pool = [];
+    for(let i=0; i<26; i++) pool.push(2);
+    for(let i=0; i<17; i++) pool.push(3);
+    for(let i=0; i<10; i++) pool.push(5);
+    for(let i=0; i<1; i++) pool.push(50);
+    
+    // Pseudo-random shuffle ensuring no 3 same colors in a row for better aesthetics
+    pool.sort(() => Math.random() - 0.5);
+    segmentsData = pool;
+
+    // --- CANVAS SETUP ---
+    const canvas = document.getElementById('wheelCanvas');
+    const ctx = canvas.getContext('2d');
+    const CW = canvas.width;
+    const CH = canvas.height;
+    const CX = CW / 2;
+    const CY = CH / 2;
+    const RADIUS = CX - 10; // padding
+
+    // State
+    let balance = 10000;
+    let currentAngle = 0; // Radians
+    let isSpinning = false;
+    let selectedMult = null;
+    let betAmount = 100;
+
+    // --- RENDER FUNCTION (60 FPS) ---
+    function drawWheel() {
+        // Clear
+        ctx.clearRect(0, 0, CW, CH);
         
-        const WHEEL_SIZE = 54;
-        const SEGMENT_ANGLE = 360 / WHEEL_SIZE;
-        
-        // Define colors
-        const C_GREY = '#4b5069';
-        const C_RED = '#e54d42';
-        const C_BLUE = '#3d8aff';
-        const C_GOLD = '#ffcd00';
+        // Background Circle (Dark rim)
+        ctx.beginPath();
+        ctx.arc(CX, CY, RADIUS + 5, 0, 2 * Math.PI);
+        ctx.fillStyle = "#161925";
+        ctx.fill();
 
-        // Generate Wheel Data
-        let segments = [];
-        // Pattern logic to distribute them somewhat evenly visually
-        for(let i=0; i<26; i++) segments.push({m:2, c:C_GREY});
-        for(let i=0; i<17; i++) segments.push({m:3, c:C_RED});
-        for(let i=0; i<10; i++) segments.push({m:5, c:C_BLUE});
-        for(let i=0; i<1; i++) segments.push({m:50, c:C_GOLD});
-        
-        // Shuffle randomly for layout
-        segments = segments.sort(() => Math.random() - 0.5);
+        ctx.save();
+        ctx.translate(CX, CY);
+        ctx.rotate(currentAngle); // Rotate the whole canvas context
 
-        // State
-        let balance = parseInt(localStorage.getItem('w_bal')) || 5000;
-        let selectedMult = 0;
-        let currentRotation = 0;
-        let isSpinning = false;
+        for (let i = 0; i < SEGMENTS_COUNT; i++) {
+            const mult = segmentsData[i];
+            const conf = colors[mult];
+            const startAngle = i * SEGMENT_ANGLE;
+            const endAngle = startAngle + SEGMENT_ANGLE;
 
-        // Init
-        document.getElementById('balance').innerText = balance;
-        renderWheel();
-        updateHistoryDisplay();
-
-        // --- RENDER WHEEL ---
-        function renderWheel() {
-            const wheelEl = document.getElementById('wheel');
-            wheelEl.innerHTML = ''; // clear
+            // Draw Segment Slice
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.arc(0, 0, RADIUS, startAngle, endAngle);
+            ctx.closePath();
+            ctx.fillStyle = conf.color;
+            ctx.fill();
             
-            // To create the wheel visually using conic-gradient would be hard with gaps
-            // We use rotated divs. 
-            // Note: Clip-path triangle logic is tricky for exact fits.
-            // Simplified approach: Conic gradient for background, Divs for text.
-            
-            let gradientStr = '';
-            let currentDeg = 0;
-            
-            segments.forEach((seg, index) => {
-                // Build DOM Element for Text/Icon
-                const wrapper = document.createElement('div');
-                wrapper.className = 'seg-wrapper';
-                const rotation = (index * SEGMENT_ANGLE) + (SEGMENT_ANGLE / 2); // Center text in segment
-                wrapper.style.transform = `rotate(${rotation}deg)`;
-                
-                const content = document.createElement('div');
-                content.className = 'seg-content';
-                
-                // Icon based on multiplier
-                let iconClass = 'fa-gem'; // default
-                if(seg.m === 2) iconClass = 'fa-cube'; // simple box
-                if(seg.m === 3) iconClass = 'fa-fire';
-                if(seg.m === 5) iconClass = 'fa-diamond';
-                if(seg.m === 50) iconClass = 'fa-crown';
+            // Stroke for separation
+            ctx.strokeStyle = "rgba(0,0,0,0.2)";
+            ctx.lineWidth = 2;
+            ctx.stroke();
 
-                content.innerHTML = `<i class="fas ${iconClass}" style="color:rgba(255,255,255,0.8); font-size:16px; display:block; margin-bottom:2px;"></i>`;
-                
-                wrapper.appendChild(content);
-                wheelEl.appendChild(wrapper);
+            // Text / Content
+            ctx.save();
+            ctx.rotate(startAngle + SEGMENT_ANGLE / 2);
+            ctx.translate(RADIUS - 40, 0);
+            ctx.rotate(Math.PI / 2); // Text facing inwards
 
-                // Build Gradient String
-                gradientStr += `${seg.c} ${currentDeg}deg ${currentDeg + SEGMENT_ANGLE}deg, `;
-                currentDeg += SEGMENT_ANGLE;
-            });
-
-            // Remove trailing comma
-            gradientStr = gradientStr.slice(0, -2);
-            wheelEl.style.background = `conic-gradient(${gradientStr})`;
-        }
-
-        // --- GAME LOGIC ---
-        function selectMode(mult, btn) {
-            if(isSpinning) return;
-            selectedMult = mult;
-            
-            // UI Update
-            document.querySelectorAll('.mult-btn').forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-            
-            tg.HapticFeedback.selectionChanged();
-        }
-
-        function setBet(type) {
-            const input = document.getElementById('bet-amount');
-            let val = parseInt(input.value) || 0;
-            if(type === 'half') val = Math.floor(val / 2);
-            if(type === 'x2') val = val * 2;
-            input.value = Math.max(0, val);
-        }
-
-        function spin() {
-            const betInput = document.getElementById('bet-amount');
-            const amount = parseInt(betInput.value);
-
-            if(isSpinning) return;
-            if(!selectedMult) { tg.showAlert('Выберите цвет (x2, x3...)'); return; }
-            if(isNaN(amount) || amount <= 0) { tg.showAlert('Введите сумму ставки'); return; }
-            if(amount > balance) { tg.showAlert('Недостаточно средств'); return; }
-
-            // Deduct balance
-            balance -= amount;
-            updateBalance();
-            
-            isSpinning = true;
-            document.getElementById('btn-spin').disabled = true;
-            document.getElementById('win-popup').classList.remove('show');
-
-            // 1. Determine Winning Segment
-            // Weighted random is inherent in the segments array distribution
-            const winningIndex = Math.floor(Math.random() * segments.length);
-            const winSegment = segments[winningIndex];
-
-            // 2. Calculate Rotation
-            // We need to land on winningIndex.
-            // Index 0 starts at 0deg (top). 
-            // To land on Index X, we rotate NEGATIVE (Counter Clockwise) or POSITIVE logic.
-            // Let's rely on the pointer being at TOP (0 deg).
-            // Rotation required to put segment X at top = - (X * SEGMENT_ANGLE + SEGMENT_ANGLE/2)
-            
-            const segmentCenter = (winningIndex * SEGMENT_ANGLE) + (SEGMENT_ANGLE / 2);
-            // Add extra spins (e.g. 5 full rotations = 1800 deg)
-            // Note: Since we are adding to currentRotation, we need to handle the math carefully
-            // Target Rotation = currentRotation + (360 * 5) + (360 - (segmentCenter - (currentRotation % 360))); 
-            // Simplified: Just calculate target absolute rotation.
-            
-            const extraSpins = 360 * 8; // 8 spins
-            // Random jitter within the segment (+- 2 deg) for realism
-            const jitter = (Math.random() * 4) - 2;
-            
-            // To land segment at top (0deg), we rotate the WHEEL so that the segment angle is at -90deg (if 0 is right) or -270...
-            // CSS 0deg is usually Top in conic gradient? Yes.
-            // So if we want segment at 10deg to be at 0deg, we rotate wheel -10deg.
-            
-            const targetRotation = currentRotation + extraSpins + (360 - segmentCenter) + jitter;
-            
-            // 3. Animate
-            const wheelEl = document.getElementById('wheel');
-            wheelEl.style.transform = `rotate(${targetRotation}deg)`;
-            
-            currentRotation = targetRotation; // save for next spin so we don't snap back
-
-            // 4. End Game
-            setTimeout(() => {
-                finishSpin(winSegment, amount);
-            }, 5000); // Matches CSS transition time
-        }
-
-        function finishSpin(result, bet) {
-            isSpinning = false;
-            document.getElementById('btn-spin').disabled = false;
-            
-            const isWin = result.m === selectedMult;
-            const popup = document.getElementById('win-popup');
-            
-            if(isWin) {
-                const profit = bet * result.m;
-                balance += profit;
-                popup.innerText = `+${profit}`;
-                popup.className = 'win-msg show'; // Green default
-                tg.HapticFeedback.notificationOccurred('success');
-            } else {
-                popup.innerText = `${result.m}x`;
-                popup.className = 'win-msg loss show'; // Red
-                tg.HapticFeedback.notificationOccurred('error');
+            // Draw circle behind text for style
+            if(mult === 50) {
+                 ctx.beginPath();
+                 ctx.arc(0, -5, 18, 0, Math.PI*2);
+                 ctx.fillStyle = "rgba(255,255,255,0.3)";
+                 ctx.fill();
             }
+
+            ctx.fillStyle = conf.text;
+            ctx.font = "bold 24px Inter";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(mult, 0, 0);
             
-            updateBalance();
-            addToHistory(result);
+            ctx.restore();
         }
+        ctx.restore();
+    }
 
-        function updateBalance() {
-            document.getElementById('balance').innerText = balance;
-            localStorage.setItem('w_bal', balance);
-        }
+    // Initial Draw
+    drawWheel();
 
-        // --- HISTORY LOGIC ---
-        let history = [];
-        function addToHistory(seg) {
-            history.unshift(seg);
-            if(history.length > 10) history.pop();
-            updateHistoryDisplay();
-        }
-        function updateHistoryDisplay() {
-            const track = document.getElementById('history-track');
-            track.innerHTML = '';
-            history.forEach(h => {
-                const dot = document.createElement('div');
-                dot.className = 'hist-dot';
-                dot.style.background = h.c;
-                dot.style.color = (h.m === 50) ? '#000' : '#fff';
-                dot.innerText = h.m + 'x';
-                track.appendChild(dot);
-            });
-        }
+    // --- LOGIC ---
+    function selectColor(mult, el) {
+        if(isSpinning) return;
+        selectedMult = mult;
+        
+        // UI
+        document.querySelectorAll('.c-btn').forEach(b => b.classList.remove('active'));
+        el.classList.add('active');
+        tg.HapticFeedback.selectionChanged();
+    }
 
-        // --- NAVIGATION ---
-        function nav(screen) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById('scr-' + screen).classList.add('active');
+    function modBet(action) {
+        if(isSpinning) return;
+        const inp = document.getElementById('betInput');
+        let v = parseInt(inp.value) || 0;
+        
+        if(action === 'max') v = balance;
+        else if(action === 0.5) v = Math.floor(v / 2);
+        else v = Math.floor(v * action);
+        
+        v = Math.max(1, Math.min(balance, v)); // Clamp
+        inp.value = v;
+        betAmount = v;
+    }
+
+    function startGame() {
+        if(isSpinning) return;
+        betAmount = parseInt(document.getElementById('betInput').value);
+        
+        if(!selectedMult) { tg.showAlert("Выберите цвет!"); return; }
+        if(betAmount > balance) { tg.showAlert("Не хватает монет!"); return; }
+        if(betAmount <= 0) return;
+
+        // Deduct balance
+        balance -= betAmount;
+        document.getElementById('balance').innerText = balance;
+        isSpinning = true;
+        document.getElementById('spinBtn').disabled = true;
+        document.getElementById('winSplash').classList.remove('active');
+
+        // Logic: Pick winner
+        const winIndex = Math.floor(Math.random() * SEGMENTS_COUNT);
+        const winMult = segmentsData[winIndex];
+
+        // Calculate Physics
+        // We need to land on winIndex. 
+        // Canvas rotation starts at 0 (Right). We rotated context so 0 is Top visually?
+        // Wait, standard arc 0 is right (3 o'clock).
+        // My draw loop: i=0 starts at 0 rad.
+        // To point top (Pointer Position = -90deg or 270deg) to a specific segment...
+        
+        // Let's simplify: Pointer is fixed at TOP (-Math.PI/2).
+        // To land Index I at Top, the Rotation must be:
+        // TargetRotation = - (Index * Angle) - (Angle/2) - (Math.PI/2 to compensate pointer location?)
+        // Actually, let's just use a huge rotation and modulo.
+        
+        // The angle of the CENTER of the winning segment in the "Base" wheel (0 rot)
+        const segmentCenterBase = winIndex * SEGMENT_ANGLE + (SEGMENT_ANGLE/2);
+        
+        // We want this angle to end up at -Math.PI/2 (Top)
+        // currentAngle + delta = FinalAngle
+        // FinalAngle % 2PI needs to align segmentCenterBase to -PI/2
+        
+        const loops = 5 + Math.floor(Math.random() * 3); // 5 to 8 spins
+        const spinAngle = (loops * 2 * Math.PI); 
+        
+        // Offset to align: 
+        // We need (current + spin + offset) + segmentCenterBase = -PI/2 (approx)
+        // It's easier to think: Rotate BACKWARDS.
+        // Let's just calculate random target and find what index it hits? No, we decided winner first.
+        
+        // Correct math:
+        // We need the wheel to rotate such that the winning segment is at -90deg (1.5 PI or -0.5 PI)
+        // If current rotation is 0. Segment is at `segmentCenterBase`.
+        // We need to rotate by `delta`.
+        // segmentCenterBase + delta = -Math.PI/2
+        // => delta = -Math.PI/2 - segmentCenterBase
+        
+        // Add huge spins to delta
+        let targetDelta = (-Math.PI/2 - segmentCenterBase) - (currentAngle % (2*Math.PI));
+        
+        // Ensure positive spin direction (Clockwise usually)
+        // If we want clockwise visual, we usually increase angle. 
+        // But here standard is counter-clockwise for positive angles in Canvas? 
+        // Actually let's just make it visually pleasing.
+        
+        // Let's go simple:
+        // Add a huge amount to rotation.
+        // Check which index lands at -PI/2.
+        // Adjust slightly? 
+        // No, let's stick to the math above.
+        
+        // Adjust target to be far in future (CLOCKWISE spin = increasing angle?)
+        // Let's try subtracting to spin CCW (standard wheel spin).
+        targetDelta -= spinAngle; 
+        
+        // Add randomness inside segment (+- 40% of segment width)
+        const randomOffset = (Math.random() - 0.5) * SEGMENT_ANGLE * 0.8;
+        targetDelta += randomOffset;
+
+        const finalAngle = currentAngle + targetDelta;
+        
+        // Animation Loop
+        const duration = 5000; // ms
+        const startTime = performance.now();
+        const startAngle = currentAngle;
+        
+        function animate(time) {
+            const elapsed = time - startTime;
+            const progress = Math.min(elapsed / duration, 1);
             
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById('n-' + screen).classList.add('active');
+            // Easing: EaseOutCubic (starts fast, slows down gently)
+            const ease = 1 - Math.pow(1 - progress, 3);
+            
+            currentAngle = startAngle + (targetDelta * ease);
+            drawWheel();
+            
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                finishSpin(winMult);
+            }
         }
+        
+        requestAnimationFrame(animate);
+    }
 
-        // User Data
-        const u = tg.initDataUnsafe?.user;
-        if(u) {
-            document.getElementById('p-name').innerText = u.first_name;
-            document.getElementById('p-id').innerText = "ID: " + u.id;
+    function finishSpin(resultMult) {
+        isSpinning = false;
+        document.getElementById('spinBtn').disabled = false;
+        
+        // Add to history
+        addToHistory(resultMult);
+
+        // Check win
+        const won = (resultMult === selectedMult);
+        const winSplash = document.getElementById('winSplash');
+        const winVal = document.getElementById('winVal');
+        
+        if(won) {
+            const profit = betAmount * resultMult;
+            balance += profit;
+            
+            winVal.innerText = "+" + profit;
+            winVal.style.color = "#2ecc71"; // Green
+            document.querySelector('.win-label').innerText = "YOU WON";
+            winSplash.classList.add('active');
+            
+            tg.HapticFeedback.notificationOccurred('success');
+            
+            setTimeout(() => {
+                winSplash.classList.remove('active');
+            }, 2000);
+        } else {
+            winVal.innerText = resultMult + "x";
+            winVal.style.color = "#ff4949"; // Red
+            document.querySelector('.win-label').innerText = "RESULT";
+            winSplash.classList.add('active');
+            
+            tg.HapticFeedback.notificationOccurred('error');
+            
+            setTimeout(() => {
+                winSplash.classList.remove('active');
+            }, 1500);
         }
+        
+        document.getElementById('balance').innerText = balance;
+    }
 
-    </script>
+    function addToHistory(mult) {
+        const track = document.getElementById('history-track');
+        const div = document.createElement('div');
+        div.className = 'hist-badge';
+        
+        // Color lookup
+        let bg = colors[mult].color;
+        let txt = colors[mult].text;
+        
+        div.style.background = bg;
+        div.style.color = txt;
+        div.style.borderColor = (mult === 50) ? '#fff' : 'rgba(255,255,255,0.1)';
+        div.innerText = mult;
+        
+        // Add to start
+        track.prepend(div);
+        
+        // Limit
+        if(track.children.length > 20) track.lastChild.remove();
+    }
+    
+    // Init History Mock Data
+    [2,2,3,2,5,2,3,2,50,2,3,5].forEach(m => addToHistory(m));
+
+</script>
 </body>
 </html>
-
