@@ -3,523 +3,318 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BullDrop Wheel</title>
+    <title>BullDrop Ultimate</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --bg-dark: #0d0f15;
-            --bg-panel: #161922;
-            --bg-input: #0a0b10;
-            
-            --c-2x: #8e94aa;  /* Grey/Silver */
-            --c-3x: #3dbf65;  /* Green */
-            --c-5x: #ea4646;  /* Red */
-            --c-50x: #facc15; /* Gold */
-            
-            --text-main: #ffffff;
-            --text-sec: #6e768d;
+            --bg: #0d1018;
+            --panel: #161a23;
+            --accent: #3b82f6;
+            --grey: #2d3446;
+            --green: #10b981;
+            --red: #ef4444;
+            --gold: #f59e0b;
         }
 
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
-            margin: 0; padding: 0;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            font-family: 'Inter', sans-serif;
-            overflow: hidden; /* No scroll, app-like */
-            height: 100vh;
-            display: flex; flex-direction: column;
+            margin: 0; background: var(--bg); color: white;
+            font-family: 'Montserrat', sans-serif; overflow: hidden; height: 100vh;
         }
 
         /* --- HEADER --- */
         .header {
-            height: 60px;
             display: flex; justify-content: space-between; align-items: center;
-            padding: 0 16px;
-            background: var(--bg-panel);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 15px 20px; background: var(--panel); border-bottom: 1px solid rgba(255,255,255,0.05);
         }
-        .brand { font-weight: 900; font-size: 20px; color: #ff4d4d; display: flex; align-items: center; gap: 5px; }
-        .brand span { color: white; }
-        .balance-badge {
-            background: #232838; padding: 6px 12px; border-radius: 8px;
-            font-weight: 700; font-size: 14px;
-            display: flex; align-items: center; gap: 8px;
-            border: 1px solid rgba(255,255,255,0.05);
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .user-info img { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--accent); }
+        .balance {
+            background: #1e232f; padding: 8px 15px; border-radius: 10px;
+            font-weight: 900; color: #fff; display: flex; align-items: center; gap: 8px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
         }
 
-        /* --- WHEEL CONTAINER (Middle) --- */
-        .game-wrapper {
-            flex: 1;
-            display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            position: relative;
-            background: radial-gradient(circle at center, #1b2030 0%, #0d0f15 70%);
+        /* --- SCREENS --- */
+        .screen { display: none; height: calc(100vh - 145px); overflow-y: auto; }
+        .screen.active { display: block; }
+
+        /* --- BULLDROP LINEAR WHEEL --- */
+        .roulette-container {
+            position: relative; width: 100%; height: 180px;
+            background: #0a0c12; margin: 40px 0;
+            overflow: hidden; display: flex; align-items: center;
+            border-top: 2px solid rgba(255,255,255,0.02);
+            border-bottom: 2px solid rgba(255,255,255,0.02);
         }
 
-        /* Wheel Styles */
-        .wheel-container {
-            position: relative;
-            width: 300px; height: 300px;
-            border-radius: 50%;
-            padding: 10px;
-            background: #1c202b;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 0 20px rgba(0,0,0,0.8);
-            border: 2px solid #2a2e3d;
+        .selector {
+            position: absolute; left: 50%; transform: translateX(-50%);
+            height: 100%; width: 4px; background: var(--accent);
+            z-index: 10; box-shadow: 0 0 20px var(--accent);
+        }
+        .selector::before {
+            content: ''; position: absolute; top: -10px; left: -8px;
+            border-left: 10px solid transparent; border-right: 10px solid transparent;
+            border-top: 12px solid var(--accent);
         }
 
-        canvas {
-            width: 100%; height: 100%;
-            border-radius: 50%;
-            transform: rotate(-90deg);
+        .tape {
+            display: flex; position: absolute; left: 0;
+            transition: transform 5s cubic-bezier(0.12, 0, 0, 1);
+            will-change: transform;
         }
 
-        .pointer-arrow {
-            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
-            width: 40px; height: 45px; z-index: 10;
-            filter: drop-shadow(0 4px 4px rgba(0,0,0,0.5));
-        }
-        .pointer-arrow svg { width: 100%; height: 100%; fill: #e0e0e0; stroke: #000; stroke-width: 1px; }
-
-        .center-hub {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 60px; height: 60px;
-            background: #161922; border: 3px solid #2a2e3d;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            z-index: 5;
-        }
-        .timer-display { font-weight: 800; font-size: 12px; color: #fff; text-align: center; }
-
-        /* --- HISTORY BAR --- */
-        .history-bar {
-            width: 100%; height: 40px;
-            background: rgba(0,0,0,0.2);
-            display: flex; align-items: center; justify-content: center;
-            gap: 6px; padding: 0 10px;
-            margin-top: 20px;
-            overflow: hidden;
-        }
-        .hist-dot {
-            width: 24px; height: 24px; border-radius: 6px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.9);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        }
-
-        /* --- CONTROLS SECTION --- */
-        .controls-panel {
-            background: var(--bg-panel);
-            padding: 20px 16px 85px 16px; /* 85px padding bottom for menu */
-            border-top: 1px solid rgba(255,255,255,0.05);
-            border-radius: 20px 20px 0 0;
-            box-shadow: 0 -10px 30px rgba(0,0,0,0.3);
-        }
-
-        /* Bet Input Row */
-        .bet-row {
-            display: flex; gap: 10px; margin-bottom: 15px;
-        }
-        .input-group {
-            flex: 1; background: var(--bg-input);
-            border-radius: 12px; padding: 12px;
-            display: flex; align-items: center;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        .input-group input {
-            background: transparent; border: none; color: white;
-            font-size: 16px; font-weight: 700; width: 100%; outline: none;
-        }
-        .quick-actions { display: flex; gap: 5px; }
-        .btn-mini {
-            background: #232838; border: none; color: var(--text-sec);
-            padding: 0 12px; border-radius: 8px; font-weight: 600; cursor: pointer;
-            transition: 0.2s;
-        }
-        .btn-mini:active { background: #303649; color: white; }
-
-        /* Multiplier Buttons */
-        .multi-grid {
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
-            margin-bottom: 15px;
-        }
-        .m-btn {
-            background: #232838; border-radius: 12px; height: 55px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            cursor: pointer; border: 1px solid transparent; transition: all 0.2s;
+        .card {
+            min-width: 80px; height: 100px; margin: 0 4px;
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            font-size: 20px; font-weight: 900; color: rgba(255,255,255,0.9);
             position: relative; overflow: hidden;
         }
-        .m-btn span:first-child { font-size: 16px; font-weight: 900; z-index: 2; }
-        .m-btn img { position: absolute; width: 30px; opacity: 0.2; bottom: -5px; right: -5px; }
-        
-        /* Button Colors active state */
-        .m-btn.active { border-color: white; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        .m-btn[data-val="2"] { color: var(--c-2x); }
-        .m-btn[data-val="2"].active { background: var(--c-2x); color: white; }
-        
-        .m-btn[data-val="3"] { color: var(--c-3x); }
-        .m-btn[data-val="3"].active { background: var(--c-3x); color: white; }
-        
-        .m-btn[data-val="5"] { color: var(--c-5x); }
-        .m-btn[data-val="5"].active { background: var(--c-5x); color: white; }
-        
-        .m-btn[data-val="50"] { color: var(--c-50x); }
-        .m-btn[data-val="50"].active { background: var(--c-50x); color: black; }
-
-        /* Main Button */
-        .play-btn {
-            width: 100%; padding: 16px;
-            background: linear-gradient(90deg, #4287ff, #3260c9);
-            border: none; border-radius: 12px;
-            color: white; font-weight: 800; font-size: 16px; text-transform: uppercase;
-            box-shadow: 0 5px 20px rgba(66, 135, 255, 0.25);
-            transition: 0.2s; cursor: pointer;
+        .card::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 100%);
         }
-        .play-btn:active { transform: scale(0.98); opacity: 0.9; }
-        .play-btn:disabled { background: #232838; color: #555; box-shadow: none; }
+        
+        .card.c-2 { background: var(--grey); box-shadow: 0 4px 0 #1e232f; }
+        .card.c-3 { background: var(--green); box-shadow: 0 4px 0 #065f46; }
+        .card.c-5 { background: var(--red); box-shadow: 0 4px 0 #991b1b; }
+        .card.c-50 { background: var(--gold); box-shadow: 0 4px 0 #92400e; color: #000; }
 
-        /* --- BOTTOM MENU (FIXED) --- */
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            height: 70px; background: #1a1d27;
-            display: flex; justify-content: space-around; align-items: center;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            z-index: 100; padding-bottom: 10px; /* Safe area */
+        /* --- CONTROLS --- */
+        .controls { padding: 0 20px; }
+        .bet-input-wrap {
+            display: flex; background: var(--panel); border-radius: 12px;
+            padding: 5px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1);
         }
-        .nav-item {
+        .bet-input-wrap input {
+            flex: 1; background: transparent; border: none; color: white;
+            font-family: inherit; font-weight: 700; font-size: 18px; padding-left: 15px; outline: none;
+        }
+        .bet-btn {
+            background: #2d3446; border: none; color: #94a3b8;
+            padding: 10px 15px; border-radius: 8px; font-weight: 700; margin-left: 5px;
+        }
+
+        .grid-bets {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px;
+        }
+        .grid-item {
+            background: var(--panel); height: 70px; border-radius: 12px;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: #555b6f; font-size: 10px; font-weight: 600; gap: 4px;
-            width: 60px;
+            border: 2px solid transparent; transition: 0.2s;
         }
-        .nav-item i { font-size: 20px; margin-bottom: 2px; }
-        .nav-item.active { color: #fff; }
-        .nav-item.active i { color: #4287ff; text-shadow: 0 0 10px rgba(66,135,255,0.5); }
-        
-        /* Win Modal */
-        .overlay {
-            position: fixed; top:0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
-            z-index: 200; display: flex; align-items: center; justify-content: center;
-            opacity: 0; pointer-events: none; transition: 0.3s;
+        .grid-item.active { border-color: var(--accent); background: #1e2536; }
+        .grid-item span:first-child { font-size: 18px; font-weight: 900; }
+        .grid-item span:last-child { font-size: 10px; opacity: 0.5; }
+
+        .btn-main {
+            width: 100%; padding: 20px; border: none; border-radius: 15px;
+            background: linear-gradient(to right, #3b82f6, #2563eb);
+            color: white; font-weight: 900; font-size: 16px; text-transform: uppercase;
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
         }
-        .overlay.active { opacity: 1; pointer-events: all; }
-        .win-card {
-            background: #1c202b; padding: 30px; border-radius: 20px;
-            text-align: center; border: 1px solid #333; transform: scale(0.8); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+        /* --- PROFILE SCREEN --- */
+        .profile-card {
+            background: var(--panel); margin: 20px; padding: 25px; border-radius: 20px;
+            text-align: center; border: 1px solid rgba(255,255,255,0.05);
         }
-        .overlay.active .win-card { transform: scale(1); }
-        .win-amt { font-size: 40px; font-weight: 900; margin: 10px 0; color: #fff; }
+        .profile-card img { width: 100px; height: 100px; border-radius: 50%; border: 4px solid var(--accent); margin-bottom: 15px; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .stat-item { background: #0d1018; padding: 15px; border-radius: 12px; }
+
+        /* --- MENU --- */
+        .nav {
+            position: fixed; bottom: 0; width: 100%; height: 75px;
+            background: var(--panel); display: flex; justify-content: space-around;
+            padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #4b5563; font-size: 11px; gap: 5px; }
+        .nav-item.active { color: var(--accent); }
+        .nav-item i { font-size: 22px; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="brand"><i class="fas fa-bullseye"></i> Bull<span>Drop</span></div>
-        <div class="balance-badge">
-            <i class="fas fa-coins" style="color:#facc15"></i>
-            <span id="balance">5000</span>
+        <div class="user-info">
+            <img id="u-avatar" src="https://via.placeholder.com/100" alt="">
+            <div id="u-name">Player</div>
+        </div>
+        <div class="balance">
+            <i class="fas fa-coins" style="color:var(--gold)"></i>
+            <span id="bal-val">10,000</span>
         </div>
     </div>
 
-    <div class="game-wrapper">
-        <div class="wheel-container">
-            <div class="pointer-arrow">
-                <svg viewBox="0 0 40 45">
-                    <path d="M20 45 L0 0 L40 0 Z" />
-                </svg>
-            </div>
-            <canvas id="wheelCanvas" width="560" height="560"></canvas>
-            <div class="center-hub">
-                <div class="timer-display">SPIN</div>
-            </div>
+    <div id="scr-game" class="screen active">
+        <div class="roulette-container">
+            <div class="selector"></div>
+            <div class="tape" id="tape"></div>
         </div>
 
-        <div class="history-bar" id="historyTrack">
-            <div class="hist-dot" style="background:#8e94aa; color:#fff">2</div>
-            <div class="hist-dot" style="background:#3dbf65; color:#fff">3</div>
-            <div class="hist-dot" style="background:#8e94aa; color:#fff">2</div>
-            <div class="hist-dot" style="background:#ea4646; color:#fff">5</div>
-            <div class="hist-dot" style="background:#8e94aa; color:#fff">2</div>
+        <div class="controls">
+            <div class="bet-input-wrap">
+                <input type="number" id="bet-amount" value="100">
+                <button class="bet-btn" onclick="adjustBet(0.5)">1/2</button>
+                <button class="bet-btn" onclick="adjustBet(2)">x2</button>
+            </div>
+
+            <div class="grid-bets">
+                <div class="grid-item" onclick="sel(2, this)" style="color:var(--grey)">
+                    <span>2x</span><span>СЕРЫЙ</span>
+                </div>
+                <div class="grid-item" onclick="sel(3, this)" style="color:var(--green)">
+                    <span>3x</span><span>ЗЕЛЕНЫЙ</span>
+                </div>
+                <div class="grid-item" onclick="sel(5, this)" style="color:var(--red)">
+                    <span>5x</span><span>КРАСНЫЙ</span>
+                </div>
+                <div class="grid-item" onclick="sel(50, this)" style="color:var(--gold)">
+                    <span>50x</span><span>GOLD</span>
+                </div>
+            </div>
+
+            <button class="btn-main" id="spin-btn" onclick="play()">Крутить колесо</button>
         </div>
     </div>
 
-    <div class="controls-panel">
-        <div class="bet-row">
-            <div class="input-group">
-                <i class="fas fa-coins" style="color:#555; margin-right:8px;"></i>
-                <input type="number" id="betInput" value="100">
-            </div>
-            <div class="quick-actions">
-                <button class="btn-mini" onclick="setBet('clear')">CLEAR</button>
-                <button class="btn-mini" onclick="setBet('+100')">+100</button>
-                <button class="btn-mini" onclick="setBet('/2')">1/2</button>
-                <button class="btn-mini" onclick="setBet('x2')">x2</button>
-                <button class="btn-mini" onclick="setBet('max')">MAX</button>
-            </div>
-        </div>
-
-        <div class="multi-grid">
-            <div class="m-btn" data-val="2" onclick="selectMode(2)">
-                <span>2x</span>
-            </div>
-            <div class="m-btn" data-val="3" onclick="selectMode(3)">
-                <span>3x</span>
-            </div>
-            <div class="m-btn" data-val="5" onclick="selectMode(5)">
-                <span>5x</span>
-            </div>
-            <div class="m-btn" data-val="50" onclick="selectMode(50)">
-                <span>50x</span>
+    <div id="scr-profile" class="screen">
+        <div class="profile-card">
+            <img id="p-avatar" src="https://via.placeholder.com/100">
+            <h2 id="p-name" style="margin:0">User</h2>
+            <div id="p-id" style="opacity:0.4; font-size:12px; margin-top:5px;">ID: 000000</div>
+            
+            <div class="stat-grid">
+                <div class="stat-item">
+                    <div style="font-size:10px; opacity:0.5">ВЫИГРАНО</div>
+                    <div style="color:var(--green); font-size:18px;">$12.5k</div>
+                </div>
+                <div class="stat-item">
+                    <div style="font-size:10px; opacity:0.5">ИГР</div>
+                    <div style="font-size:18px;">142</div>
+                </div>
             </div>
         </div>
-
-        <button class="play-btn" id="spinBtn" onclick="spin()">СДЕЛАТЬ СТАВКУ</button>
     </div>
 
-    <nav class="bottom-nav">
-        <div class="nav-item">
-            <i class="fas fa-box-open"></i>
-            <span>Кейсы</span>
+    <nav class="nav">
+        <div class="nav-item active" onclick="nav('game', this)">
+            <i class="fas fa-gamepad"></i><span>Игры</span>
         </div>
-        <div class="nav-item active">
-            <i class="fas fa-gamepad"></i>
-            <span>Игры</span>
-        </div>
-        <div class="nav-item">
-            <i class="fas fa-ticket-alt"></i>
-            <span>BullPass</span>
-        </div>
-        <div class="nav-item">
-            <i class="fas fa-user"></i>
-            <span>Профиль</span>
+        <div class="nav-item" onclick="nav('profile', this)">
+            <i class="fas fa-user-circle"></i><span>Профиль</span>
         </div>
     </nav>
 
-    <div class="overlay" id="winOverlay">
-        <div class="win-card">
-            <div style="font-size:14px; color:#aaa; text-transform:uppercase; letter-spacing:1px;">Выигрыш</div>
-            <div class="win-amt" id="winAmountVal">0</div>
-            <button class="btn-mini" style="background:#4287ff; color:white; padding:10px 30px; margin-top:10px;" onclick="closeOverlay()">OK</button>
-        </div>
-    </div>
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
 
-<script>
-    const tg = window.Telegram.WebApp;
-    tg.expand();
-
-    // --- WHEEL CONFIG ---
-    const canvas = document.getElementById('wheelCanvas');
-    const ctx = canvas.getContext('2d');
-    const segments = 54; 
-    const segAngle = (Math.PI * 2) / segments;
-    
-    // Pattern distribution (BullDrop style)
-    // 2x (Grey), 3x (Green), 5x (Red), 50x (Gold)
-    let wheelMap = [];
-    const counts = { 2: 26, 3: 17, 5: 10, 50: 1 };
-    
-    // Colors
-    const palette = {
-        2: '#8e94aa',
-        3: '#3dbf65', 
-        5: '#ea4646',
-        50: '#facc15'
-    };
-
-    // Generate wheel array
-    let tempArr = [];
-    Object.keys(counts).forEach(k => {
-        for(let i=0; i<counts[k]; i++) tempArr.push(parseInt(k));
-    });
-    // Shuffle
-    tempArr.sort(() => Math.random() - 0.5);
-    wheelMap = tempArr;
-
-    let currentRotation = 0; // Radians
-    let isSpinning = false;
-    let balance = 5000;
-    let selectedMultiplier = null;
-
-    function draw() {
-        const W = canvas.width;
-        const H = canvas.height;
-        const CX = W/2;
-        const CY = H/2;
-        const R = CX - 5;
-
-        ctx.clearRect(0, 0, W, H);
+        let balance = 10000;
+        let selectedX = null;
+        let isSpinning = false;
         
-        ctx.save();
-        ctx.translate(CX, CY);
-        ctx.rotate(currentRotation);
+        // --- TAPE GENERATION ---
+        const tape = document.getElementById('tape');
+        const items = [];
+        const pattern = [2,3,2,5,2,3,2,5,2,3,2,5,2,3,2,50,2,5,2,3]; // Simplified BullDrop distribution
 
-        for (let i = 0; i < segments; i++) {
-            const val = wheelMap[i];
-            const color = palette[val];
-            
-            const aStart = i * segAngle;
-            const aEnd = aStart + segAngle;
-
-            ctx.beginPath();
-            ctx.moveTo(0,0);
-            ctx.arc(0,0, R, aStart, aEnd);
-            ctx.fillStyle = color;
-            ctx.fill();
-            
-            // Stroke
-            ctx.strokeStyle = "#161922";
-            ctx.lineWidth = 4;
-            ctx.stroke();
-
-            // Text
-            ctx.save();
-            ctx.rotate(aStart + segAngle/2);
-            ctx.translate(R - 40, 0);
-            ctx.rotate(Math.PI/2);
-            
-            ctx.fillStyle = (val === 50) ? "#000" : "#fff";
-            ctx.font = "bold 28px Inter";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            ctx.fillText(val + "x", 0, 0);
-            
-            // Icon Placeholder (Circle)
-            if(val === 50) {
-                 ctx.beginPath();
-                 ctx.arc(0, -35, 8, 0, Math.PI*2);
-                 ctx.fillStyle = "rgba(0,0,0,0.2)";
-                 ctx.fill();
+        function initTape() {
+            tape.innerHTML = '';
+            // Создаем 100 элементов для долгой прокрутки
+            for(let i=0; i<100; i++) {
+                const val = pattern[i % pattern.length];
+                const card = document.createElement('div');
+                card.className = `card c-${val}`;
+                card.innerText = val + 'x';
+                tape.appendChild(card);
             }
-
-            ctx.restore();
         }
-        ctx.restore();
-    }
-    
-    // Init Draw
-    draw();
+        initTape();
 
-    // --- LOGIC ---
-    function selectMode(val) {
-        if(isSpinning) return;
-        selectedMultiplier = val;
-        
-        document.querySelectorAll('.m-btn').forEach(b => b.classList.remove('active'));
-        document.querySelector(`.m-btn[data-val="${val}"]`).classList.add('active');
-        
-        tg.HapticFeedback.selectionChanged();
-    }
+        // --- GAME LOGIC ---
+        function sel(x, el) {
+            if(isSpinning) return;
+            selectedX = x;
+            document.querySelectorAll('.grid-item').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
+            tg.HapticFeedback.selectionChanged();
+        }
 
-    function setBet(action) {
-        const inp = document.getElementById('betInput');
-        let v = parseInt(inp.value) || 0;
-        
-        if (action === 'clear') v = 0;
-        else if (action === 'max') v = balance;
-        else if (action === '/2') v = Math.floor(v/2);
-        else if (action === 'x2') v = v*2;
-        else if (action === '+100') v += 100;
-        
-        if (v > balance) v = balance;
-        if (v < 0) v = 0;
-        inp.value = v;
-    }
+        function adjustBet(m) {
+            const inp = document.getElementById('bet-amount');
+            inp.value = Math.floor(inp.value * m);
+        }
 
-    function spin() {
-        if(isSpinning) return;
-        const bet = parseInt(document.getElementById('betInput').value);
-        
-        if(!selectedMultiplier) { tg.showAlert("Выберите множитель (цвет)!"); return; }
-        if(bet > balance || bet <= 0) { tg.showAlert("Некорректная ставка!"); return; }
+        function play() {
+            const bet = parseInt(document.getElementById('bet-amount').value);
+            if(isSpinning || !selectedX || bet > balance || bet <= 0) return;
 
-        balance -= bet;
-        updateBalance();
-        isSpinning = true;
-        document.getElementById('spinBtn').disabled = true;
-        document.querySelector('.timer-display').innerText = "...";
+            balance -= bet;
+            updateUI();
+            isSpinning = true;
+            document.getElementById('spin-btn').disabled = true;
 
-        // Logic
-        const winIndex = Math.floor(Math.random() * segments);
-        const winVal = wheelMap[winIndex];
-        
-        // Calculate rotation to land index at TOP (-PI/2)
-        // Standard angle of segment center: index * angle + half
-        // Target: -PI/2
-        // Delta = -PI/2 - segmentAngle
-        const segmentCenter = winIndex * segAngle + (segAngle/2);
-        const spins = 5;
-        // Adjust for visual clockwise spin (which is decreasing radians in canvas usually, but let's just add negative)
-        // Target = current - (spins * 2PI) - (distance to target)
-        
-        // Distance from current pointer (assumed 0 relative to wheel) to target segment
-        // Actually, easiest way: 
-        // Final Rotation should be such that (FinalRot + SegmentCenter) % 2PI = -PI/2
-        
-        const randomOffset = (Math.random() - 0.5) * (segAngle * 0.8); // Randomness inside segment
-        
-        const targetRotation = currentRotation - (spins * Math.PI * 2) - (Math.PI/2 + segmentCenter) - currentRotation%(Math.PI*2) + randomOffset;
+            // Выбираем случайный индекс между 70 и 90
+            const winIdx = 70 + Math.floor(Math.random() * 15);
+            const winVal = pattern[winIdx % pattern.length];
 
-        // Animation
-        const duration = 4000;
-        const startTime = performance.now();
-        const startRot = currentRotation;
-
-        function animate(time) {
-            const elapsed = time - startTime;
-            const p = Math.min(elapsed / duration, 1);
-            const ease = 1 - Math.pow(1 - p, 4); // EaseOutQuart
+            // Расчет позиции (ширина карты 80 + margin 8 = 88)
+            const cardWidth = 88;
+            const offset = (winIdx * cardWidth) - (window.innerWidth / 2) + (cardWidth / 2);
             
-            currentRotation = startRot + (targetRotation - startRot) * ease;
-            draw();
+            tape.style.transition = 'transform 5s cubic-bezier(0.12, 0, 0, 1)';
+            tape.style.transform = `translateX(-${offset}px)`;
 
-            if(p < 1) requestAnimationFrame(animate);
-            else finish(winVal, bet);
+            setTimeout(() => {
+                isSpinning = false;
+                document.getElementById('spin-btn').disabled = false;
+                
+                if(winVal === selectedX) {
+                    const win = bet * winVal;
+                    balance += win;
+                    tg.HapticFeedback.notificationOccurred('success');
+                } else {
+                    tg.HapticFeedback.notificationOccurred('error');
+                }
+                
+                updateUI();
+                // Мягкий сброс ленты назад (визуально незаметно)
+                setTimeout(() => {
+                    tape.style.transition = 'none';
+                    tape.style.transform = `translateX(0px)`;
+                    initTape();
+                }, 1000);
+                
+            }, 5500);
         }
-        requestAnimationFrame(animate);
-    }
 
-    function finish(winVal, bet) {
-        isSpinning = false;
-        document.getElementById('spinBtn').disabled = false;
-        document.querySelector('.timer-display').innerText = "SPIN";
-        
-        // Update History
-        const track = document.getElementById('historyTrack');
-        const div = document.createElement('div');
-        div.className = 'hist-dot';
-        div.style.background = palette[winVal];
-        div.style.color = (winVal===50)?'#000':'#fff';
-        div.innerText = winVal;
-        track.prepend(div);
-        if(track.children.length > 10) track.lastChild.remove();
-
-        // Check Win
-        if(selectedMultiplier === winVal) {
-            const winAmt = bet * winVal;
-            balance += winAmt;
-            showWin(winAmt);
-            tg.HapticFeedback.notificationOccurred('success');
-        } else {
-            tg.HapticFeedback.notificationOccurred('warning');
+        function updateUI() {
+            document.getElementById('bal-val').innerText = balance.toLocaleString();
         }
-        updateBalance();
-    }
 
-    function updateBalance() {
-        document.getElementById('balance').innerText = balance;
-    }
+        function nav(s, el) {
+            document.querySelectorAll('.screen').forEach(scr => scr.classList.remove('active'));
+            document.getElementById('scr-'+s).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
+        }
 
-    function showWin(amt) {
-        document.getElementById('winAmountVal').innerText = "+" + amt;
-        document.getElementById('winOverlay').classList.add('active');
-    }
-    
-    function closeOverlay() {
-        document.getElementById('winOverlay').classList.remove('active');
-    }
-
-</script>
+        // Telegram Data
+        const user = tg.initDataUnsafe?.user;
+        if(user) {
+            const avatar = user.photo_url || 'https://img.icons8.com/3d-fluency/100/user-male-circle.png';
+            document.getElementById('u-avatar').src = avatar;
+            document.getElementById('p-avatar').src = avatar;
+            document.getElementById('u-name').innerText = user.first_name;
+            document.getElementById('p-name').innerText = user.first_name;
+            document.getElementById('p-id').innerText = 'ID: ' + user.id;
+        }
+    </script>
 </body>
 </html>
+
