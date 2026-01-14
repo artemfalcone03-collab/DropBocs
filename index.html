@@ -134,6 +134,12 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
 
+        /* Специальный стиль для реального игрока */
+        .feed-item.real-win {
+            border-left: 3px solid #2ed573;
+            background: linear-gradient(90deg, rgba(46, 213, 115, 0.1) 0%, rgba(255,255,255,0.05) 100%);
+        }
+
         .feed-user {
             font-weight: 700;
             color: #aaa;
@@ -426,9 +432,9 @@
                 <div id="user-id" style="color: #555; font-size: 12px; margin-bottom: 20px;">ID: 00000000</div>
                 
                 <div style="background: rgba(255,255,255,0.02); padding: 20px; border-radius: 20px; border: 1px solid var(--glass-border);">
-                    <h4 style="color: gold; margin-bottom: 15px; font-size: 14px;">АКТИВАЦИЯ ВАУЧЕРА</h4>
+                    <h4 style="color: gold; margin-bottom: 15px; font-size: 14px;">АКТИВАЦИЯ ПРОМОКОДА</h4>
                     <div class="promo-input-group" style="margin-bottom: 0;">
-                        <input type="text" id="promo-code" placeholder="ENTER CODE..." style="text-align: center;">
+                        <input type="text" id="promo-code" placeholder="Введите промокод..." style="text-align: center;">
                         <button onclick="activatePromo()" style="background: #fff; color: #000; border: none; padding: 0 20px; border-radius: 12px; font-weight: 900;">OK</button>
                     </div>
                 </div>
@@ -465,7 +471,9 @@
             balance: 10000,
             activeColor: null,
             isSpinning: false,
-            usedPromos: []
+            usedPromos: [],
+            firstName: 'Player',
+            userId: '000000'
         };
 
         // ТРЕК РУЛЕТКИ
@@ -505,7 +513,6 @@
 
         function updateUI() {
             document.getElementById('balance-val').innerText = state.balance.toLocaleString();
-            // Дублируем в локалстор для скорости
             localStorage.setItem('dropbocs_bal', state.balance);
         }
 
@@ -562,6 +569,11 @@
                     state.balance += win;
                     tg.HapticFeedback.notificationOccurred('success');
                     tg.showPopup({ title: '💰 ВЫИГРЫШ!', message: `На ваш баланс зачислено ${win.toLocaleString()} Stars!`, buttons: [{type:'ok'}] });
+                    
+                    // !!! ВАЖНО: ДОБАВЛЯЕМ РЕАЛЬНЫЙ ВЫИГРЫШ В ЛЕНТУ !!!
+                    // Теперь игрок видит свой выигрыш в списке топ-игроков
+                    addFeedItem(state.userId, winVal, win, true);
+                    
                 } else {
                     tg.HapticFeedback.notificationOccurred('error');
                 }
@@ -578,11 +590,11 @@
             }, 7200);
         }
 
-        // ПРОМОКОДЫ
+        // ПРОМОКОДЫ (Переименовано)
         function activatePromo() {
             const code = document.getElementById('promo-code').value.toUpperCase();
             if(state.usedPromos.includes(code)) {
-                tg.showAlert("⚠️ Ваучер уже использован!");
+                tg.showAlert("⚠️ Промокод уже использован!");
                 return;
             }
 
@@ -593,10 +605,10 @@
                 state.usedPromos.push(code);
                 saveData();
                 updateUI();
-                tg.showPopup({ title: '✅ УСПЕХ', message: `Ваучер активирован! +${promoDB[code]} Stars`, buttons: [{type:'ok'}] });
+                tg.showPopup({ title: '✅ УСПЕХ', message: `Промокод активирован! +${promoDB[code]} Stars`, buttons: [{type:'ok'}] });
                 document.getElementById('promo-code').value = '';
             } else {
-                tg.showAlert("❌ Неверный ваучер!");
+                tg.showAlert("❌ Неверный или неактивный промокод!");
             }
         }
 
@@ -609,26 +621,22 @@
             tg.HapticFeedback.impactOccurred('medium');
         }
 
-        // === НОВАЯ СИСТЕМА: LIVE FEED (ФЕЙК ВЫИГРЫШИ) ===
-        function generateFakeWin() {
-            // Генерация рандомного ID
-            const idPart1 = Math.floor(Math.random() * 899) + 100;
-            const idPart2 = Math.floor(Math.random() * 899) + 100;
-            const fakeID = `User ${idPart1}***${idPart2}`;
-            
-            // Генерация множителя и суммы
-            const multipliers = [2, 3, 5, 50];
-            const mul = multipliers[Math.floor(Math.random() * multipliers.length)];
-            const bet = (Math.floor(Math.random() * 50) + 10) * 10; // Ставка от 100 до 600
-            const winAmount = (bet * mul).toLocaleString();
-            
-            // Создание элемента
+        // === ОБНОВЛЕННАЯ СИСТЕМА ЛЕНТЫ ВЫИГРЫШЕЙ ===
+        
+        // Общая функция добавления записи в ленту
+        function addFeedItem(idString, mul, amount, isReal) {
+            const winAmount = amount.toLocaleString();
+            // Форматирование ID как просил (почти полный, звездочка в конце)
+            const displayID = isReal ? `ID: ${idString}` : `ID: ${idString}*`; 
+
             const item = document.createElement('div');
-            item.className = 'feed-item animate__animated animate__fadeInLeft';
+            // Если выигрыш реальный - добавляем класс real-win для подсветки
+            item.className = 'feed-item animate__animated animate__fadeInLeft ' + (isReal ? 'real-win' : '');
+            
             item.innerHTML = `
                 <div class="feed-user">
                     <i class="fas fa-user-circle"></i>
-                    ${fakeID}
+                    ${displayID}
                 </div>
                 <div class="feed-win">
                     <span class="feed-badge">${mul}x</span>
@@ -637,9 +645,8 @@
             `;
             
             const list = document.getElementById('live-feed-list');
-            list.prepend(item); // Добавляем сверху
+            list.prepend(item); 
 
-            // Удаляем лишнее (оставляем 3-4 штуки)
             if(list.children.length > 4) {
                 const last = list.lastElementChild;
                 last.classList.remove('animate__fadeInLeft');
@@ -648,9 +655,23 @@
             }
         }
 
-        // Планировщик (рандомное время появления)
+        // Генерация фейков
+        function generateFakeWin() {
+            // ID почти полностью цифры + звездочка
+            const fakeID = Math.floor(Math.random() * 8999999) + 1000000;
+            
+            const multipliers = [2, 3, 5, 50];
+            const mul = multipliers[Math.floor(Math.random() * multipliers.length)];
+            const bet = (Math.floor(Math.random() * 50) + 10) * 10; 
+            const winAmount = bet * mul;
+            
+            addFeedItem(fakeID, mul, winAmount, false);
+        }
+
+        // Планировщик (СИЛЬНО ЗАМЕДЛЕН)
         function scheduleNextWin() {
-            const delay = Math.floor(Math.random() * 5000) + 2500; // от 2.5 до 7.5 сек
+            // Теперь от 8 до 18 секунд задержка
+            const delay = Math.floor(Math.random() * 10000) + 8000; 
             setTimeout(() => {
                 generateFakeWin();
                 scheduleNextWin();
@@ -660,6 +681,9 @@
         // СТАРТ
         const user = tg.initDataUnsafe?.user;
         if(user) {
+            state.firstName = user.first_name;
+            state.userId = user.id;
+            
             document.getElementById('user-name').innerText = user.first_name;
             document.getElementById('user-id').innerText = "ID: " + user.id;
             if(user.photo_url) document.getElementById('user-avatar').style.backgroundImage = `url(${user.photo_url})`;
@@ -672,3 +696,4 @@
     </script>
 </body>
 </html>
+
