@@ -6,6 +6,9 @@
     <title>DropBocs - Extreme Ultra Edition</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
@@ -538,19 +541,35 @@
 
     <script>
         /* ==========================================================================
-           8. CORE ENGINE (600+ LINES LOGIC)
+           8. CORE ENGINE (FULL LOGIC)
            ========================================================================== 
         */
         const tg = window.Telegram.WebApp;
         tg.expand();
         tg.enableClosingConfirmation();
 
+        // --- FIREBASE SETUP ---
+        // ЗАМЕНИ ЭТИ ДАННЫЕ НА СВОИ ИЗ FIREBASE CONSOLE
+        const firebaseConfig = {
+            apiKey: "AIzaSyD...",
+            authDomain: "your-app.firebaseapp.com",
+            databaseURL: "https://your-app-default-rtdb.firebaseio.com",
+            projectId: "your-app",
+            storageBucket: "your-app.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdef"
+        };
+        
+        // Инициализация Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
         // --- СОСТОЯНИЕ ПРИЛОЖЕНИЯ ---
         let user = {
             bal: 2500,
             xp: 0,
             lvl: 1,
-            id: "Guest",
+            id: "Guest_" + Math.floor(Math.random() * 10000),
             name: "Unknown",
             promos: [],
             stats: { wins: 0, losses: 0 }
@@ -565,15 +584,6 @@
 
         // --- ИНИЦИАЛИЗАЦИЯ ---
         function init() {
-            // Загрузка данных из Cloud Storage
-            tg.CloudStorage.getItems(['u_data'], (err, res) => {
-                if(!err && res.u_data) {
-                    const saved = JSON.parse(res.u_data);
-                    user = {...user, ...saved};
-                }
-                syncUI();
-            });
-
             // Инициализация Telegram User
             if(tg.initDataUnsafe?.user) {
                 const u = tg.initDataUnsafe.user;
@@ -584,15 +594,25 @@
                 if(u.photo_url) document.getElementById('u-avatar').style.backgroundImage = `url(${u.photo_url})`;
             }
 
+            // Загрузка данных из Firebase (Сетевой модуль)
+            const userRef = database.ref('users/' + user.id);
+            userRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    user = {...user, ...data};
+                    syncUI(false); // Синхронизируем UI без повторной записи в БД
+                } else {
+                    saveToCloud(); // Создаем запись если новый юзер
+                }
+            });
+
             renderTrack();
             startLiveTicker();
-            
-            // Звуковая и вибро-имитация
             tg.HapticFeedback.impactOccurred('medium');
         }
 
         // --- СИНХРОНИЗАЦИЯ ИНТЕРФЕЙСА ---
-        function syncUI() {
+        function syncUI(needSave = true) {
             document.getElementById('bal-val').innerText = user.bal.toLocaleString();
             document.getElementById('lvl-badge').innerText = `LVL ${user.lvl}`;
             
@@ -602,18 +622,18 @@
             document.getElementById('xp-fill').style.width = progress + "%";
             document.getElementById('xp-text').innerText = `${user.xp} / ${xpNext} XP`;
 
-            saveCloud();
+            if(needSave) saveToCloud();
         }
 
-        function saveCloud() {
-            tg.CloudStorage.setItem('u_data', JSON.stringify(user));
+        function saveToCloud() {
+            // Сохраняем в Firebase по ID
+            database.ref('users/' + user.id).set(user);
         }
 
         // --- DOUBLE LOGIC ---
         function renderTrack() {
             const track = document.getElementById('r-track');
             track.innerHTML = '';
-            // Генерируем 100 ячеек для бесконечного эффекта
             for(let i=0; i < 120; i++) {
                 const val = game.pattern[i % game.pattern.length];
                 const div = document.createElement('div');
@@ -654,22 +674,20 @@
                 return;
             }
 
-            // Старт игры
             game.spinning = true;
             user.bal -= amt;
             syncUI();
             
             const track = document.getElementById('r-track');
-            const winIdx = 80 + Math.floor(Math.random() * 25); // Рандомная точка остановки
+            const winIdx = 80 + Math.floor(Math.random() * 25);
             const winVal = game.pattern[winIdx % game.pattern.length];
             
-            const cellFullWidth = 110; // 100px + 10px margin
+            const cellFullWidth = 110; 
             const offset = (winIdx * cellFullWidth) - (window.innerWidth / 2) + (cellFullWidth / 2);
 
             track.style.transition = 'transform 8s cubic-bezier(0.15, 0, 0.05, 1)';
             track.style.transform = `translateX(-${offset}px)`;
 
-            // Тактильный фидбек во время крутки
             let ticks = 0;
             const tInterval = setInterval(() => {
                 ticks++;
@@ -700,7 +718,6 @@
                 checkLevelUp();
                 syncUI();
 
-                // Сброс рулетки
                 setTimeout(() => {
                     track.style.transition = 'none';
                     track.style.transform = 'translateX(0)';
@@ -717,13 +734,11 @@
                 return;
             }
 
-            user.bal -= cost;
-            syncUI();
-            
             tg.showConfirm(`Открыть кейс ${type} за ${cost.toLocaleString()}?`, (ok) => {
                 if(ok) {
-                    // Имитация открытия
-                    const winMult = [0.1, 0.5, 1.2, 2, 5, 10, 50];
+                    user.bal -= cost;
+                    syncUI();
+                    
                     const chance = Math.random();
                     let mult = 0.5;
                     
@@ -744,9 +759,6 @@
                     
                     checkLevelUp();
                     syncUI();
-                } else {
-                    user.bal += cost;
-                    syncUI();
                 }
             });
         }
@@ -765,12 +777,11 @@
             }
         }
 
-        // --- LIVE FEED LOGIC ---
+        // --- LIVE FEED LOGIC (ИЗМЕНЕНО: МЕДЛЕННЕЕ) ---
         function addTickerItem(id, x, amt, isMe = false) {
             const list = document.getElementById('ticker-list');
             const item = document.createElement('div');
             item.className = `ticker-item animate__animated animate__fadeInRight ${isMe ? 'personal' : ''}`;
-            
             const shortID = isMe ? "YOU" : `ID: ${id.toString().substring(0,6)}*`;
             
             item.innerHTML = `
@@ -783,30 +794,28 @@
                     +${amt.toLocaleString()}
                 </div>
             `;
-            
             list.prepend(item);
             if(list.children.length > 5) list.lastElementChild.remove();
         }
 
         function startLiveTicker() {
+            // МЕДЛЕННЕЕ И МЕНЬШЕ (Интервал 6 сек, шанс 30%)
             setInterval(() => {
-                if(Math.random() > 0.4) {
+                if(Math.random() > 0.7) { 
                     const fakeId = Math.floor(Math.random() * 90000000) + 10000000;
                     const fakeX = [2, 3, 5, 50][Math.floor(Math.random() * 4)];
                     const fakeWin = (Math.floor(Math.random() * 100) + 1) * 100 * fakeX;
                     addTickerItem(fakeId, fakeX, fakeWin);
                 }
-            }, 4000);
+            }, 6000);
         }
 
         // --- NAVIGATION ---
         function nav(id, el) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById('scr-' + id).classList.add('active');
-            
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             el.classList.add('active');
-            
             tg.HapticFeedback.impactOccurred('light');
         }
 
@@ -819,7 +828,6 @@
                 tg.showAlert("Промокод уже использован!");
                 return;
             }
-
             if(rewards[code]) {
                 user.bal += rewards[code];
                 user.promos.push(code);
@@ -831,9 +839,7 @@
             }
         }
 
-        // Запуск
         window.onload = init;
-
     </script>
 </body>
 </html>
