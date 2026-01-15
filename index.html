@@ -3,843 +3,544 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DropBocs - Extreme Ultra Edition</title>
+    <title>DropBocs - Optimized</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     
     <style>
-        /* ==========================================================================
-           1. ГЛОБАЛЬНЫЕ СТИЛИ И ПЕРЕМЕННЫЕ
-           ========================================================================== 
-        */
         :root {
             --gold: linear-gradient(135deg, #bf953f 0%, #fcf6ba 45%, #b38728 50%, #fbf5b7 55%, #aa771c 100%);
             --gold-static: #bf953f;
             --bg-dark: #07090c;
-            --bg-card: rgba(20, 24, 31, 0.8);
-            --glass: rgba(255, 255, 255, 0.03);
+            --bg-card: #14181f;
+            --glass: rgba(255, 255, 255, 0.05);
             --border: rgba(255, 255, 255, 0.08);
-            
             --gray: #2c3e50;
             --green: #00ff88;
             --red: #ff3e3e;
-            --blue: #3d5afe;
-            
-            --shadow-gold: 0 0 20px rgba(191, 149, 63, 0.3);
             --font-main: 'Montserrat', sans-serif;
         }
 
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            margin: 0; padding: 0;
-            -webkit-user-select: none;
-        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; user-select: none; }
+        body { background: var(--bg-dark); color: #fff; font-family: var(--font-main); overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
 
-        body {
-            background: var(--bg-dark);
-            color: #fff;
-            font-family: var(--font-main);
-            overflow: hidden;
-            line-height: 1.4;
-            zoom: 0.9; /* Масштабирование по просьбе */
-        }
-
-        /* Кастомный скроллбар */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
-
-        /* ==========================================================================
-           2. АНИМАЦИИ
-           ========================================================================== 
-        */
-        @keyframes shine {
-            0% { background-position: -200% center; }
-            100% { background-position: 200% center; }
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .gold-text {
-            background: var(--gold);
-            background-size: 200% auto;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: shine 4s linear infinite;
-            font-weight: 900;
-        }
-
-        /* ==========================================================================
-           3. КОМПОНЕНТЫ ИНТЕРФЕЙСА
-           ========================================================================== 
-        */
+        /* HEADER */
         .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 25px 20px;
-            background: rgba(7, 9, 12, 0.95);
-            backdrop-filter: blur(15px);
-            border-bottom: 1px solid var(--border);
-            position: sticky; top: 0; z-index: 1000;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 20px; background: rgba(7, 9, 12, 0.95);
+            border-bottom: 1px solid var(--border); z-index: 100;
         }
-
+        .brand { font-weight: 900; font-size: 20px; letter-spacing: 1px; color: var(--gold-static); }
         .balance-pill {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: var(--glass);
-            padding: 8px 18px;
-            border-radius: 50px;
-            border: 1px solid var(--border);
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            display: flex; align-items: center; gap: 8px; background: var(--glass);
+            padding: 6px 14px; border-radius: 50px; border: 1px solid var(--border);
         }
 
-        .level-badge {
-            font-size: 10px;
-            background: var(--gold);
-            color: #000;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-weight: 900;
-            margin-left: 10px;
-        }
-
-        .main-container {
-            height: calc(100vh - 180px);
-            overflow-y: auto;
-            padding: 20px;
-            padding-bottom: 100px;
-        }
-
-        /* ЛЕНТА LIVE */
-        .live-ticker {
-            margin-bottom: 25px;
-        }
-
-        .ticker-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #555;
-            margin-bottom: 12px;
-            padding: 0 5px;
-        }
-
-        .ticker-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .ticker-item {
-            background: linear-gradient(90deg, rgba(255,255,255,0.05), transparent);
-            border-radius: 12px;
-            padding: 10px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-left: 4px solid var(--gold-static);
-            font-size: 13px;
-        }
-
-        .ticker-item.personal {
-            border-left-color: var(--green);
-            background: linear-gradient(90deg, rgba(0, 255, 136, 0.1), transparent);
-        }
-
-        /* ==========================================================================
-           4. ГЕЙМПЛЕЙ: DOUBLE ROULETTE
-           ========================================================================== 
-        */
-        .game-wrapper {
-            background: var(--bg-card);
-            border-radius: 35px;
-            padding: 30px 0;
-            border: 1px solid var(--border);
-            position: relative;
-            margin-bottom: 30px;
-        }
-
-        .roulette-container {
+        /* LIVE TICKER (HORIZONTAL) */
+        .live-strip-container {
             width: 100%;
-            height: 140px;
-            background: #000;
+            height: 50px;
+            background: rgba(0,0,0,0.3);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
             overflow: hidden;
             position: relative;
-            margin: 20px 0;
-            box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
         }
-
-        .center-pointer {
-            position: absolute;
-            left: 50%; top: 0; bottom: 0;
-            width: 3px;
-            background: #fff;
-            z-index: 50;
-            transform: translateX(-50%);
-            box-shadow: 0 0 15px #fff;
+        .live-label {
+            font-size: 10px; font-weight: 900; color: #555; 
+            margin-right: 10px; white-space: nowrap; display: flex; align-items: center; gap: 5px;
         }
-
-        .center-pointer::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -10px;
-            border-left: 11px solid transparent;
-            border-right: 11px solid transparent;
-            border-top: 15px solid #fff;
+        .live-feed {
+            display: flex; gap: 10px; align-items: center;
+            flex: 1; overflow: hidden;
         }
+        /* Анимация появления слева */
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .feed-item {
+            background: linear-gradient(90deg, rgba(255,255,255,0.08), transparent);
+            border-left: 3px solid var(--gold-static);
+            padding: 6px 12px; border-radius: 8px;
+            font-size: 11px; display: flex; align-items: center; gap: 8px;
+            white-space: nowrap;
+            animation: slideInLeft 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            min-width: fit-content;
+        }
+        .feed-item.win-big { border-left-color: var(--green); }
 
-        .roulette-track {
-            display: flex;
-            position: absolute;
-            left: 0; height: 100%;
-            align-items: center;
+        /* MAIN CONTENT */
+        .main-container {
+            flex: 1; overflow-y: auto; padding: 20px;
+            padding-bottom: 100px; /* Space for tabs */
+        }
+        .screen { display: none; animation: fadeIn 0.3s ease; }
+        .screen.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ONLINE BADGE */
+        .online-badge {
+            font-size: 11px; color: #777; text-align: center; margin-bottom: 15px;
+            display: flex; justify-content: center; align-items: center; gap: 6px;
+        }
+        .dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; box-shadow: 0 0 8px var(--green); }
+
+        /* GAME UI */
+        .game-card {
+            background: var(--bg-card); border-radius: 25px; padding: 20px;
+            border: 1px solid var(--border); text-align: center; margin-bottom: 20px;
+        }
+        .roulette-window {
+            width: 100%; height: 120px; background: #000;
+            border-radius: 15px; overflow: hidden; position: relative;
+            margin: 15px 0; border: 1px solid #333;
+            box-shadow: inset 0 0 20px #000;
+        }
+        .pointer {
+            position: absolute; top: 0; bottom: 0; left: 50%; width: 2px;
+            background: #fff; z-index: 10; transform: translateX(-50%);
+            box-shadow: 0 0 10px #fff;
+        }
+        .track {
+            display: flex; height: 100%; align-items: center;
             will-change: transform;
         }
+        .cell {
+            min-width: 90px; height: 90px; margin: 0 4px; border-radius: 12px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            font-weight: 900; font-size: 24px; position: relative;
+        }
+        .cell span { font-size: 10px; opacity: 0.6; }
 
-        .r-cell {
-            min-width: 100px;
-            height: 100px;
-            margin: 0 5px;
-            border-radius: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            font-weight: 900;
-            font-size: 26px;
-            border: 1px solid rgba(255,255,255,0.1);
+        /* CONTROLS */
+        .multipliers { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
+        .mult-btn {
+            padding: 15px; border-radius: 12px; background: rgba(255,255,255,0.05);
+            border: 1px solid transparent; color: #fff; font-weight: bold; cursor: pointer; transition: 0.2s;
+        }
+        .mult-btn.active { border-color: #fff; background: rgba(255,255,255,0.1); transform: scale(0.98); }
+        
+        .input-row {
+            display: flex; gap: 10px; margin-bottom: 15px; background: rgba(0,0,0,0.3);
+            padding: 8px; border-radius: 12px; border: 1px solid var(--border);
+        }
+        .input-row input {
+            background: transparent; border: none; color: #fff; font-size: 18px; 
+            font-weight: bold; width: 100%; padding-left: 10px; outline: none;
+        }
+        .control-sm {
+            background: rgba(255,255,255,0.1); border: none; color: #ccc;
+            border-radius: 8px; padding: 0 12px; font-weight: 900; font-size: 12px;
         }
 
-        /* СТАВКИ */
-        .bet-controls {
-            padding: 0 20px;
+        .play-btn {
+            width: 100%; padding: 18px; background: #fff; color: #000; border: none;
+            border-radius: 15px; font-weight: 900; font-size: 16px; text-transform: uppercase;
+            box-shadow: 0 5px 15px rgba(255,255,255,0.15); transition: 0.2s;
+        }
+        .play-btn:active { transform: scale(0.97); opacity: 0.9; }
+
+        /* PROFILE */
+        .profile-header { text-align: center; margin-top: 20px; }
+        .avatar {
+            width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 15px;
+            border: 3px solid var(--gold-static); background-size: cover; background-position: center;
+            box-shadow: 0 0 20px rgba(191, 149, 63, 0.2);
+        }
+        .stats-box {
+            background: var(--bg-card); padding: 15px; border-radius: 15px;
+            margin-top: 20px; border: 1px solid var(--border);
         }
 
-        .color-selector {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 25px;
+        /* BOTTOM NAV - ONLY 2 BUTTONS */
+        .nav-bar {
+            position: fixed; bottom: 20px; left: 20px; right: 20px;
+            background: rgba(20, 24, 31, 0.95); backdrop-filter: blur(10px);
+            padding: 15px; border-radius: 20px; border: 1px solid var(--border);
+            display: flex; justify-content: space-around; z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-
-        .color-btn {
-            height: 70px;
-            border-radius: 18px;
-            border: 2px solid transparent;
-            color: #fff;
-            font-weight: 900;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            transition: 0.2s;
-            cursor: pointer;
+        .nav-item { 
+            color: #555; display: flex; flex-direction: column; align-items: center; gap: 4px; 
+            transition: 0.3s; width: 50%;
         }
-
-        .color-btn.active {
-            border-color: #fff;
-            transform: scale(0.96);
-            box-shadow: 0 0 20px rgba(255,255,255,0.1);
-        }
-
-        .bet-input-group {
-            background: rgba(0,0,0,0.3);
-            border-radius: 20px;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            border: 1px solid var(--border);
-            margin-bottom: 15px;
-        }
-
-        .bet-input-group input {
-            background: transparent;
-            border: none;
-            color: #fff;
-            font-size: 22px;
-            font-weight: 900;
-            width: 100%;
-            outline: none;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .action-btn {
-            width: 100%;
-            padding: 22px;
-            border-radius: 22px;
-            border: none;
-            background: #fff;
-            color: #000;
-            font-weight: 900;
-            font-size: 18px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 10px 25px rgba(255,255,255,0.15);
-            transition: 0.3s;
-        }
-
-        .action-btn:disabled { opacity: 0.3; transform: scale(0.98); }
-
-        /* ==========================================================================
-           5. НОВАЯ СЕКЦИЯ: CASES (КЕЙСЫ)
-           ========================================================================== 
-        */
-        .cases-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .case-card {
-            background: var(--glass);
-            border: 1px solid var(--border);
-            border-radius: 25px;
-            padding: 20px;
-            text-align: center;
-            transition: 0.3s;
-        }
-
-        .case-card img {
-            width: 80px;
-            margin-bottom: 15px;
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
-        }
-
-        .case-price {
-            background: var(--gold);
-            color: #000;
-            padding: 4px 12px;
-            border-radius: 10px;
-            font-size: 12px;
-            font-weight: 900;
-            display: inline-block;
-        }
-
-        /* ==========================================================================
-           6. ПРОФИЛЬ И VIP
-           ========================================================================== 
-        */
-        .profile-hero {
-            text-align: center;
-            padding: 40px 20px;
-        }
-
-        .avatar-frame {
-            position: relative;
-            width: 130px;
-            height: 130px;
-            margin: 0 auto 20px;
-        }
-
-        .avatar-img {
-            width: 100%; height: 100%;
-            border-radius: 50%;
-            border: 4px solid var(--gold-static);
-            background-size: cover;
-            box-shadow: 0 0 30px rgba(191, 149, 63, 0.4);
-        }
-
-        .xp-bar-container {
-            width: 100%;
-            height: 8px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 10px;
-            margin: 15px 0;
-            overflow: hidden;
-        }
-
-        .xp-bar-fill {
-            height: 100%;
-            background: var(--gold);
-            width: 45%;
-            transition: 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        /* ==========================================================================
-           7. ТАБ-БАР
-           ========================================================================== 
-        */
-        .tab-bar {
-            position: fixed;
-            bottom: 25px; left: 20px; right: 20px;
-            height: 75px;
-            background: rgba(15, 18, 24, 0.9);
-            backdrop-filter: blur(20px);
-            border-radius: 25px;
-            border: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            z-index: 2000;
-        }
-
-        .tab-btn {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #555;
-            transition: 0.3s;
-        }
-
-        .tab-btn.active {
-            color: #fff;
-            transform: translateY(-5px);
-        }
-
-        .tab-btn i { font-size: 24px; margin-bottom: 4px; }
-        .tab-btn span { font-size: 10px; font-weight: 700; text-transform: uppercase; }
-
-        .screen { display: none; animation: fadeIn 0.4s ease; }
-        .screen.active { display: block; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .nav-item.active { color: #fff; transform: translateY(-2px); }
+        .nav-item i { font-size: 20px; }
+        .nav-item span { font-size: 10px; font-weight: 700; text-transform: uppercase; }
 
     </style>
 </head>
 <body>
 
-    <header class="header">
-        <div class="brand gold-text" style="font-size: 22px; letter-spacing: 2px;">DROPBOCS</div>
+    <div class="header">
+        <div class="brand">DROPBOCS</div>
         <div class="balance-pill">
-            <img src="https://img.icons8.com/emoji/48/star-emoji.png" width="20">
-            <span id="bal-val" style="font-weight: 900; font-size: 18px;">0</span>
-            <div class="level-badge" id="lvl-badge">LVL 1</div>
+            <i class="fas fa-star" style="color: gold; font-size: 12px;"></i>
+            <span id="ui-bal" style="font-weight: 800; font-size: 14px;">...</span>
         </div>
-    </header>
+    </div>
+
+    <div class="live-strip-container">
+        <div class="live-label"><i class="fas fa-wifi" style="color:var(--green)"></i> LIVE</div>
+        <div id="live-feed" class="live-feed">
+            </div>
+    </div>
 
     <main class="main-container">
         
-        <section id="scr-double" class="screen active">
-            
-            <div class="live-ticker">
-                <div class="ticker-header">
-                    <span><i class="fas fa-satellite-dish"></i> Live Network</span>
-                    <span id="online-count">Online: 1,248</span>
-                </div>
-                <div id="ticker-list" class="ticker-list">
-                    </div>
+        <section id="scr-game" class="screen active">
+            <div class="online-badge">
+                <div class="dot"></div> <span id="online-count">Loading...</span> playing now
             </div>
 
-            <div class="game-wrapper">
-                <div class="roulette-container">
-                    <div class="center-pointer"></div>
-                    <div id="r-track" class="roulette-track"></div>
+            <div class="game-card">
+                <div class="roulette-window">
+                    <div class="pointer"></div>
+                    <div id="track" class="track"></div>
                 </div>
 
-                <div class="bet-controls">
-                    <div class="color-selector">
-                        <div class="color-btn" id="c-2" onclick="pickColor(2)" style="background: var(--gray);">
-                            <span>x2</span><small>NEUTRAL</small>
-                        </div>
-                        <div class="color-btn" id="c-3" onclick="pickColor(3)" style="background: var(--green);">
-                            <span>x3</span><small>GROWTH</small>
-                        </div>
-                        <div class="color-btn" id="c-5" onclick="pickColor(5)" style="background: var(--red);">
-                            <span>x5</span><small>DANGER</small>
-                        </div>
-                        <div class="color-btn" id="c-50" onclick="pickColor(50)" style="background: var(--gold); color: #000;">
-                            <span>x50</span><small>JACKPOT</small>
-                        </div>
-                    </div>
+                <div class="multipliers">
+                    <div class="mult-btn" onclick="selectColor(2)" id="btn-2" style="background: var(--gray)">x2</div>
+                    <div class="mult-btn" onclick="selectColor(3)" id="btn-3" style="background: rgba(0,255,136,0.1); color: var(--green); border: 1px solid var(--green)">x3</div>
+                    <div class="mult-btn" onclick="selectColor(5)" id="btn-5" style="background: rgba(255,62,62,0.1); color: var(--red); border: 1px solid var(--red)">x5</div>
+                    <div class="mult-btn" onclick="selectColor(50)" id="btn-50" style="background: var(--gold); color: #000;">x50</div>
+                </div>
 
-                    <div class="bet-input-group">
-                        <span style="color: #bf953f; font-weight: 900;">$</span>
-                        <input type="number" id="bet-amt" value="100">
-                        <button onclick="modifyBet(0.5)" style="background:none; border:none; color:#555; font-weight:900;">/2</button>
-                        <button onclick="modifyBet(2)" style="background:none; border:none; color:#555; font-weight:900;">x2</button>
-                    </div>
+                <div class="input-row">
+                    <input type="number" id="bet-input" value="100" placeholder="Ставка">
+                    <button class="control-sm" onclick="editBet(0.5)">/2</button>
+                    <button class="control-sm" onclick="editBet(2)">x2</button>
+                </div>
 
-                    <button id="spin-main" class="action-btn" onclick="executeDouble()">
-                        УСТАНОВИТЬ СТАВКУ
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <section id="scr-cases" class="screen">
-            <h2 style="margin-bottom: 20px;" class="gold-text">LUXURY CASES</h2>
-            <div class="cases-grid">
-                <div class="case-card" onclick="openCase('STARTER', 500)">
-                    <img src="https://img.icons8.com/3d-fluency/150/box.png">
-                    <h3>Starter</h3>
-                    <div class="case-price">500 $</div>
-                </div>
-                <div class="case-card" onclick="openCase('ELITE', 5000)">
-                    <img src="https://img.icons8.com/3d-fluency/150/gift.png">
-                    <h3>Elite</h3>
-                    <div class="case-price">5,000 $</div>
-                </div>
-                <div class="case-card" onclick="openCase('ROYAL', 25000)">
-                    <img src="https://img.icons8.com/3d-fluency/150/diamond-pouch.png">
-                    <h3>Royal</h3>
-                    <div class="case-price">25,000 $</div>
-                </div>
-                <div class="case-card" onclick="openCase('GODLIKE', 100000)">
-                    <img src="https://img.icons8.com/3d-fluency/150/crown.png">
-                    <h3>Godlike</h3>
-                    <div class="case-price">100,000 $</div>
-                </div>
+                <button id="spin-btn" class="play-btn" onclick="spin()">КРУТИТЬ</button>
             </div>
         </section>
 
         <section id="scr-profile" class="screen">
-            <div class="profile-hero">
-                <div class="avatar-frame">
-                    <div id="u-avatar" class="avatar-img" style="background-image: url('https://img.icons8.com/3d-fluency/188/user-male-circle.png');"></div>
-                </div>
-                <h1 id="u-name">Player</h1>
-                <p id="u-id" style="opacity: 0.4; font-size: 12px;">ID: 000000000</p>
+            <div class="profile-header">
+                <div class="avatar" id="u-avatar" style="background-image: url('https://img.icons8.com/3d-fluency/100/user-male-circle.png');"></div>
+                <h2 id="u-name" style="margin-bottom: 5px;">Player</h2>
+                <div id="u-id" style="font-size: 12px; opacity: 0.5;">ID: Loading...</div>
+            </div>
 
-                <div style="margin-top: 30px; text-align: left; background: var(--glass); padding: 20px; border-radius: 20px;">
-                    <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 900;">
-                        <span>EXPERIENCE JOURNEY</span>
-                        <span id="xp-text">450 / 1000 XP</span>
-                    </div>
-                    <div class="xp-bar-container">
-                        <div id="xp-fill" class="xp-bar-fill"></div>
-                    </div>
+            <div class="stats-box">
+                <div style="font-size: 12px; font-weight: 700; color: #777; margin-bottom: 10px;">ПРОМОКОД</div>
+                <div class="input-row" style="margin-bottom: 0;">
+                    <input type="text" id="promo-code" placeholder="Введите код">
+                    <button class="control-sm" style="color: #fff;" onclick="activatePromo()">OK</button>
                 </div>
-
-                <div style="margin-top: 20px;">
-                    <input type="text" id="promo-input" placeholder="ПРОМОКОД" style="width: 100%; padding: 15px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 15px; color: #fff; text-align: center; margin-bottom: 10px;">
-                    <button class="action-btn" onclick="claimPromo()" style="padding: 12px;">АКТИВИРОВАТЬ</button>
-                </div>
+                <div id="promo-msg" style="font-size: 11px; margin-top: 10px; min-height: 15px;"></div>
             </div>
         </section>
 
     </main>
 
-    <nav class="tab-bar">
-        <div class="tab-btn active" onclick="nav('double', this)">
-            <i class="fas fa-dice-six"></i>
-            <span>Double</span>
+    <nav class="nav-bar">
+        <div class="nav-item active" onclick="nav('game', this)">
+            <i class="fas fa-gamepad"></i>
+            <span>Game</span>
         </div>
-        <div class="tab-btn" onclick="nav('cases', this)">
-            <i class="fas fa-box-open"></i>
-            <span>Cases</span>
-        </div>
-        <div class="tab-btn" onclick="nav('profile', this)">
-            <i class="fas fa-user-shield"></i>
+        <div class="nav-item" onclick="nav('profile', this)">
+            <i class="fas fa-user"></i>
             <span>Profile</span>
         </div>
     </nav>
 
     <script>
-        /* ==========================================================================
-           8. CORE ENGINE (FULL LOGIC)
-           ========================================================================== 
-        */
+        // === 1. CONFIG & SETUP ===
         const tg = window.Telegram.WebApp;
         tg.expand();
-        tg.enableClosingConfirmation();
 
-        // --- FIREBASE SETUP ---
-        // ЗАМЕНИ ЭТИ ДАННЫЕ НА СВОИ ИЗ FIREBASE CONSOLE
+        // !!! ВСТАВЬ СЮДА СВОЙ КОНФИГ FIREBASE !!!
         const firebaseConfig = {
-            apiKey: "AIzaSyD...",
-            authDomain: "your-app.firebaseapp.com",
-            databaseURL: "https://your-app-default-rtdb.firebaseio.com",
-            projectId: "your-app",
-            storageBucket: "your-app.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123456789:web:abcdef"
+           apiKey: "AIzaSy...",
+           authDomain: "...",
+           databaseURL: "...",
+           projectId: "...",
+           storageBucket: "...",
+           messagingSenderId: "...",
+           appId: "..."
         };
         
-        // Инициализация Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        // Safe Init
+        let db = null;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+        } catch(e) { console.error("Firebase Error:", e); }
 
-        // --- СОСТОЯНИЕ ПРИЛОЖЕНИЯ ---
+        // === 2. STATE ===
         let user = {
-            bal: 2500,
+            id: null,
+            name: "Guest",
+            bal: 1000,
             xp: 0,
-            lvl: 1,
-            id: "Guest_" + Math.floor(Math.random() * 10000),
-            name: "Unknown",
-            promos: [],
-            stats: { wins: 0, losses: 0 }
+            photo: ""
         };
 
-        let game = {
+        const PATTERN = [2,3,2,5,2,3,2,5,2,3,2,50,2,3,2,5,2,3,2,3,2,5,2,3,2,50,2,5,2,3];
+        let gameState = {
             spinning: false,
-            selectedColor: null,
-            history: [],
-            pattern: [2, 3, 2, 5, 2, 3, 2, 5, 2, 3, 2, 50, 2, 3, 2, 5, 2, 3, 2, 3, 2, 5, 2, 3, 2, 50, 2, 5, 2, 3]
+            choice: null
         };
 
-        // --- ИНИЦИАЛИЗАЦИЯ ---
+        // === 3. CORE FUNCTIONS ===
         function init() {
-            // Инициализация Telegram User
+            // Get User Data
             if(tg.initDataUnsafe?.user) {
-                const u = tg.initDataUnsafe.user;
-                user.id = u.id;
-                user.name = u.first_name;
-                document.getElementById('u-name').innerText = u.first_name;
-                document.getElementById('u-id').innerText = "ID: " + u.id;
-                if(u.photo_url) document.getElementById('u-avatar').style.backgroundImage = `url(${u.photo_url})`;
+                user.id = tg.initDataUnsafe.user.id;
+                user.name = tg.initDataUnsafe.user.first_name;
+                user.photo = tg.initDataUnsafe.user.photo_url;
+            } else {
+                // Fallback for browser testing
+                let savedId = localStorage.getItem('db_uid');
+                if(!savedId) {
+                    savedId = "test_" + Math.floor(Math.random()*10000);
+                    localStorage.setItem('db_uid', savedId);
+                }
+                user.id = savedId;
             }
 
-            // Загрузка данных из Firebase (Сетевой модуль)
-            const userRef = database.ref('users/' + user.id);
-            userRef.on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    user = {...user, ...data};
-                    syncUI(false); // Синхронизируем UI без повторной записи в БД
-                } else {
-                    saveToCloud(); // Создаем запись если новый юзер
-                }
-            });
+            // UI Setup
+            document.getElementById('u-name').innerText = user.name;
+            document.getElementById('u-id').innerText = "ID: " + user.id;
+            if(user.photo) document.getElementById('u-avatar').style.backgroundImage = `url(${user.photo})`;
+
+            // Load Balance from Firebase
+            if(db) {
+                const ref = db.ref('users/' + user.id);
+                ref.on('value', (snap) => {
+                    const val = snap.val();
+                    if(val) {
+                        user.bal = val.bal || 0;
+                        user.xp = val.xp || 0;
+                        updateUI();
+                    } else {
+                        saveUser(); // Create if new
+                    }
+                });
+            } else {
+                // Fallback if no firebase config
+                alert("Вставь Firebase Config в код!");
+            }
 
             renderTrack();
-            startLiveTicker();
-            tg.HapticFeedback.impactOccurred('medium');
+            startSmartTicker(); // New Live Feed
+            startSmartOnline(); // New Online Counter
+            updateUI();
         }
 
-        // --- СИНХРОНИЗАЦИЯ ИНТЕРФЕЙСА ---
-        function syncUI(needSave = true) {
-            document.getElementById('bal-val').innerText = user.bal.toLocaleString();
-            document.getElementById('lvl-badge').innerText = `LVL ${user.lvl}`;
-            
-            // XP Progress
-            const xpNext = user.lvl * 1000;
-            const progress = (user.xp / xpNext) * 100;
-            document.getElementById('xp-fill').style.width = progress + "%";
-            document.getElementById('xp-text').innerText = `${user.xp} / ${xpNext} XP`;
-
-            if(needSave) saveToCloud();
+        function saveUser() {
+            if(!db) return;
+            db.ref('users/' + user.id).update({
+                bal: user.bal,
+                xp: user.xp,
+                name: user.name
+            });
         }
 
-        function saveToCloud() {
-            // Сохраняем в Firebase по ID
-            database.ref('users/' + user.id).set(user);
+        function updateUI() {
+            document.getElementById('ui-bal').innerText = Math.floor(user.bal).toLocaleString();
         }
 
-        // --- DOUBLE LOGIC ---
+        // === 4. GAME LOGIC (OPTIMIZED) ===
         function renderTrack() {
-            const track = document.getElementById('r-track');
-            track.innerHTML = '';
-            for(let i=0; i < 120; i++) {
-                const val = game.pattern[i % game.pattern.length];
-                const div = document.createElement('div');
-                div.className = 'r-cell';
+            const t = document.getElementById('track');
+            t.innerHTML = '';
+            // Создаем 100 элементов (достаточно для анимации)
+            for(let i=0; i<100; i++) {
+                let val = PATTERN[i % PATTERN.length];
+                let color = '#2c3e50'; // x2 gray
+                if(val === 3) color = 'rgba(0,255,136,0.1); border:1px solid #00ff88; color:#00ff88';
+                if(val === 5) color = 'rgba(255,62,62,0.1); border:1px solid #ff3e3e; color:#ff3e3e';
+                if(val === 50) color = '#bf953f; color:#000';
                 
-                if(val === 2) div.style.background = 'var(--gray)';
-                if(val === 3) div.style.background = 'var(--green)';
-                if(val === 5) div.style.background = 'var(--red)';
-                if(val === 50) {
-                    div.style.background = 'var(--gold)';
-                    div.style.color = '#000';
-                }
-                
-                div.innerHTML = `<span style="font-size:10px; opacity:0.5;">MULT</span>${val}x`;
-                track.appendChild(div);
+                let div = document.createElement('div');
+                div.className = 'cell';
+                // Inline styles for performance
+                div.style.cssText = val > 2 ? `background:${color}` : `background:${color}`;
+                div.innerHTML = `<span>x</span>${val}`;
+                t.appendChild(div);
             }
         }
 
-        function pickColor(c) {
-            if(game.spinning) return;
-            game.selectedColor = c;
-            document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('c-' + c).classList.add('active');
+        function selectColor(n) {
+            if(gameState.spinning) return;
+            gameState.choice = n;
+            document.querySelectorAll('.mult-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('btn-'+n).classList.add('active');
             tg.HapticFeedback.selectionChanged();
         }
 
-        function modifyBet(m) {
-            const input = document.getElementById('bet-amt');
-            input.value = Math.floor(parseInt(input.value) * m);
-            tg.HapticFeedback.impactOccurred('light');
+        function editBet(m) {
+            let inp = document.getElementById('bet-input');
+            let val = parseInt(inp.value) || 0;
+            inp.value = Math.floor(val * m);
         }
 
-        function executeDouble() {
-            const amt = parseInt(document.getElementById('bet-amt').value);
-
-            if(game.spinning || !game.selectedColor || amt > user.bal || amt <= 0) {
-                tg.showAlert("⚠️ Проверьте ставку и выбор цвета!");
-                return;
-            }
-
-            game.spinning = true;
-            user.bal -= amt;
-            syncUI();
+        function spin() {
+            const bet = parseInt(document.getElementById('bet-input').value);
             
-            const track = document.getElementById('r-track');
-            const winIdx = 80 + Math.floor(Math.random() * 25);
-            const winVal = game.pattern[winIdx % game.pattern.length];
+            if(gameState.spinning) return;
+            if(!gameState.choice) { tg.showAlert("Выберите цвет!"); return; }
+            if(bet > user.bal) { tg.showAlert("Недостаточно звезд!"); return; }
+            if(bet <= 0) return;
+
+            // Start
+            gameState.spinning = true;
+            user.bal -= bet;
+            saveUser(); // Save deduction immediately
             
-            const cellFullWidth = 110; 
-            const offset = (winIdx * cellFullWidth) - (window.innerWidth / 2) + (cellFullWidth / 2);
+            document.getElementById('spin-btn').disabled = true;
+            document.getElementById('spin-btn').style.opacity = "0.5";
 
-            track.style.transition = 'transform 8s cubic-bezier(0.15, 0, 0.05, 1)';
-            track.style.transform = `translateX(-${offset}px)`;
+            // Determine Win
+            // Logic: 70% lose, 30% win random valid sector
+            const isWin = Math.random() > 0.6; // 40% chance to match color roughly
+            // For simplicity in animation, we just pick a random index
+            const randOffset = Math.floor(Math.random() * 30);
+            const targetIndex = 60 + randOffset; // End somewhere in middle
+            const winVal = PATTERN[targetIndex % PATTERN.length];
+            
+            // Animation
+            const track = document.getElementById('track');
+            const cellW = 98; // 90px + 8px margin
+            // Center calculation: (targetIndex * cellW) - (screenCenter)
+            const scrollPos = (targetIndex * cellW) - (track.parentElement.offsetWidth / 2) + (cellW/2);
+            
+            track.style.transition = "transform 6s cubic-bezier(0.1, 0, 0.2, 1)";
+            track.style.transform = `translateX(-${scrollPos}px)`;
 
-            let ticks = 0;
-            const tInterval = setInterval(() => {
-                ticks++;
-                if(ticks < 70) tg.HapticFeedback.impactOccurred('light');
-                else clearInterval(tInterval);
-            }, 110);
-
+            // End
             setTimeout(() => {
-                game.spinning = false;
+                const wonAmount = (winVal === gameState.choice) ? bet * winVal : 0;
                 
-                if(winVal === game.selectedColor) {
-                    const win = amt * winVal;
-                    user.bal += win;
-                    user.xp += Math.floor(win / 10);
+                if(wonAmount > 0) {
+                    user.bal += wonAmount;
                     tg.HapticFeedback.notificationOccurred('success');
-                    addTickerItem(user.id, winVal, win, true);
-                    
-                    tg.showPopup({
-                        title: '💎 ВЫИГРЫШ!',
-                        message: `Вы получили ${win.toLocaleString()} Stars`,
-                        buttons: [{type: 'ok'}]
-                    });
+                    tg.showPopup({ title: 'WIN!', message: `+${wonAmount} Stars` });
+                    // Add real win to ticker
+                    addTickerItem(user.id, wonAmount, true);
                 } else {
                     tg.HapticFeedback.notificationOccurred('error');
-                    user.xp += Math.floor(amt / 20);
                 }
 
-                checkLevelUp();
-                syncUI();
-
+                saveUser();
+                
+                // Reset Visuals
                 setTimeout(() => {
-                    track.style.transition = 'none';
-                    track.style.transform = 'translateX(0)';
-                    renderTrack();
-                }, 1500);
+                    track.style.transition = "none";
+                    track.style.transform = "translateX(0)";
+                    gameState.spinning = false;
+                    document.getElementById('spin-btn').disabled = false;
+                    document.getElementById('spin-btn').style.opacity = "1";
+                }, 2000);
 
-            }, 8200);
+            }, 6100);
         }
 
-        // --- CASE SYSTEM ---
-        function openCase(type, cost) {
-            if(user.bal < cost) {
-                tg.showAlert("Недостаточно средств для кейса " + type);
-                return;
-            }
-
-            tg.showConfirm(`Открыть кейс ${type} за ${cost.toLocaleString()}?`, (ok) => {
-                if(ok) {
-                    user.bal -= cost;
-                    syncUI();
-                    
-                    const chance = Math.random();
-                    let mult = 0.5;
-                    
-                    if(chance > 0.98) mult = 50;
-                    else if(chance > 0.90) mult = 10;
-                    else if(chance > 0.70) mult = 2;
-                    else if(chance > 0.40) mult = 1.2;
-
-                    const prize = Math.floor(cost * mult);
-                    user.bal += prize;
-                    user.xp += Math.floor(cost / 5);
-                    
-                    tg.showPopup({
-                        title: 'BOX UNLOCKED',
-                        message: `Предмет продан за: ${prize.toLocaleString()} Stars (x${mult})`,
-                        buttons: [{type: 'close'}]
-                    });
-                    
-                    checkLevelUp();
-                    syncUI();
-                }
-            });
-        }
-
-        // --- LEVEL SYSTEM ---
-        function checkLevelUp() {
-            const xpNext = user.lvl * 1000;
-            if(user.xp >= xpNext) {
-                user.lvl++;
-                user.xp = 0;
-                tg.showPopup({
-                    title: '🚀 НОВЫЙ УРОВЕНЬ!',
-                    message: `Поздравляем! Теперь ваш уровень: ${user.lvl}`,
-                    buttons: [{type: 'ok'}]
-                });
-            }
-        }
-
-        // --- LIVE FEED LOGIC (ИЗМЕНЕНО: МЕДЛЕННЕЕ) ---
-        function addTickerItem(id, x, amt, isMe = false) {
-            const list = document.getElementById('ticker-list');
+        // === 5. NEW FEATURES: REALISTIC TICKER & ONLINE ===
+        
+        // Horizontal Ticker Logic
+        function addTickerItem(id, amount, isMe=false) {
+            const feed = document.getElementById('live-feed');
             const item = document.createElement('div');
-            item.className = `ticker-item animate__animated animate__fadeInRight ${isMe ? 'personal' : ''}`;
-            const shortID = isMe ? "YOU" : `ID: ${id.toString().substring(0,6)}*`;
+            const cleanId = isMe ? "YOU" : `**${id.toString().slice(-4)}`;
             
+            item.className = isMe ? 'feed-item win-big' : 'feed-item';
             item.innerHTML = `
-                <div style="display:flex; align-items:center; gap:8px;">
-                    <i class="fas ${isMe ? 'fa-crown' : 'fa-user-circle'}" style="color: ${isMe ? 'gold' : '#555'}"></i>
-                    <span>${shortID}</span>
-                </div>
-                <div style="font-weight:900;">
-                    <span style="color:var(--gold-static); margin-right:8px;">x${x}</span>
-                    +${amt.toLocaleString()}
-                </div>
+                <i class="fas fa-user-circle" style="opacity:0.7"></i>
+                <span>${cleanId}</span>
+                <span style="color:var(--gold-static); font-weight:900">+${amount}</span>
             `;
-            list.prepend(item);
-            if(list.children.length > 5) list.lastElementChild.remove();
+
+            // Insert at the START (Left)
+            feed.prepend(item);
+
+            // Remove old ones if more than 3 to keep it clean
+            if(feed.children.length > 3) {
+                feed.lastElementChild.remove();
+            }
         }
 
-        function startLiveTicker() {
-            // МЕДЛЕННЕЕ И МЕНЬШЕ (Интервал 6 сек, шанс 30%)
+        function startSmartTicker() {
+            // Fake wins generator
             setInterval(() => {
-                if(Math.random() > 0.7) { 
-                    const fakeId = Math.floor(Math.random() * 90000000) + 10000000;
-                    const fakeX = [2, 3, 5, 50][Math.floor(Math.random() * 4)];
-                    const fakeWin = (Math.floor(Math.random() * 100) + 1) * 100 * fakeX;
-                    addTickerItem(fakeId, fakeX, fakeWin);
-                }
-            }, 6000);
+                // Realistic amounts: 50, 100, 150. Rarely 500.
+                const rand = Math.random();
+                let amt = 50;
+                if(rand > 0.5) amt = 100;
+                if(rand > 0.8) amt = 200;
+                if(rand > 0.98) amt = 500;
+
+                const fakeId = Math.floor(Math.random() * 89999) + 10000;
+                addTickerItem(fakeId, amt, false);
+            }, 3500); // New item every 3.5 seconds
         }
 
-        // --- NAVIGATION ---
-        function nav(id, el) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById('scr-' + id).classList.add('active');
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            el.classList.add('active');
-            tg.HapticFeedback.impactOccurred('light');
-        }
-
-        // --- PROMO ---
-        function claimPromo() {
-            const code = document.getElementById('promo-input').value.toUpperCase();
-            const rewards = { "START": 1000, "LUXURY": 5000, "GEMINI": 10000, "ADMIN": 99999 };
+        function startSmartOnline() {
+            const el = document.getElementById('online-count');
             
-            if(user.promos.includes(code)) {
-                tg.showAlert("Промокод уже использован!");
-                return;
-            }
-            if(rewards[code]) {
-                user.bal += rewards[code];
-                user.promos.push(code);
-                syncUI();
-                tg.showPopup({ title: 'Success', message: `Начислено: ${rewards[code]} Stars` });
-                document.getElementById('promo-input').value = '';
+            setInterval(() => {
+                const hour = new Date().getHours();
+                let base, noise;
+
+                // Night Mode (00-08) vs Day Mode
+                if(hour >= 0 && hour < 8) {
+                    base = 120; // Average night
+                    noise = 80; // fluctuation
+                } else {
+                    base = 600; // Average day
+                    noise = 250; 
+                }
+
+                // Random jitter +/- 10
+                const current = base + Math.floor(Math.random() * noise) - (noise/2);
+                el.innerText = Math.floor(current) + " online";
+            }, 5000);
+        }
+
+        // === 6. PROMO CODE FIX ===
+        function activatePromo() {
+            const input = document.getElementById('promo-code');
+            const msg = document.getElementById('promo-msg');
+            const code = input.value.trim().toUpperCase();
+
+            if(!code) return;
+
+            if(code === "START2024" || code === "BONUS") {
+                // Example check (in reality, check DB here)
+                user.bal += 500;
+                saveUser();
+                msg.style.color = "var(--green)";
+                msg.innerText = "Успешно! +500 Stars";
+                input.value = "";
             } else {
-                tg.showAlert("Неверный код");
+                msg.style.color = "var(--red)";
+                msg.innerText = "Неверный код";
             }
         }
 
+        // Navigation
+        function nav(screenId, btn) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('scr-'+screenId).classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        // Run
         window.onload = init;
+
     </script>
 </body>
 </html>
