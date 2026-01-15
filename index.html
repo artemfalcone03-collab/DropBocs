@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DropBocs - Neon Edition</title>
+    <title>DropBocs - Ultra Edition</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -14,185 +14,179 @@
     
     <style>
         :root {
-            --bg-dark: #090b10;
-            --bg-panel: #161b22;
-            --gold: #ffcc00;
-            --gold-glow: 0 0 15px rgba(255, 204, 0, 0.4);
-            --blue: #00a8ff;
-            --green: #00ff88;
-            --red: #ff4757;
+            --bg-body: #05070a;
+            --accent-blue: #00d2ff;
+            --accent-green: #00ff88;
+            --accent-red: #ff4757;
+            --accent-gold: #ffcc00;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
             --font: 'Montserrat', sans-serif;
-            --border: rgba(255,255,255,0.08);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; user-select: none; outline: none; }
-        body { background: var(--bg-dark); color: #fff; font-family: var(--font); overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        
+        body { 
+            background: var(--bg-body); 
+            background: linear-gradient(135deg, #05070a 0%, #0f172a 100%);
+            color: #fff; font-family: var(--font); overflow: hidden; height: 100vh; display: flex; flex-direction: column; 
+        }
 
         /* --- HEADER --- */
         .header {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 20px; background: rgba(22, 27, 34, 0.95);
-            border-bottom: 1px solid var(--border); box-shadow: 0 5px 20px rgba(0,0,0,0.5);
-            z-index: 10;
+            padding: 20px; background: rgba(0,0,0,0.3); backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--glass-border); z-index: 100;
         }
         .brand { 
-            font-weight: 900; font-size: 22px; font-style: italic;
-            background: linear-gradient(90deg, #fff, #888); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            font-weight: 900; font-size: 24px; letter-spacing: -1px;
+            background: linear-gradient(to right, #fff, #64748b);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
         .balance-pill {
-            background: rgba(0,0,0,0.5); padding: 8px 16px; border-radius: 50px;
-            border: 1px solid var(--border); display: flex; align-items: center; gap: 8px;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+            background: rgba(255,255,255,0.05); padding: 10px 18px; border-radius: 20px;
+            border: 1px solid var(--glass-border); display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
         /* --- LIVE TAPE --- */
         .live-strip {
-            height: 40px; background: #0d1117; border-bottom: 1px solid var(--border);
+            height: 45px; background: rgba(0,0,0,0.2); border-bottom: 1px solid var(--glass-border);
             display: flex; align-items: center; padding: 0 15px; overflow: hidden;
         }
         .live-item {
-            font-size: 10px; display: flex; align-items: center; gap: 6px;
-            background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 6px;
-            margin-right: 10px; border-left: 2px solid var(--gold);
-            animation: slideInLeft 0.5s ease; white-space: nowrap;
+            font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 8px;
+            background: var(--glass); padding: 5px 12px; border-radius: 10px;
+            margin-right: 12px; border-left: 3px solid var(--accent-gold);
+            animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); white-space: nowrap;
         }
-        @keyframes slideInLeft { from { opacity:0; transform: translateX(-20px); } to { opacity:1; transform: translateX(0); } }
+        @keyframes slideIn { from { opacity:0; transform: scale(0.8); } to { opacity:1; transform: scale(1); } }
 
         /* --- MAIN AREA --- */
-        .main-container { flex: 1; padding: 20px; overflow-y: auto; padding-bottom: 100px; }
-        .screen { display: none; animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .main-container { flex: 1; padding: 15px; overflow-y: auto; padding-bottom: 120px; }
+        .screen { display: none; animation: screenIn 0.5s ease; }
         .screen.active { display: block; }
-        @keyframes popUp { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        @keyframes screenIn { from { opacity: 0; filter: blur(10px); } to { opacity: 1; filter: blur(0); } }
 
         /* --- GAME UI --- */
         .online-cnt {
-            text-align: center; color: #555; font-size: 11px; font-weight: 700;
-            margin-bottom: 15px; display: flex; justify-content: center; align-items: center; gap: 6px;
+            text-align: center; color: #64748b; font-size: 12px; font-weight: 800;
+            margin-bottom: 15px; display: flex; justify-content: center; align-items: center; gap: 8px;
         }
         .online-dot {
-            width: 8px; height: 8px; background: var(--green); border-radius: 50%;
-            box-shadow: 0 0 10px var(--green); animation: blink 2s infinite;
+            width: 10px; height: 10px; background: var(--accent-green); border-radius: 50%;
+            box-shadow: 0 0 15px var(--accent-green); animation: pulseGreen 2s infinite;
         }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        @keyframes pulseGreen { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
 
         .game-box {
-            background: var(--bg-panel); border-radius: 24px; padding: 20px;
-            border: 1px solid var(--border); box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            position: relative; overflow: hidden;
+            background: rgba(255,255,255,0.02); backdrop-filter: blur(20px);
+            border-radius: 32px; padding: 20px; border: 1px solid var(--glass-border);
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
         }
         
         /* ROULETTE */
         .roulette-wrap {
-            height: 110px; background: #0a0c10; border-radius: 16px; margin-bottom: 20px;
-            position: relative; overflow: hidden; border: 2px solid #222;
-            box-shadow: inset 0 0 30px #000;
+            height: 120px; background: #000; border-radius: 20px; margin-bottom: 25px;
+            position: relative; overflow: hidden; border: 1px solid #1e293b;
+            box-shadow: inset 0 0 40px #000;
         }
         .pointer {
-            position: absolute; top: -5px; bottom: -5px; left: 50%; width: 4px;
-            background: #fff; z-index: 5; transform: translateX(-50%);
-            box-shadow: 0 0 15px #fff; border-radius: 2px;
+            position: absolute; top: 0; bottom: 0; left: 50%; width: 4px;
+            background: #fff; z-index: 10; transform: translateX(-50%);
+            box-shadow: 0 0 20px #fff, 0 0 40px #fff; border-radius: 10px;
         }
         .track { display: flex; height: 100%; align-items: center; will-change: transform; }
         .cell {
-            min-width: 80px; height: 80px; margin: 0 4px; border-radius: 12px;
+            min-width: 90px; height: 90px; margin: 0 5px; border-radius: 18px;
             display: flex; justify-content: center; align-items: center;
-            font-weight: 900; font-size: 24px; position: relative;
-            background: #242933; color: #777;
-            border-bottom: 4px solid rgba(0,0,0,0.3);
+            font-weight: 900; font-size: 28px; background: #0f172a; color: #334155;
+            transition: 0.3s; border: 1px solid rgba(255,255,255,0.03);
         }
 
-        /* --- FANCY BUTTONS --- */
-        .multipliers-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+        /* --- MULTIPLIER BUTTONS (PRO) --- */
+        .multipliers-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 25px; }
         
         .mult-btn {
-            padding: 18px; border-radius: 16px; 
-            background: #21262d; border: 1px solid rgba(255,255,255,0.05);
-            color: #8b949e; font-size: 14px; font-weight: 800;
-            transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            position: relative; overflow: hidden;
+            padding: 20px; border-radius: 20px; border: 1px solid var(--glass-border);
+            background: rgba(255,255,255,0.03); color: #94a3b8; font-weight: 900;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative;
         }
-        .mult-btn::before { content:''; position: absolute; top:0; left:0; width:100%; height:100%; background:linear-gradient(rgba(255,255,255,0.05), transparent); }
-        
-        /* Active States Colors */
-        .mult-btn.active { transform: scale(0.96); color: #fff; border: none; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
-        
-        .mult-btn[data-val="2"].active { background: var(--blue); box-shadow: 0 0 20px rgba(0, 168, 255, 0.4); }
-        .mult-btn[data-val="3"].active { background: var(--green); color: #000; box-shadow: 0 0 20px rgba(0, 255, 136, 0.4); }
-        .mult-btn[data-val="5"].active { background: var(--red); box-shadow: 0 0 20px rgba(255, 71, 87, 0.4); }
-        .mult-btn[data-val="50"].active { 
-            background: linear-gradient(135deg, #FFD700, #FDB931); 
-            color: #000; box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
-            animation: glowGold 1.5s infinite alternate;
-        }
-        @keyframes glowGold { from { box-shadow: 0 0 10px gold; } to { box-shadow: 0 0 25px gold; } }
+        .mult-btn span { font-size: 10px; opacity: 0.5; font-weight: 400; display: block; margin-top: 4px; }
 
-        /* CONTROLS */
+        /* Анимации и цвета для активных кнопок */
+        .mult-btn.active { transform: scale(0.95); color: #fff; border-color: transparent; }
+        
+        .mult-btn[data-val="2"].active { background: var(--accent-blue); box-shadow: 0 0 30px rgba(0, 210, 255, 0.4); }
+        .mult-btn[data-val="3"].active { background: var(--accent-green); color: #000; box-shadow: 0 0 30px rgba(0, 255, 136, 0.4); }
+        .mult-btn[data-val="5"].active { background: var(--accent-red); box-shadow: 0 0 30px rgba(255, 71, 87, 0.4); }
+        .mult-btn[data-val="50"].active { 
+            background: linear-gradient(135deg, #ffd700, #b4941f); color: #000;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.5); animation: goldPulse 1s infinite alternate;
+        }
+        @keyframes goldPulse { from { filter: brightness(1); } to { filter: brightness(1.3); } }
+
+        /* BET CONTROLS */
         .bet-controls {
-            display: flex; gap: 10px; background: #0d1117; padding: 8px;
-            border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px;
+            display: flex; gap: 12px; background: rgba(0,0,0,0.4); padding: 10px;
+            border-radius: 20px; border: 1px solid var(--glass-border); margin-bottom: 25px;
         }
         .bet-controls input {
             flex: 1; background: transparent; border: none; color: #fff;
-            text-align: center; font-size: 18px; font-weight: 900;
+            text-align: center; font-size: 22px; font-weight: 900; font-family: var(--font);
         }
         .ctrl-btn {
-            background: #21262d; color: #fff; border: none; padding: 12px 18px;
-            border-radius: 10px; font-weight: bold; font-size: 12px;
+            background: rgba(255,255,255,0.05); color: #fff; border: none; width: 50px; height: 50px;
+            border-radius: 15px; font-weight: 900; transition: 0.2s;
         }
-        .ctrl-btn:active { background: #30363d; transform: scale(0.95); }
+        .ctrl-btn:active { background: #fff; color: #000; transform: scale(0.9); }
 
         .spin-btn {
-            width: 100%; padding: 22px; border: none; border-radius: 18px;
-            background: linear-gradient(135deg, #ffffff, #e0e0e0);
-            color: #000; font-size: 18px; font-weight: 900; letter-spacing: 1px;
-            text-transform: uppercase; cursor: pointer;
-            box-shadow: 0 0 20px rgba(255,255,255,0.15);
-            animation: pulseBtn 2s infinite; transition: 0.3s;
+            width: 100%; padding: 22px; border: none; border-radius: 24px;
+            background: #fff; color: #000; font-size: 20px; font-weight: 900;
+            text-transform: uppercase; letter-spacing: 2px;
+            box-shadow: 0 10px 30px rgba(255,255,255,0.2);
+            animation: pulseBtn 2.5s infinite; transition: 0.3s;
         }
-        .spin-btn:active { transform: scale(0.95); }
-        .spin-btn:disabled { opacity: 0.5; animation: none; filter: grayscale(1); }
+        .spin-btn:disabled { background: #1e293b; color: #475569; animation: none; box-shadow: none; }
         
-        @keyframes pulseBtn { 0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.4); } 70% { box-shadow: 0 0 0 10px rgba(255,255,255,0); } 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); } }
+        @keyframes pulseBtn { 0% { transform: scale(1); box-shadow: 0 10px 30px rgba(255,255,255,0.2); } 50% { transform: scale(1.02); box-shadow: 0 15px 45px rgba(255,255,255,0.4); } 100% { transform: scale(1); box-shadow: 0 10px 30px rgba(255,255,255,0.2); } }
 
         /* --- PROFILE --- */
-        .profile-header { text-align: center; margin-bottom: 20px; }
+        .profile-card {
+            background: var(--glass); border: 1px solid var(--glass-border);
+            border-radius: 30px; padding: 30px; text-align: center;
+        }
         .avatar {
-            width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 15px;
-            border: 3px solid var(--gold); box-shadow: 0 0 25px rgba(255,204,0,0.2);
+            width: 120px; height: 120px; border-radius: 40px; margin: 0 auto 20px;
+            border: 4px solid #fff; box-shadow: 0 15px 35px rgba(0,0,0,0.4);
             background-size: cover; background-position: center;
         }
-        .panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 20px; }
         
+        .promo-box { margin-top: 30px; text-align: left; }
         .support-btn {
-            display: flex; justify-content: center; align-items: center; gap: 10px;
-            width: 100%; padding: 16px; margin-top: 15px; text-decoration: none;
-            background: rgba(0, 255, 136, 0.1); border: 1px solid var(--green);
-            color: var(--green); border-radius: 14px; font-weight: 800; font-size: 14px;
-            transition: 0.2s;
+            display: flex; justify-content: center; align-items: center; gap: 12px;
+            width: 100%; padding: 20px; margin-top: 20px; text-decoration: none;
+            background: var(--accent-green); color: #000; border-radius: 20px;
+            font-weight: 900; box-shadow: 0 10px 20px rgba(0, 255, 136, 0.2);
         }
-        .support-btn:active { background: var(--green); color: #000; }
 
-        /* --- BOTTOM NAV --- */
+        /* --- NAV --- */
         .nav {
-            position: fixed; bottom: 20px; left: 20px; right: 20px;
-            background: rgba(22, 27, 34, 0.95); backdrop-filter: blur(10px);
-            padding: 10px; border-radius: 25px; display: flex; justify-content: space-around;
-            border: 1px solid var(--border); z-index: 100;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: fixed; bottom: 25px; left: 20px; right: 20px;
+            background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px);
+            padding: 12px; border-radius: 30px; display: flex; justify-content: space-around;
+            border: 1px solid var(--glass-border); z-index: 1000;
         }
         .nav-item {
-            display: flex; flex-direction: column; align-items: center; gap: 4px;
-            padding: 10px 25px; border-radius: 18px; color: #555; transition: 0.3s;
+            display: flex; flex-direction: column; align-items: center; gap: 5px;
+            color: #475569; transition: 0.3s; padding: 10px 20px; border-radius: 20px;
         }
-        .nav-item.active { background: rgba(255,255,255,0.1); color: #fff; transform: translateY(-2px); }
-        .nav-item i { font-size: 18px; }
-        .nav-item span { font-size: 9px; font-weight: 800; text-transform: uppercase; }
+        .nav-item.active { color: #fff; background: rgba(255,255,255,0.05); }
 
-        /* WIN FLASH */
         .flash-overlay {
-            position: fixed; top:0; left:0; right:0; bottom:0;
-            background: #fff; opacity: 0; pointer-events: none; z-index: 999;
-            transition: opacity 0.1s;
+            position: fixed; inset: 0; background: #fff; opacity: 0; 
+            pointer-events: none; z-index: 9999; transition: opacity 0.1s;
         }
 
     </style>
@@ -204,21 +198,20 @@
     <div class="header">
         <div class="brand">DROPBOCS</div>
         <div class="balance-pill">
-            <i class="fas fa-coins" style="color: var(--gold)"></i>
-            <span id="bal-disp" style="font-weight: 800; font-size: 15px;">0</span>
+            <i class="fas fa-coins" style="color: var(--accent-gold)"></i>
+            <span id="bal-disp">0</span>
         </div>
     </div>
 
     <div class="live-strip">
-        <div style="font-size: 10px; font-weight: 900; color: #555; margin-right: 10px;">LIVE:</div>
-        <div id="live-feed" style="display: flex; align-items: center;"></div>
+        <div id="live-feed" style="display: flex; align-items: center; width: 100%;"></div>
     </div>
 
     <main class="main-container">
         
         <section id="scr-game" class="screen active">
             <div class="online-cnt">
-                <div class="online-dot"></div> <span id="online-txt">Loading...</span>
+                <div class="online-dot"></div> <span id="online-txt">Connecting...</span>
             </div>
 
             <div class="game-box">
@@ -228,39 +221,39 @@
                 </div>
 
                 <div class="multipliers-grid">
-                    <div class="mult-btn" onclick="selectMult(2)" data-val="2" id="btn-2">x2<br><span style="font-size:10px; opacity:0.6">DOUBLE</span></div>
-                    <div class="mult-btn" onclick="selectMult(3)" data-val="3" id="btn-3">x3<br><span style="font-size:10px; opacity:0.6">TRIPLE</span></div>
-                    <div class="mult-btn" onclick="selectMult(5)" data-val="5" id="btn-5">x5<br><span style="font-size:10px; opacity:0.6">CRAZY</span></div>
-                    <div class="mult-btn" onclick="selectMult(50)" data-val="50" id="btn-50" style="color: var(--gold)">x50<br><span style="font-size:10px; opacity:0.6">JACKPOT</span></div>
+                    <button class="mult-btn" onclick="selectMult(2)" data-val="2" id="btn-2">X2<span>DOUBLE</span></button>
+                    <button class="mult-btn" onclick="selectMult(3)" data-val="3" id="btn-3">X3<span>TRIPLE</span></button>
+                    <button class="mult-btn" onclick="selectMult(5)" data-val="5" id="btn-5">X5<span>CRAZY</span></button>
+                    <button class="mult-btn" onclick="selectMult(50)" data-val="50" id="btn-50" style="color:var(--accent-gold)">X50<span>JACKPOT</span></button>
                 </div>
 
                 <div class="bet-controls">
-                    <button class="ctrl-btn" onclick="actBet(0.5)">/2</button>
+                    <button class="ctrl-btn" onclick="actBet(0.5)">½</button>
                     <input type="number" id="bet-val" value="100">
-                    <button class="ctrl-btn" onclick="actBet(2)">x2</button>
+                    <button class="ctrl-btn" onclick="actBet(2)">X2</button>
                 </div>
 
-                <button id="spin-btn" class="spin-btn" onclick="goSpin()">КРУТИТЬ</button>
+                <button id="spin-btn" class="spin-btn" onclick="goSpin()">Крутить Спины</button>
             </div>
         </section>
 
         <section id="scr-profile" class="screen">
-            <div class="profile-header">
+            <div class="profile-card">
                 <div class="avatar" id="u-ava" style="background-image: url('https://img.icons8.com/3d-fluency/200/user-male-circle.png');"></div>
-                <h2 id="u-name" style="font-weight: 900;">User</h2>
-                <div id="u-id" style="font-size: 11px; color: #555; margin-top:5px;">ID: 000000</div>
-            </div>
+                <h2 id="u-name" style="font-weight: 900; font-size: 24px;">Player</h2>
+                <div id="u-id" style="font-size: 12px; color: #64748b; margin-top:5px;">ID: 00000000</div>
 
-            <div class="panel">
-                <h4 style="color: #888; margin-bottom: 10px; text-transform: uppercase; font-size: 11px;">Промокод</h4>
-                <div class="bet-controls" style="margin-bottom: 5px;">
-                    <input type="text" id="promo-in" placeholder="Введите код" style="text-align: left; padding-left: 10px;">
-                    <button class="ctrl-btn" style="background: #fff; color: #000;" onclick="usePromo()">OK</button>
+                <div class="promo-box">
+                    <label style="font-size: 11px; font-weight: 900; color: #475569; margin-left: 10px;">ПРОМОКОД</label>
+                    <div class="bet-controls" style="margin-top: 8px;">
+                        <input type="text" id="promo-in" placeholder="Введите код" style="text-align: left; padding-left: 15px; font-size: 16px;">
+                        <button class="ctrl-btn" style="width: 80px; background: #fff; color: #000;" onclick="usePromo()">OK</button>
+                    </div>
+                    <div id="promo-msg" style="font-size: 12px; font-weight: 700; height: 20px; text-align: center; margin-top: 10px;"></div>
                 </div>
-                <div id="promo-msg" style="font-size: 11px; font-weight: 700; height: 20px;"></div>
 
                 <a href="#" onclick="goSupport()" class="support-btn">
-                    <i class="fab fa-telegram-plane" style="font-size: 18px;"></i> ТЕХ. ПОДДЕРЖКА
+                    <i class="fab fa-telegram-plane"></i> ТЕХ. ПОДДЕРЖКА
                 </a>
             </div>
         </section>
@@ -269,42 +262,29 @@
 
     <nav class="nav">
         <div class="nav-item active" onclick="switchTab('game', this)">
-            <i class="fas fa-gamepad"></i> <span>Играть</span>
+            <i class="fas fa-play-circle"></i> <span>Играть</span>
         </div>
         <div class="nav-item" onclick="switchTab('profile', this)">
-            <i class="fas fa-user"></i> <span>Профиль</span>
+            <i class="fas fa-user-astronaut"></i> <span>Профиль</span>
         </div>
     </nav>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
+        tg.backgroundColor = "#05070a";
+        tg.headerColor = "#05070a";
 
-        // --- ⚠️ КОНФИГ FIREBASE (Вставь свой!) ---
-        const firebaseConfig = {
-           apiKey: "ВСТАВЬ_СЮДА", 
-           authDomain: "...", 
-           databaseURL: "...", 
-           projectId: "...", 
-           storageBucket: "...", 
-           messagingSenderId: "...", 
-           appId: "..." 
-        };
-        // ------------------------------------------
-
+        const firebaseConfig = { apiKey: "...", databaseURL: "..." }; // Вставь свои данные
+        
         let db = null;
-        try {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.database();
-        } catch(e) { console.log("No Firebase"); }
+        try { firebase.initializeApp(firebaseConfig); db = firebase.database(); } catch(e){}
 
-        // State
-        let user = { id: 'guest', name: 'Guest', bal: 1000, used: [] };
-        const PATTERN = [2,3,2,5,2,3,2,5,2,3,2,50,2,3,2,5,2,3,2,3,2,5,2,3,2,50,2,5,2,3];
+        let user = { id: '0', name: 'User', bal: 1000, used: [] };
+        const PATTERN = [2,3,2,5,2,3,2,50,2,3,2,5,2,3,2,2,3,5,2,50,2,3,2,5];
         let spinning = false;
         let selectedMult = null;
 
-        // INIT
         function init() {
             if(tg.initDataUnsafe?.user) {
                 user.id = tg.initDataUnsafe.user.id.toString();
@@ -312,18 +292,14 @@
                 if(tg.initDataUnsafe.user.photo_url) 
                     document.getElementById('u-ava').style.backgroundImage = `url(${tg.initDataUnsafe.user.photo_url})`;
             }
-
             document.getElementById('u-name').innerText = user.name;
             document.getElementById('u-id').innerText = `ID: ${user.id}`;
 
             if(db) {
                 db.ref('users/' + user.id).on('value', snap => {
                     const v = snap.val();
-                    if(v) {
-                        user.bal = v.bal;
-                        user.used = v.used || [];
-                        updateBal();
-                    } else saveUser();
+                    if(v) { user.bal = v.bal; user.used = v.used || []; updateBal(); }
+                    else saveUser();
                 });
             } else updateBal();
 
@@ -333,9 +309,7 @@
         }
 
         function saveUser() {
-            if(db) db.ref('users/' + user.id).update({
-                bal: user.bal, name: user.name, used: user.used || []
-            });
+            if(db) db.ref('users/' + user.id).update({ bal: user.bal, name: user.name, used: user.used || [] });
             updateBal();
         }
 
@@ -343,23 +317,18 @@
             document.getElementById('bal-disp').innerText = Math.floor(user.bal).toLocaleString();
         }
 
-        // GAME LOGIC
         function buildTrack() {
             const t = document.getElementById('track');
             t.innerHTML = '';
             for(let i=0; i<100; i++) {
                 let val = PATTERN[i % PATTERN.length];
-                let col = '#555';
-                if(val===2) col = '#00a8ff'; // Blue
-                if(val===3) col = '#00ff88'; // Green
-                if(val===5) col = '#ff4757'; // Red
-                if(val===50) col = '#ffd700'; // Gold
-
                 let d = document.createElement('div');
                 d.className = 'cell';
                 d.innerHTML = val;
-                d.style.color = col;
-                d.style.textShadow = `0 0 10px ${col}`;
+                if(val === 50) d.style.color = 'var(--accent-gold)';
+                if(val === 5) d.style.color = 'var(--accent-red)';
+                if(val === 3) d.style.color = 'var(--accent-green)';
+                if(val === 2) d.style.color = 'var(--accent-blue)';
                 t.appendChild(d);
             }
         }
@@ -369,60 +338,50 @@
             selectedMult = m;
             document.querySelectorAll('.mult-btn').forEach(b => b.classList.remove('active'));
             document.querySelector(`.mult-btn[data-val="${m}"]`).classList.add('active');
-            tg.HapticFeedback.selectionChanged();
+            tg.HapticFeedback.impactOccurred('medium');
         }
 
         function actBet(mod) {
             let inp = document.getElementById('bet-val');
-            let v = parseInt(inp.value) || 0;
-            inp.value = Math.floor(Math.max(1, v * mod));
+            inp.value = Math.floor(Math.max(1, (parseInt(inp.value) || 0) * mod));
+            tg.HapticFeedback.selectionChanged();
         }
 
         function goSpin() {
             let bet = parseInt(document.getElementById('bet-val').value);
-            if(spinning) return;
-            if(!selectedMult) { tg.showAlert("Выберите x2, x3, x5 или x50!"); return; }
-            if(bet > user.bal) { tg.showAlert("Мало денег!"); return; }
-            if(bet <= 0) return;
+            if(spinning || !selectedMult || bet > user.bal || bet <= 0) {
+                if(!selectedMult) tg.showAlert("Выберите множитель!");
+                return;
+            }
 
-            // Start
             spinning = true;
             user.bal -= bet;
             saveUser();
             
             const btn = document.getElementById('spin-btn');
             btn.disabled = true;
-            btn.innerText = "WAIT...";
+            btn.innerText = "УДАЧИ...";
             
-            // Logic
-            let offset = Math.floor(Math.random()*30);
-            let targetIdx = 65 + offset; 
+            let targetIdx = 70 + Math.floor(Math.random()*20);
             let resultVal = PATTERN[targetIdx % PATTERN.length];
             
-            // Visuals
-            let cardW = 88; // 80 width + 8 margin
+            let cardW = 100; // 90 width + 10 margin
             let winW = document.querySelector('.roulette-wrap').offsetWidth;
             let moveX = (targetIdx * cardW) - (winW/2) + (cardW/2);
             
             const tr = document.getElementById('track');
-            tr.style.transition = "transform 4s cubic-bezier(0.15, 0, 0.15, 1)";
+            tr.style.transition = "transform 4s cubic-bezier(0.1, 0, 0.1, 1)";
             tr.style.transform = `translateX(-${moveX}px)`;
 
             setTimeout(() => {
-                // Finish
                 let win = (resultVal === selectedMult);
                 if(win) {
                     let winAmt = bet * resultVal;
                     user.bal += winAmt;
-                    
-                    // Flash Effect
-                    let flash = document.getElementById('flash');
-                    flash.style.opacity = 0.6;
-                    setTimeout(()=> flash.style.opacity = 0, 150);
-
+                    document.getElementById('flash').style.opacity = 0.5;
+                    setTimeout(()=> document.getElementById('flash').style.opacity = 0, 150);
                     tg.HapticFeedback.notificationOccurred('success');
-                    tg.showPopup({title:'WIN!', message:`+${winAmt} coins`});
-                    
+                    tg.showPopup({title:'ПОБЕДА!', message:`Вы выиграли ${winAmt} монет!`});
                     addLive(user.id, winAmt, true);
                 } else {
                     tg.HapticFeedback.notificationOccurred('error');
@@ -434,36 +393,23 @@
                     tr.style.transform = 'translateX(0)';
                     spinning = false;
                     btn.disabled = false;
-                    btn.innerText = "КРУТИТЬ";
+                    btn.innerText = "Крутить Спины";
                 }, 1000);
-
             }, 4100);
         }
 
-        // --- ONLINE LOGIC (Stable) ---
         function startOnlineLogic() {
-            const el = document.getElementById('online-txt');
-            let count = 560; // Start base
-            
+            let c = 582;
             setInterval(() => {
-                // Очень маленькие изменения (-2 до +3)
-                let diff = Math.floor(Math.random() * 6) - 2; 
-                count += diff;
-                // Мягкие рамки 400 - 700
-                if(count < 400) count += 5;
-                if(count > 700) count -= 5;
-                
-                el.innerText = `${count} playing now`;
-            }, 5000); // Раз в 5 сек
+                c += Math.floor(Math.random()*5)-2;
+                document.getElementById('online-txt').innerText = `${c} PLAYING NOW`;
+            }, 4000);
         }
 
-        // --- LIVE FEED ---
         function startLiveFeed() {
             setInterval(() => {
-                if(Math.random() > 0.6) return; // Не часто
-                let fakeId = Math.floor(Math.random()*900000)+100000;
-                let fakeAmt = [100,200,300,500,1000][Math.floor(Math.random()*5)];
-                addLive(fakeId, fakeAmt);
+                if(Math.random() > 0.7) return;
+                addLive(Math.floor(Math.random()*900000)+100000, [100,500,1000,5000][Math.floor(Math.random()*4)]);
             }, 3000);
         }
 
@@ -471,44 +417,36 @@
             const c = document.getElementById('live-feed');
             const el = document.createElement('div');
             el.className = 'live-item';
-            el.style.borderLeftColor = me ? '#00ff88' : '#ffcc00';
+            if(me) el.style.borderLeftColor = 'var(--accent-green)';
             el.innerHTML = me ? `YOU: <b>+${amt}</b>` : `ID:${id.toString().slice(0,4)}.. <b>+${amt}</b>`;
             c.prepend(el);
-            if(c.children.length > 5) c.lastElementChild.remove();
+            if(c.children.length > 4) c.lastElementChild.remove();
         }
 
-        // --- PROMO & SUPPORT ---
         function usePromo() {
             const inp = document.getElementById('promo-in');
             const msg = document.getElementById('promo-msg');
             const code = inp.value.trim();
-            
-            if(user.used && user.used.includes(code.toLowerCase())) {
-                msg.style.color = 'var(--red)'; msg.innerText = "Уже использован!"; return;
-            }
+            if(user.used.includes(code.toLowerCase())) { msg.style.color = 'var(--accent-red)'; msg.innerText = "УЖЕ ИСПОЛЬЗОВАН"; return; }
 
             let add = 0;
-            // ADMIN CODE
             if(code === "TestRunAdmin7072010Roma") add = 1000000;
-            else if(code.toLowerCase() === "start") add = 500;
+            else if(code.toLowerCase() === "start") add = 1000;
 
             if(add > 0) {
-                user.bal += add;
-                user.used.push(code.toLowerCase());
-                saveUser();
-                msg.style.color = 'var(--green)'; msg.innerText = `+${add} coins!`;
+                user.bal += add; user.used.push(code.toLowerCase()); saveUser();
+                msg.style.color = 'var(--accent-green)'; msg.innerText = `УСПЕШНО: +${add}`;
                 tg.HapticFeedback.notificationOccurred('success');
             } else {
-                msg.style.color = 'var(--red)'; msg.innerText = "Неверный код";
+                msg.style.color = 'var(--accent-red)'; msg.innerText = "НЕВЕРНЫЙ КОД";
                 tg.HapticFeedback.notificationOccurred('error');
             }
         }
 
-        function goSupport() {
-            tg.openTelegramLink("https://t.me/nasjsa");
-        }
+        function goSupport() { tg.HapticFeedback.impactOccurred('light'); tg.openTelegramLink("https://t.me/nasjsa"); }
 
         function switchTab(t, btn) {
+            tg.HapticFeedback.selectionChanged();
             document.querySelectorAll('.screen').forEach(x => x.classList.remove('active'));
             document.getElementById('scr-'+t).classList.add('active');
             document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
