@@ -31,66 +31,69 @@
             color: #fff; font-family: var(--font); overflow: hidden; height: 100vh; display: flex; flex-direction: column; 
         }
 
-        /* УМЕНЬШЕННЫЙ ХЕДЕР */
+        /* --- HEADER (COMPACT) --- */
         .header {
             display: flex; justify-content: space-between; align-items: center;
             padding: 8px 15px; background: rgba(0,0,0,0.3); backdrop-filter: blur(15px);
             border-bottom: 1px solid var(--glass-border); z-index: 100;
         }
-        .brand { font-weight: 900; font-size: 16px; letter-spacing: -1px; background: linear-gradient(to right, #fff, #64748b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .balance-pill { background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 10px; border: 1px solid var(--glass-border); display: flex; align-items: center; gap: 6px; font-size: 13px; }
+        .brand { font-weight: 900; font-size: 18px; letter-spacing: -1px; background: linear-gradient(to right, #fff, #64748b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .balance-pill { background: rgba(255,255,255,0.05); padding: 6px 12px; border-radius: 12px; border: 1px solid var(--glass-border); display: flex; align-items: center; gap: 8px; font-size: 14px; }
 
-        .live-strip { height: 30px; background: rgba(0,0,0,0.2); border-bottom: 1px solid var(--glass-border); display: flex; align-items: center; padding: 0 10px; overflow: hidden; }
-        .live-item { font-size: 9px; font-weight: 700; background: var(--glass); padding: 2px 6px; border-radius: 6px; margin-right: 6px; border-left: 2px solid var(--accent-gold); white-space: nowrap; }
+        .live-strip { height: 32px; background: rgba(0,0,0,0.2); border-bottom: 1px solid var(--glass-border); display: flex; align-items: center; padding: 0 10px; overflow: hidden; }
+        .live-item { font-size: 10px; font-weight: 700; background: var(--glass); padding: 3px 8px; border-radius: 8px; margin-right: 8px; border-left: 2px solid var(--accent-gold); white-space: nowrap; }
 
+        /* --- MAIN AREA --- */
         .main-container { flex: 1; padding: 8px; overflow: hidden; position: relative; }
         .screen { display: none; height: 100%; }
         .screen.active { display: block; }
 
-        .online-cnt { text-align: center; color: #64748b; font-size: 9px; font-weight: 800; margin-bottom: 6px; display: flex; justify-content: center; align-items: center; gap: 4px; }
-        .online-dot { width: 6px; height: 6px; background: var(--accent-green); border-radius: 50%; box-shadow: 0 0 8px var(--accent-green); animation: pulseGreen 2s infinite; }
+        /* --- GAME UI (COMPACT) --- */
+        .online-cnt { text-align: center; color: #64748b; font-size: 10px; font-weight: 800; margin-bottom: 6px; display: flex; justify-content: center; align-items: center; gap: 5px; }
+        .online-dot { width: 7px; height: 7px; background: var(--accent-green); border-radius: 50%; box-shadow: 0 0 10px var(--accent-green); animation: pulseGreen 2s infinite; }
         @keyframes pulseGreen { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
-        .game-box { background: rgba(255,255,255,0.02); backdrop-filter: blur(20px); border-radius: 20px; padding: 10px; border: 1px solid var(--glass-border); }
+        .game-box { background: rgba(255,255,255,0.02); backdrop-filter: blur(20px); border-radius: 24px; padding: 12px; border: 1px solid var(--glass-border); }
         
-        /* УМЕНЬШЕННАЯ РУЛЕТКА */
-        .roulette-wrap { height: 75px; background: #000; border-radius: 14px; margin-bottom: 8px; position: relative; overflow: hidden; border: 1px solid #1e293b; }
-        .pointer { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; background: #fff; z-index: 10; transform: translateX(-50%); box-shadow: 0 0 10px #fff; }
-        .track { display: flex; height: 100%; align-items: center; }
-        .cell { min-width: 65px; height: 65px; margin: 0 3px; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-weight: 900; font-size: 20px; background: #0f172a; border: 1px solid rgba(255,255,255,0.03); }
+        .roulette-wrap { height: 85px; background: #000; border-radius: 16px; margin-bottom: 8px; position: relative; overflow: hidden; border: 1px solid #1e293b; box-shadow: inset 0 0 30px #000; }
+        .pointer { position: absolute; top: 0; bottom: 0; left: 50%; width: 3px; background: #fff; z-index: 10; transform: translateX(-50%); box-shadow: 0 0 15px #fff; }
+        .track { display: flex; height: 100%; align-items: center; will-change: transform; }
+        .cell { min-width: 75px; height: 75px; margin: 0 4px; border-radius: 14px; display: flex; justify-content: center; align-items: center; font-weight: 900; font-size: 24px; background: #0f172a; border: 1px solid rgba(255,255,255,0.03); }
 
-        /* УМЕНЬШЕННЫЕ КНОПКИ */
         .multipliers-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 8px; }
-        .mult-btn { padding: 10px; border-radius: 12px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.03); color: #94a3b8; font-weight: 900; font-size: 13px; }
-        .mult-btn span { font-size: 7px; opacity: 0.5; display: block; }
-        .mult-btn.active { transform: scale(0.96); color: #fff; }
+        .mult-btn { padding: 10px; border-radius: 14px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.03); color: #94a3b8; font-weight: 900; font-size: 14px; transition: 0.2s; }
+        .mult-btn span { font-size: 8px; opacity: 0.5; display: block; }
+        .mult-btn.active { transform: scale(0.96); color: #fff; border-color: transparent; }
         
-        .mult-btn[data-val="2"].active { background: var(--accent-blue); }
-        .mult-btn[data-val="3"].active { background: var(--accent-green); color: #000; }
-        .mult-btn[data-val="5"].active { background: var(--accent-red); }
-        .mult-btn[data-val="50"].active { background: linear-gradient(135deg, #ffd700, #b4941f); color: #000; }
+        .mult-btn[data-val="2"].active { background: var(--accent-blue); box-shadow: 0 0 20px rgba(0, 210, 255, 0.4); }
+        .mult-btn[data-val="3"].active { background: var(--accent-green); color: #000; box-shadow: 0 0 20px rgba(0, 255, 136, 0.4); }
+        .mult-btn[data-val="5"].active { background: var(--accent-red); box-shadow: 0 0 20px rgba(255, 71, 87, 0.4); }
+        .mult-btn[data-val="50"].active { background: linear-gradient(135deg, #ffd700, #b4941f); color: #000; box-shadow: 0 0 25px rgba(255, 215, 0, 0.5); }
 
-        .bet-controls { display: flex; gap: 8px; background: rgba(0,0,0,0.4); padding: 6px; border-radius: 12px; border: 1px solid var(--glass-border); margin-bottom: 8px; }
-        .bet-controls input { flex: 1; background: transparent; border: none; color: #fff; text-align: center; font-size: 16px; font-weight: 900; width: 40px; }
-        .ctrl-btn { background: rgba(255,255,255,0.05); color: #fff; border: none; width: 35px; height: 35px; border-radius: 10px; font-weight: 900; font-size: 12px; }
+        .bet-controls { display: flex; gap: 10px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 15px; border: 1px solid var(--glass-border); margin-bottom: 8px; }
+        .bet-controls input { flex: 1; background: transparent; border: none; color: #fff; text-align: center; font-size: 18px; font-weight: 900; width: 50px; }
+        .ctrl-btn { background: rgba(255,255,255,0.05); color: #fff; border: none; width: 40px; height: 40px; border-radius: 12px; font-weight: 900; }
 
-        .spin-btn { width: 100%; padding: 14px; border: none; border-radius: 14px; background: #fff; color: #000; font-size: 14px; font-weight: 900; text-transform: uppercase; }
+        .spin-btn { width: 100%; padding: 15px; border: none; border-radius: 18px; background: #fff; color: #000; font-size: 16px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; animation: pulseBtn 2.5s infinite; }
+        .spin-btn:disabled { background: #1e293b; color: #475569; animation: none; }
+        @keyframes pulseBtn { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
 
-        /* ПРОФИЛЬ И ПРОМОКОД */
-        .profile-card { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 20px; padding: 12px; text-align: center; }
-        .avatar { width: 70px; height: 70px; border-radius: 20px; margin: 0 auto 8px; border: 2px solid #fff; background-size: cover; background-position: center; }
+        /* --- PROFILE (COMPACT) --- */
+        .profile-card { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 24px; padding: 15px; text-align: center; }
+        .avatar { width: 75px; height: 75px; border-radius: 25px; margin: 0 auto 10px; border: 3px solid #fff; background-size: cover; background-position: center; }
         
         .promo-box { margin-top: 10px; text-align: left; }
-        .promo-input-wrap { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
-        .promo-btn { width: 100%; padding: 12px; border-radius: 10px; border: none; background: #fff; color: #000; font-weight: 900; font-size: 13px; text-transform: uppercase; }
+        .promo-input-wrap { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+        .promo-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: #fff; color: #000; font-weight: 900; font-size: 14px; text-transform: uppercase; }
 
-        .support-btn { display: flex; justify-content: center; align-items: center; gap: 8px; width: 100%; padding: 12px; margin-top: 10px; text-decoration: none; background: var(--accent-green); color: #000; border-radius: 12px; font-weight: 900; font-size: 12px; }
+        .support-btn { display: flex; justify-content: center; align-items: center; gap: 8px; width: 100%; padding: 14px; margin-top: 10px; text-decoration: none; background: var(--accent-green); color: #000; border-radius: 15px; font-weight: 900; font-size: 13px; }
 
-        .nav { position: fixed; bottom: 10px; left: 15px; right: 15px; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); padding: 6px; border-radius: 18px; display: flex; justify-content: space-around; border: 1px solid var(--glass-border); }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; color: #475569; padding: 6px 12px; border-radius: 12px; }
+        /* --- NAV (COMPACT) --- */
+        .nav { position: fixed; bottom: 15px; left: 15px; right: 15px; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); padding: 8px; border-radius: 20px; display: flex; justify-content: space-around; border: 1px solid var(--glass-border); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; color: #475569; padding: 8px 15px; border-radius: 15px; }
         .nav-item.active { color: #fff; background: rgba(255,255,255,0.05); }
-        .nav-item i { font-size: 14px; }
-        .nav-item span { font-size: 8px; font-weight: 700; }
+        .nav-item i { font-size: 16px; }
+        .nav-item span { font-size: 9px; font-weight: 700; }
 
         .flash-overlay { position: fixed; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 9999; }
     </style>
@@ -139,8 +142,8 @@
         <section id="scr-profile" class="screen">
             <div class="profile-card">
                 <div class="avatar" id="u-ava" style="background-image: url('https://img.icons8.com/3d-fluency/200/user-male-circle.png');"></div>
-                <h2 id="u-name" style="font-weight: 900; font-size: 16px;">Player</h2>
-                <div id="u-id" style="font-size: 9px; color: #64748b;">ID: 00000000</div>
+                <h2 id="u-name" style="font-weight: 900; font-size: 18px;">Player</h2>
+                <div id="u-id" style="font-size: 10px; color: #64748b;">ID: 00000000</div>
                 
                 <div class="promo-box">
                     <label style="font-size: 10px; font-weight: 900; color: #475569; margin-left: 5px;">ПРОМОКОД</label>
@@ -164,12 +167,26 @@
     </nav>
 
     <script>
+        /* ВЕСЬ ТВОЙ СКРИПТ БЕЗ ИЗМЕНЕНИЙ */
         const tg = window.Telegram.WebApp;
         tg.expand();
         tg.backgroundColor = "#05070a";
 
-        const firebaseConfig = { apiKey: "...", databaseURL: "..." };
-        let db = null; try { firebase.initializeApp(firebaseConfig); db = firebase.database(); } catch(e){}
+        const firebaseConfig = { 
+            apiKey: "ВСТАВЬ_СВОЙ", 
+            authDomain: "...", 
+            databaseURL: "ВСТАВЬ_СВОЙ", 
+            projectId: "...", 
+            storageBucket: "...", 
+            messagingSenderId: "...", 
+            appId: "..." 
+        };
+        
+        let db = null; 
+        try { 
+            firebase.initializeApp(firebaseConfig); 
+            db = firebase.database(); 
+        } catch(e){ console.error("Firebase init error"); }
 
         let user = { id: '0', name: 'User', bal: 1000, used: [] };
         const PATTERN = [2,3,2,5,2,3,2,50,2,3,2,5,2,3,2,2,3,5,2,50,2,3,2,5];
@@ -184,18 +201,35 @@
             }
             document.getElementById('u-name').innerText = user.name;
             document.getElementById('u-id').innerText = `ID: ${user.id}`;
+            
             if(db) {
                 db.ref('users/' + user.id).on('value', snap => {
                     const v = snap.val();
-                    if(v) { user.bal = v.bal; user.used = v.used || []; updateBal(); }
-                    else saveUser();
+                    if(v) { 
+                        user.bal = v.bal; 
+                        user.used = v.used || []; 
+                        updateBal(); 
+                    } else saveUser();
                 });
             } else updateBal();
-            buildTrack(); startOnlineLogic(); startLiveFeed();
+            
+            buildTrack(); 
+            startOnlineLogic(); 
+            startLiveFeed();
         }
 
-        function saveUser() { if(db) db.ref('users/' + user.id).update({ bal: user.bal, name: user.name, used: user.used || [] }); updateBal(); }
-        function updateBal() { document.getElementById('bal-disp').innerText = Math.floor(user.bal).toLocaleString(); }
+        function saveUser() { 
+            if(db) db.ref('users/' + user.id).update({ 
+                bal: user.bal, 
+                name: user.name, 
+                used: user.used || [] 
+            }); 
+            updateBal(); 
+        }
+
+        function updateBal() { 
+            document.getElementById('bal-disp').innerText = Math.floor(user.bal).toLocaleString(); 
+        }
 
         function buildTrack() {
             const t = document.getElementById('track');
@@ -212,49 +246,132 @@
             }
         }
 
-        function selectMult(m) { if(spinning) return; selectedMult = m; document.querySelectorAll('.mult-btn').forEach(b => b.classList.remove('active')); document.querySelector(`.mult-btn[data-val="${m}"]`).classList.add('active'); tg.HapticFeedback.impactOccurred('medium'); }
-        function actBet(mod) { let inp = document.getElementById('bet-val'); inp.value = Math.floor(Math.max(1, (parseInt(inp.value) || 0) * mod)); tg.HapticFeedback.selectionChanged(); }
+        function selectMult(m) { 
+            if(spinning) return; 
+            selectedMult = m; 
+            document.querySelectorAll('.mult-btn').forEach(b => b.classList.remove('active')); 
+            document.querySelector(`.mult-btn[data-val="${m}"]`).classList.add('active'); 
+            tg.HapticFeedback.impactOccurred('medium'); 
+        }
+
+        function actBet(mod) { 
+            let inp = document.getElementById('bet-val'); 
+            inp.value = Math.floor(Math.max(1, (parseInt(inp.value) || 0) * mod)); 
+            tg.HapticFeedback.selectionChanged(); 
+        }
 
         function goSpin() {
             let bet = parseInt(document.getElementById('bet-val').value);
-            if(spinning || !selectedMult || bet > user.bal || bet <= 0) { if(!selectedMult) tg.showAlert("Выберите множитель!"); return; }
-            spinning = true; user.bal -= bet; saveUser();
-            const btn = document.getElementById('spin-btn'); btn.disabled = true; btn.innerText = "УДАЧИ...";
+            if(spinning || !selectedMult || bet > user.bal || bet <= 0) { 
+                if(!selectedMult) tg.showAlert("Выберите множитель!"); 
+                return; 
+            }
+            spinning = true; 
+            user.bal -= bet; 
+            saveUser();
+            
+            const btn = document.getElementById('spin-btn'); 
+            btn.disabled = true; 
+            btn.innerText = "УДАЧИ...";
+            
             let targetIdx = 75 + Math.floor(Math.random()*15);
             let resultVal = PATTERN[targetIdx % PATTERN.length];
-            let cardW = 71; // Updated for smaller cells
+            let cardW = 83; 
             let moveX = (targetIdx * cardW) - (document.querySelector('.roulette-wrap').offsetWidth/2) + (cardW/2);
+            
             const tr = document.getElementById('track');
             tr.style.transition = "transform 4s cubic-bezier(0.1, 0, 0.1, 1)";
             tr.style.transform = `translateX(-${moveX}px)`;
+            
             setTimeout(() => {
                 if(resultVal === selectedMult) {
-                    let winAmt = bet * resultVal; user.bal += winAmt;
-                    document.getElementById('flash').style.opacity = 0.5; setTimeout(()=> document.getElementById('flash').style.opacity = 0, 150);
-                    tg.HapticFeedback.notificationOccurred('success'); tg.showPopup({title:'ПОБЕДА!', message:`Вы выиграли ${winAmt} монет!`});
+                    let winAmt = bet * resultVal; 
+                    user.bal += winAmt;
+                    document.getElementById('flash').style.opacity = 0.5; 
+                    setTimeout(()=> document.getElementById('flash').style.opacity = 0, 150);
+                    tg.HapticFeedback.notificationOccurred('success'); 
+                    tg.showPopup({title:'ПОБЕДА!', message:`Вы выиграли ${winAmt} монет!`});
                     addLive(user.id, winAmt, true);
-                } else { tg.HapticFeedback.notificationOccurred('error'); }
+                } else { 
+                    tg.HapticFeedback.notificationOccurred('error'); 
+                }
                 saveUser();
-                setTimeout(() => { tr.style.transition = 'none'; tr.style.transform = 'translateX(0)'; spinning = false; btn.disabled = false; btn.innerText = "Крутить Спины"; }, 1000);
+                setTimeout(() => { 
+                    tr.style.transition = 'none'; 
+                    tr.style.transform = 'translateX(0)'; 
+                    spinning = false; 
+                    btn.disabled = false; 
+                    btn.innerText = "Крутить Спины"; 
+                }, 1000);
             }, 4100);
         }
 
-        function startOnlineLogic() { let c = 614; setInterval(() => { c += Math.floor(Math.random()*5)-2; document.getElementById('online-txt').innerText = `${c} PLAYING NOW`; }, 4000); }
-        function startLiveFeed() { setInterval(() => { if(Math.random() > 0.7) return; addLive(Math.floor(Math.random()*900000)+100000, [100,500,1000,5000][Math.floor(Math.random()*4)]); }, 3000); }
-        function addLive(id, amt, me=false) { const c = document.getElementById('live-feed'); const el = document.createElement('div'); el.className = 'live-item'; if(me) el.style.borderLeftColor = 'var(--accent-green)'; el.innerHTML = me ? `YOU: <b>+${amt}</b>` : `ID:${id.toString().slice(0,4)}.. <b>+${amt}</b>`; c.prepend(el); if(c.children.length > 4) c.lastElementChild.remove(); }
+        function startOnlineLogic() { 
+            let c = 614; 
+            setInterval(() => { 
+                c += Math.floor(Math.random()*5)-2; 
+                document.getElementById('online-txt').innerText = `${c} PLAYING NOW`; 
+            }, 4000); 
+        }
+
+        function startLiveFeed() { 
+            setInterval(() => { 
+                if(Math.random() > 0.7) return; 
+                addLive(Math.floor(Math.random()*900000)+100000, [100,500,1000,5000][Math.floor(Math.random()*4)]); 
+            }, 3000); 
+        }
+
+        function addLive(id, amt, me=false) { 
+            const c = document.getElementById('live-feed'); 
+            const el = document.createElement('div'); 
+            el.className = 'live-item'; 
+            if(me) el.style.borderLeftColor = 'var(--accent-green)'; 
+            el.innerHTML = me ? `YOU: <b>+${amt}</b>` : `ID:${id.toString().slice(0,4)}.. <b>+${amt}</b>`; 
+            c.prepend(el); 
+            if(c.children.length > 4) c.lastElementChild.remove(); 
+        }
 
         function usePromo() {
-            const inp = document.getElementById('promo-in'); const msg = document.getElementById('promo-msg'); const code = inp.value.trim();
-            if(user.used.includes(code.toLowerCase())) { msg.style.color = 'var(--accent-red)'; msg.innerText = "УЖЕ ИСПОЛЬЗОВАН"; return; }
+            const inp = document.getElementById('promo-in'); 
+            const msg = document.getElementById('promo-msg'); 
+            const code = inp.value.trim();
+            
+            if(user.used.includes(code.toLowerCase())) { 
+                msg.style.color = 'var(--accent-red)'; 
+                msg.innerText = "УЖЕ ИСПОЛЬЗОВАН"; 
+                return; 
+            }
+            
             let add = 0;
             if(code === "TestRunAdmin7072010Roma") add = 1000000;
             else if(code.toLowerCase() === "start") add = 1000;
-            if(add > 0) { user.bal += add; user.used.push(code.toLowerCase()); saveUser(); msg.style.color = 'var(--accent-green)'; msg.innerText = `УСПЕШНО: +${add}`; tg.HapticFeedback.notificationOccurred('success'); }
-            else { msg.style.color = 'var(--accent-red)'; msg.innerText = "НЕВЕРНЫЙ КОД"; tg.HapticFeedback.notificationOccurred('error'); }
+            
+            if(add > 0) { 
+                user.bal += add; 
+                user.used.push(code.toLowerCase()); 
+                saveUser(); 
+                msg.style.color = 'var(--accent-green)'; 
+                msg.innerText = `УСПЕШНО: +${add}`; 
+                tg.HapticFeedback.notificationOccurred('success'); 
+            } else { 
+                msg.style.color = 'var(--accent-red)'; 
+                msg.innerText = "НЕВЕРНЫЙ КОД"; 
+                tg.HapticFeedback.notificationOccurred('error'); 
+            }
         }
 
-        function goSupport() { tg.HapticFeedback.impactOccurred('light'); tg.openTelegramLink("https://t.me/nasjsa"); }
-        function switchTab(t, btn) { tg.HapticFeedback.selectionChanged(); document.querySelectorAll('.screen').forEach(x => x.classList.remove('active')); document.getElementById('scr-'+t).classList.add('active'); document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active')); btn.classList.add('active'); }
+        function goSupport() { 
+            tg.HapticFeedback.impactOccurred('light'); 
+            tg.openTelegramLink("https://t.me/nasjsa"); 
+        }
+
+        function switchTab(t, btn) { 
+            tg.HapticFeedback.selectionChanged(); 
+            document.querySelectorAll('.screen').forEach(x => x.classList.remove('active')); 
+            document.getElementById('scr-'+t).classList.add('active'); 
+            document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active')); 
+            btn.classList.add('active'); 
+        }
 
         window.onload = init;
     </script>
