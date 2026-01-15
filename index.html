@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DropBocs - Ultimate</title>
+    <title>DropBocs - Neon Edition</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -14,221 +14,265 @@
     
     <style>
         :root {
-            --gold: #bf953f;
-            --gold-grad: linear-gradient(135deg, #bf953f, #fcf6ba, #aa771c);
-            --bg-dark: #07090c;
-            --bg-card: #14181f;
-            --glass: rgba(255, 255, 255, 0.05);
-            --border: rgba(255, 255, 255, 0.08);
+            --bg-dark: #090b10;
+            --bg-panel: #161b22;
+            --gold: #ffcc00;
+            --gold-glow: 0 0 15px rgba(255, 204, 0, 0.4);
+            --blue: #00a8ff;
             --green: #00ff88;
-            --red: #ff3e3e;
-            --font-main: 'Montserrat', sans-serif;
+            --red: #ff4757;
+            --font: 'Montserrat', sans-serif;
+            --border: rgba(255,255,255,0.08);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; user-select: none; outline: none; }
-        body { background: var(--bg-dark); color: #fff; font-family: var(--font-main); overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        body { background: var(--bg-dark); color: #fff; font-family: var(--font); overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
 
-        /* HEADER */
+        /* --- HEADER --- */
         .header {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 20px; background: rgba(7, 9, 12, 0.95);
-            border-bottom: 1px solid var(--border); z-index: 100;
+            padding: 15px 20px; background: rgba(22, 27, 34, 0.95);
+            border-bottom: 1px solid var(--border); box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            z-index: 10;
         }
-        .brand { font-weight: 900; font-size: 20px; letter-spacing: 1px; color: var(--gold); text-shadow: 0 0 15px rgba(191,149,63,0.3); }
+        .brand { 
+            font-weight: 900; font-size: 22px; font-style: italic;
+            background: linear-gradient(90deg, #fff, #888); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
         .balance-pill {
-            display: flex; align-items: center; gap: 8px; background: var(--glass);
-            padding: 6px 14px; border-radius: 50px; border: 1px solid var(--border);
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.5); padding: 8px 16px; border-radius: 50px;
+            border: 1px solid var(--border); display: flex; align-items: center; gap: 8px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
         }
 
-        /* LIVE TICKER */
+        /* --- LIVE TAPE --- */
         .live-strip {
-            height: 44px; background: rgba(0,0,0,0.4); border-bottom: 1px solid var(--border);
+            height: 40px; background: #0d1117; border-bottom: 1px solid var(--border);
             display: flex; align-items: center; padding: 0 15px; overflow: hidden;
         }
-        .live-label { font-size: 10px; font-weight: 900; color: #666; margin-right: 15px; display: flex; align-items: center; gap: 5px; }
-        .live-feed { display: flex; gap: 15px; align-items: center; flex: 1; }
-        
-        .feed-item {
-            display: flex; align-items: center; gap: 8px; font-size: 11px;
-            background: linear-gradient(90deg, rgba(255,255,255,0.06), transparent);
-            padding: 5px 10px; border-radius: 6px; border-left: 2px solid var(--gold);
-            white-space: nowrap; animation: slideIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+        .live-item {
+            font-size: 10px; display: flex; align-items: center; gap: 6px;
+            background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 6px;
+            margin-right: 10px; border-left: 2px solid var(--gold);
+            animation: slideInLeft 0.5s ease; white-space: nowrap;
         }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(-15px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes slideInLeft { from { opacity:0; transform: translateX(-20px); } to { opacity:1; transform: translateX(0); } }
 
-        /* MAIN */
-        .main-container { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 110px; }
-        .screen { display: none; animation: fadeUp 0.4s ease; }
+        /* --- MAIN AREA --- */
+        .main-container { flex: 1; padding: 20px; overflow-y: auto; padding-bottom: 100px; }
+        .screen { display: none; animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .screen.active { display: block; }
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes popUp { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
-        /* GAME */
-        .online-badge {
-            font-size: 11px; color: #777; text-align: center; margin-bottom: 15px;
-            display: flex; justify-content: center; align-items: center; gap: 6px;
+        /* --- GAME UI --- */
+        .online-cnt {
+            text-align: center; color: #555; font-size: 11px; font-weight: 700;
+            margin-bottom: 15px; display: flex; justify-content: center; align-items: center; gap: 6px;
         }
-        .dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; box-shadow: 0 0 8px var(--green); }
+        .online-dot {
+            width: 8px; height: 8px; background: var(--green); border-radius: 50%;
+            box-shadow: 0 0 10px var(--green); animation: blink 2s infinite;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        .game-box {
+            background: var(--bg-panel); border-radius: 24px; padding: 20px;
+            border: 1px solid var(--border); box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            position: relative; overflow: hidden;
+        }
         
-        .game-card {
-            background: var(--bg-card); border-radius: 24px; padding: 20px;
-            border: 1px solid var(--border); text-align: center;
-        }
-        .roulette-window {
-            height: 120px; background: #0b0e11; border-radius: 16px; margin: 15px 0;
-            position: relative; overflow: hidden; border: 1px solid #2a2a2a;
-            box-shadow: inset 0 0 40px #000;
+        /* ROULETTE */
+        .roulette-wrap {
+            height: 110px; background: #0a0c10; border-radius: 16px; margin-bottom: 20px;
+            position: relative; overflow: hidden; border: 2px solid #222;
+            box-shadow: inset 0 0 30px #000;
         }
         .pointer {
-            position: absolute; top: 0; bottom: 0; left: 50%; width: 2px;
-            background: #fff; z-index: 10; transform: translateX(-50%);
-            box-shadow: 0 0 10px #fff;
+            position: absolute; top: -5px; bottom: -5px; left: 50%; width: 4px;
+            background: #fff; z-index: 5; transform: translateX(-50%);
+            box-shadow: 0 0 15px #fff; border-radius: 2px;
         }
         .track { display: flex; height: 100%; align-items: center; will-change: transform; }
         .cell {
-            min-width: 90px; height: 90px; margin: 0 4px; border-radius: 14px;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            font-weight: 900; font-size: 26px; position: relative;
+            min-width: 80px; height: 80px; margin: 0 4px; border-radius: 12px;
+            display: flex; justify-content: center; align-items: center;
+            font-weight: 900; font-size: 24px; position: relative;
+            background: #242933; color: #777;
+            border-bottom: 4px solid rgba(0,0,0,0.3);
         }
+
+        /* --- FANCY BUTTONS --- */
+        .multipliers-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+        
+        .mult-btn {
+            padding: 18px; border-radius: 16px; 
+            background: #21262d; border: 1px solid rgba(255,255,255,0.05);
+            color: #8b949e; font-size: 14px; font-weight: 800;
+            transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative; overflow: hidden;
+        }
+        .mult-btn::before { content:''; position: absolute; top:0; left:0; width:100%; height:100%; background:linear-gradient(rgba(255,255,255,0.05), transparent); }
+        
+        /* Active States Colors */
+        .mult-btn.active { transform: scale(0.96); color: #fff; border: none; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
+        
+        .mult-btn[data-val="2"].active { background: var(--blue); box-shadow: 0 0 20px rgba(0, 168, 255, 0.4); }
+        .mult-btn[data-val="3"].active { background: var(--green); color: #000; box-shadow: 0 0 20px rgba(0, 255, 136, 0.4); }
+        .mult-btn[data-val="5"].active { background: var(--red); box-shadow: 0 0 20px rgba(255, 71, 87, 0.4); }
+        .mult-btn[data-val="50"].active { 
+            background: linear-gradient(135deg, #FFD700, #FDB931); 
+            color: #000; box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+            animation: glowGold 1.5s infinite alternate;
+        }
+        @keyframes glowGold { from { box-shadow: 0 0 10px gold; } to { box-shadow: 0 0 25px gold; } }
 
         /* CONTROLS */
-        .multipliers { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
-        .mult-btn {
-            padding: 16px; border-radius: 14px; background: rgba(255,255,255,0.04);
-            border: 1px solid transparent; color: #888; font-weight: bold; transition: 0.2s;
+        .bet-controls {
+            display: flex; gap: 10px; background: #0d1117; padding: 8px;
+            border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px;
         }
-        .mult-btn.active { color: #fff; border-color: #fff; background: rgba(255,255,255,0.08); transform: scale(0.98); }
+        .bet-controls input {
+            flex: 1; background: transparent; border: none; color: #fff;
+            text-align: center; font-size: 18px; font-weight: 900;
+        }
+        .ctrl-btn {
+            background: #21262d; color: #fff; border: none; padding: 12px 18px;
+            border-radius: 10px; font-weight: bold; font-size: 12px;
+        }
+        .ctrl-btn:active { background: #30363d; transform: scale(0.95); }
+
+        .spin-btn {
+            width: 100%; padding: 22px; border: none; border-radius: 18px;
+            background: linear-gradient(135deg, #ffffff, #e0e0e0);
+            color: #000; font-size: 18px; font-weight: 900; letter-spacing: 1px;
+            text-transform: uppercase; cursor: pointer;
+            box-shadow: 0 0 20px rgba(255,255,255,0.15);
+            animation: pulseBtn 2s infinite; transition: 0.3s;
+        }
+        .spin-btn:active { transform: scale(0.95); }
+        .spin-btn:disabled { opacity: 0.5; animation: none; filter: grayscale(1); }
         
-        .input-group {
-            display: flex; gap: 8px; margin-bottom: 20px; background: rgba(0,0,0,0.4);
-            padding: 6px; border-radius: 14px; border: 1px solid var(--border);
-        }
-        .input-group input {
-            flex: 1; background: transparent; border: none; color: #fff; font-size: 18px; 
-            font-weight: 900; padding: 0 10px; text-align: center;
-        }
-        .control-btn {
-            background: rgba(255,255,255,0.1); border: none; color: #fff;
-            border-radius: 10px; padding: 10px 15px; font-weight: 900; font-size: 12px;
-        }
+        @keyframes pulseBtn { 0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.4); } 70% { box-shadow: 0 0 0 10px rgba(255,255,255,0); } 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); } }
 
-        .play-btn {
-            width: 100%; padding: 20px; background: #fff; color: #000; border: none;
-            border-radius: 16px; font-weight: 900; font-size: 16px; text-transform: uppercase;
-            box-shadow: 0 0 20px rgba(255,255,255,0.1); transition: 0.2s;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.4); } 70% { box-shadow: 0 0 0 10px rgba(255,255,255,0); } 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); } }
-        .play-btn:active { transform: scale(0.96); }
-        .play-btn:disabled { opacity: 0.5; animation: none; }
-
-        /* PROFILE */
+        /* --- PROFILE --- */
+        .profile-header { text-align: center; margin-bottom: 20px; }
         .avatar {
-            width: 110px; height: 110px; border-radius: 50%; margin: 0 auto 15px;
-            border: 4px solid var(--gold); background-size: cover; background-position: center;
-            box-shadow: 0 0 30px rgba(191, 149, 63, 0.25);
+            width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 15px;
+            border: 3px solid var(--gold); box-shadow: 0 0 25px rgba(255,204,0,0.2);
+            background-size: cover; background-position: center;
         }
-        .stats-box { background: var(--bg-card); padding: 20px; border-radius: 20px; margin-top: 25px; border: 1px solid var(--border); }
+        .panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 20px; }
         
         .support-btn {
-            display: block; width: 100%; padding: 15px; margin-top: 15px;
-            background: rgba(0, 255, 136, 0.1); color: var(--green); border: 1px solid var(--green);
-            border-radius: 14px; font-weight: 800; font-size: 12px; text-transform: uppercase;
-            text-decoration: none; text-align: center; transition: 0.2s;
+            display: flex; justify-content: center; align-items: center; gap: 10px;
+            width: 100%; padding: 16px; margin-top: 15px; text-decoration: none;
+            background: rgba(0, 255, 136, 0.1); border: 1px solid var(--green);
+            color: var(--green); border-radius: 14px; font-weight: 800; font-size: 14px;
+            transition: 0.2s;
         }
         .support-btn:active { background: var(--green); color: #000; }
 
-        /* NAV */
-        .nav-bar {
-            position: fixed; bottom: 25px; left: 20px; right: 20px;
-            background: rgba(20, 24, 31, 0.9); backdrop-filter: blur(15px);
-            padding: 10px 0; border-radius: 25px; border: 1px solid var(--border);
-            display: flex; justify-content: space-around; z-index: 1000;
+        /* --- BOTTOM NAV --- */
+        .nav {
+            position: fixed; bottom: 20px; left: 20px; right: 20px;
+            background: rgba(22, 27, 34, 0.95); backdrop-filter: blur(10px);
+            padding: 10px; border-radius: 25px; display: flex; justify-content: space-around;
+            border: 1px solid var(--border); z-index: 100;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        .nav-item { 
-            color: #555; display: flex; flex-direction: column; align-items: center; gap: 4px; 
-            padding: 8px 20px; transition: 0.3s; width: 45%; border-radius: 15px;
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            padding: 10px 25px; border-radius: 18px; color: #555; transition: 0.3s;
         }
-        .nav-item.active { color: #fff; background: rgba(255,255,255,0.05); }
-        .nav-item i { font-size: 20px; }
-        .nav-item span { font-size: 10px; font-weight: 800; text-transform: uppercase; }
+        .nav-item.active { background: rgba(255,255,255,0.1); color: #fff; transform: translateY(-2px); }
+        .nav-item i { font-size: 18px; }
+        .nav-item span { font-size: 9px; font-weight: 800; text-transform: uppercase; }
+
+        /* WIN FLASH */
+        .flash-overlay {
+            position: fixed; top:0; left:0; right:0; bottom:0;
+            background: #fff; opacity: 0; pointer-events: none; z-index: 999;
+            transition: opacity 0.1s;
+        }
 
     </style>
 </head>
 <body>
 
+    <div class="flash-overlay" id="flash"></div>
+
     <div class="header">
         <div class="brand">DROPBOCS</div>
         <div class="balance-pill">
-            <i class="fas fa-star" style="color: gold; font-size: 12px;"></i>
-            <span id="ui-bal" style="font-weight: 800; font-size: 15px;">0</span>
+            <i class="fas fa-coins" style="color: var(--gold)"></i>
+            <span id="bal-disp" style="font-weight: 800; font-size: 15px;">0</span>
         </div>
     </div>
 
     <div class="live-strip">
-        <div class="live-label"><i class="fas fa-circle" style="color:var(--green); font-size:6px; margin-right:4px;"></i> LIVE</div>
-        <div id="live-feed" class="live-feed"></div>
+        <div style="font-size: 10px; font-weight: 900; color: #555; margin-right: 10px;">LIVE:</div>
+        <div id="live-feed" style="display: flex; align-items: center;"></div>
     </div>
 
     <main class="main-container">
         
         <section id="scr-game" class="screen active">
-            <div class="online-badge">
-                <div class="dot"></div> <span id="online-count">Loading...</span> 
+            <div class="online-cnt">
+                <div class="online-dot"></div> <span id="online-txt">Loading...</span>
             </div>
 
-            <div class="game-card">
-                <div class="roulette-window">
+            <div class="game-box">
+                <div class="roulette-wrap">
                     <div class="pointer"></div>
                     <div id="track" class="track"></div>
                 </div>
 
-                <div class="multipliers">
-                    <div class="mult-btn" onclick="setMult(2)" id="btn-2">x2</div>
-                    <div class="mult-btn" onclick="setMult(3)" id="btn-3">x3</div>
-                    <div class="mult-btn" onclick="setMult(5)" id="btn-5">x5</div>
-                    <div class="mult-btn" onclick="setMult(50)" id="btn-50" style="color: var(--gold);">x50</div>
+                <div class="multipliers-grid">
+                    <div class="mult-btn" onclick="selectMult(2)" data-val="2" id="btn-2">x2<br><span style="font-size:10px; opacity:0.6">DOUBLE</span></div>
+                    <div class="mult-btn" onclick="selectMult(3)" data-val="3" id="btn-3">x3<br><span style="font-size:10px; opacity:0.6">TRIPLE</span></div>
+                    <div class="mult-btn" onclick="selectMult(5)" data-val="5" id="btn-5">x5<br><span style="font-size:10px; opacity:0.6">CRAZY</span></div>
+                    <div class="mult-btn" onclick="selectMult(50)" data-val="50" id="btn-50" style="color: var(--gold)">x50<br><span style="font-size:10px; opacity:0.6">JACKPOT</span></div>
                 </div>
 
-                <div class="input-group">
-                    <button class="control-btn" onclick="modBet(0.5)">/2</button>
-                    <input type="number" id="bet-input" value="100">
-                    <button class="control-btn" onclick="modBet(2)">x2</button>
+                <div class="bet-controls">
+                    <button class="ctrl-btn" onclick="actBet(0.5)">/2</button>
+                    <input type="number" id="bet-val" value="100">
+                    <button class="ctrl-btn" onclick="actBet(2)">x2</button>
                 </div>
 
-                <button id="spin-btn" class="play-btn" onclick="spin()">КРУТИТЬ</button>
+                <button id="spin-btn" class="spin-btn" onclick="goSpin()">КРУТИТЬ</button>
             </div>
         </section>
 
         <section id="scr-profile" class="screen">
-            <div style="text-align: center;">
-                <div class="avatar" id="u-avatar" style="background-image: url('https://img.icons8.com/3d-fluency/200/user-male-circle.png');"></div>
-                <h2 id="u-name">Player</h2>
-                <div id="u-id" style="font-size: 11px; opacity: 0.5; margin-top: 5px;">ID: ...</div>
+            <div class="profile-header">
+                <div class="avatar" id="u-ava" style="background-image: url('https://img.icons8.com/3d-fluency/200/user-male-circle.png');"></div>
+                <h2 id="u-name" style="font-weight: 900;">User</h2>
+                <div id="u-id" style="font-size: 11px; color: #555; margin-top:5px;">ID: 000000</div>
             </div>
 
-            <div class="stats-box">
-                <h4 style="margin-bottom: 15px; color: #888;">ПРОМОКОД</h4>
-                <div class="input-group" style="margin-bottom: 5px;">
-                    <input type="text" id="promo-code" placeholder="Введите код">
-                    <button class="control-btn" style="background: #fff; color: #000;" onclick="checkPromo()">OK</button>
+            <div class="panel">
+                <h4 style="color: #888; margin-bottom: 10px; text-transform: uppercase; font-size: 11px;">Промокод</h4>
+                <div class="bet-controls" style="margin-bottom: 5px;">
+                    <input type="text" id="promo-in" placeholder="Введите код" style="text-align: left; padding-left: 10px;">
+                    <button class="ctrl-btn" style="background: #fff; color: #000;" onclick="usePromo()">OK</button>
                 </div>
-                <div id="promo-status" style="font-size: 11px; height: 15px;"></div>
+                <div id="promo-msg" style="font-size: 11px; font-weight: 700; height: 20px;"></div>
 
-                <a href="#" onclick="openSupport()" class="support-btn">
-                    <i class="fas fa-headset"></i> Тех. Поддержка
+                <a href="#" onclick="goSupport()" class="support-btn">
+                    <i class="fab fa-telegram-plane" style="font-size: 18px;"></i> ТЕХ. ПОДДЕРЖКА
                 </a>
             </div>
         </section>
 
     </main>
 
-    <nav class="nav-bar">
-        <div class="nav-item active" onclick="nav('game', this)">
+    <nav class="nav">
+        <div class="nav-item active" onclick="switchTab('game', this)">
             <i class="fas fa-gamepad"></i> <span>Играть</span>
         </div>
-        <div class="nav-item" onclick="nav('profile', this)">
-            <i class="fas fa-user-astronaut"></i> <span>Профиль</span>
+        <div class="nav-item" onclick="switchTab('profile', this)">
+            <i class="fas fa-user"></i> <span>Профиль</span>
         </div>
     </nav>
 
@@ -236,9 +280,9 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // ⚠️ ВАЖНО: ВСТАВЬ СВОЙ КОНФИГ НИЖЕ ⚠️
+        // --- ⚠️ КОНФИГ FIREBASE (Вставь свой!) ---
         const firebaseConfig = {
-           apiKey: "AIzaSyD...", 
+           apiKey: "ВСТАВЬ_СЮДА", 
            authDomain: "...", 
            databaseURL: "...", 
            projectId: "...", 
@@ -246,249 +290,227 @@
            messagingSenderId: "...", 
            appId: "..." 
         };
+        // ------------------------------------------
 
-        // --- ЛОГИКА ---
-        let db;
+        let db = null;
         try {
             firebase.initializeApp(firebaseConfig);
             db = firebase.database();
-        } catch(e) { console.error("Firebase init failed", e); }
+        } catch(e) { console.log("No Firebase"); }
 
-        let user = { 
-            id: 'guest', name: 'Guest', bal: 1000, 
-            usedPromos: [] // Храним использованные коды
-        };
-        
+        // State
+        let user = { id: 'guest', name: 'Guest', bal: 1000, used: [] };
         const PATTERN = [2,3,2,5,2,3,2,5,2,3,2,50,2,3,2,5,2,3,2,3,2,5,2,3,2,50,2,5,2,3];
-        let game = { spinning: false, sel: null };
+        let spinning = false;
+        let selectedMult = null;
 
-        // 1. ИНИЦИАЛИЗАЦИЯ
+        // INIT
         function init() {
             if(tg.initDataUnsafe?.user) {
                 user.id = tg.initDataUnsafe.user.id.toString();
                 user.name = tg.initDataUnsafe.user.first_name;
-                if(tg.initDataUnsafe.user.photo_url) {
-                    document.getElementById('u-avatar').style.backgroundImage = `url(${tg.initDataUnsafe.user.photo_url})`;
-                }
-            } else {
-                // Для теста в браузере
-                user.id = localStorage.getItem('emu_id') || 'testuser_' + Math.floor(Math.random()*1000);
-                localStorage.setItem('emu_id', user.id);
+                if(tg.initDataUnsafe.user.photo_url) 
+                    document.getElementById('u-ava').style.backgroundImage = `url(${tg.initDataUnsafe.user.photo_url})`;
             }
 
             document.getElementById('u-name').innerText = user.name;
-            document.getElementById('u-id').innerText = "ID: " + user.id;
+            document.getElementById('u-id').innerText = `ID: ${user.id}`;
 
             if(db) {
                 db.ref('users/' + user.id).on('value', snap => {
-                    const val = snap.val();
-                    if(val) {
-                        user.bal = val.bal;
-                        if(val.usedPromos) user.usedPromos = val.usedPromos;
-                    } else {
-                        save();
-                    }
-                    updateUI();
+                    const v = snap.val();
+                    if(v) {
+                        user.bal = v.bal;
+                        user.used = v.used || [];
+                        updateBal();
+                    } else saveUser();
                 });
-            }
+            } else updateBal();
 
-            renderTrack();
-            initLive();
-            initOnline();
+            buildTrack();
+            startOnlineLogic();
+            startLiveFeed();
         }
 
-        function save() {
+        function saveUser() {
             if(db) db.ref('users/' + user.id).update({
-                bal: user.bal,
-                name: user.name,
-                usedPromos: user.usedPromos || []
+                bal: user.bal, name: user.name, used: user.used || []
             });
-            updateUI();
+            updateBal();
         }
 
-        function updateUI() {
-            document.getElementById('ui-bal').innerText = Math.floor(user.bal).toLocaleString();
+        function updateBal() {
+            document.getElementById('bal-disp').innerText = Math.floor(user.bal).toLocaleString();
         }
 
-        // 2. ИГРОВОЙ ДВИЖОК
-        function renderTrack() {
-            const track = document.getElementById('track');
-            track.innerHTML = '';
+        // GAME LOGIC
+        function buildTrack() {
+            const t = document.getElementById('track');
+            t.innerHTML = '';
             for(let i=0; i<100; i++) {
-                let v = PATTERN[i % PATTERN.length];
-                let c = '#2c3e50';
-                if(v==3) c = 'rgba(0,255,136,0.15); color:#00ff88; border:1px solid #00ff88';
-                if(v==5) c = 'rgba(255,62,62,0.15); color:#ff3e3e; border:1px solid #ff3e3e';
-                if(v==50) c = '#bf953f; color:#000';
-                
+                let val = PATTERN[i % PATTERN.length];
+                let col = '#555';
+                if(val===2) col = '#00a8ff'; // Blue
+                if(val===3) col = '#00ff88'; // Green
+                if(val===5) col = '#ff4757'; // Red
+                if(val===50) col = '#ffd700'; // Gold
+
                 let d = document.createElement('div');
                 d.className = 'cell';
-                d.style.cssText = `background:${c}`;
-                d.innerHTML = v;
-                track.appendChild(d);
+                d.innerHTML = val;
+                d.style.color = col;
+                d.style.textShadow = `0 0 10px ${col}`;
+                t.appendChild(d);
             }
         }
 
-        function setMult(m) {
-            if(game.spinning) return;
-            game.sel = m;
+        function selectMult(m) {
+            if(spinning) return;
+            selectedMult = m;
             document.querySelectorAll('.mult-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('btn-'+m).classList.add('active');
+            document.querySelector(`.mult-btn[data-val="${m}"]`).classList.add('active');
             tg.HapticFeedback.selectionChanged();
         }
 
-        function modBet(x) {
-            let el = document.getElementById('bet-input');
-            el.value = Math.floor(Math.max(1, el.value * x));
+        function actBet(mod) {
+            let inp = document.getElementById('bet-val');
+            let v = parseInt(inp.value) || 0;
+            inp.value = Math.floor(Math.max(1, v * mod));
         }
 
-        function spin() {
-            let bet = parseInt(document.getElementById('bet-input').value);
-            if(game.spinning) return;
-            if(!game.sel) { tg.showAlert("Выберите множитель!"); return; }
-            if(bet > user.bal) { tg.showAlert("Недостаточно средств"); return; }
-            if(isNaN(bet) || bet <= 0) return;
+        function goSpin() {
+            let bet = parseInt(document.getElementById('bet-val').value);
+            if(spinning) return;
+            if(!selectedMult) { tg.showAlert("Выберите x2, x3, x5 или x50!"); return; }
+            if(bet > user.bal) { tg.showAlert("Мало денег!"); return; }
+            if(bet <= 0) return;
 
-            game.spinning = true;
+            // Start
+            spinning = true;
             user.bal -= bet;
-            save();
+            saveUser();
             
-            let btn = document.getElementById('spin-btn');
+            const btn = document.getElementById('spin-btn');
             btn.disabled = true;
-            btn.innerText = "КРУТИМ...";
-
-            // РАСЧЕТ
-            let offsetRnd = Math.floor(Math.random() * 30);
-            let targetIdx = 65 + offsetRnd; 
-            let winVal = PATTERN[targetIdx % PATTERN.length];
+            btn.innerText = "WAIT...";
             
-            let cellW = 98; 
-            let trackW = document.querySelector('.roulette-window').offsetWidth;
-            let finalPos = (targetIdx * cellW) - (trackW / 2) + (cellW/2);
-
-            let tr = document.getElementById('track');
-            tr.style.transition = "transform 5s cubic-bezier(0.15, 0, 0.10, 1)";
-            tr.style.transform = `translateX(-${finalPos}px)`;
+            // Logic
+            let offset = Math.floor(Math.random()*30);
+            let targetIdx = 65 + offset; 
+            let resultVal = PATTERN[targetIdx % PATTERN.length];
+            
+            // Visuals
+            let cardW = 88; // 80 width + 8 margin
+            let winW = document.querySelector('.roulette-wrap').offsetWidth;
+            let moveX = (targetIdx * cardW) - (winW/2) + (cardW/2);
+            
+            const tr = document.getElementById('track');
+            tr.style.transition = "transform 4s cubic-bezier(0.15, 0, 0.15, 1)";
+            tr.style.transform = `translateX(-${moveX}px)`;
 
             setTimeout(() => {
-                let winAmt = 0;
-                if(winVal === game.sel) {
-                    winAmt = bet * winVal;
+                // Finish
+                let win = (resultVal === selectedMult);
+                if(win) {
+                    let winAmt = bet * resultVal;
                     user.bal += winAmt;
+                    
+                    // Flash Effect
+                    let flash = document.getElementById('flash');
+                    flash.style.opacity = 0.6;
+                    setTimeout(()=> flash.style.opacity = 0, 150);
+
                     tg.HapticFeedback.notificationOccurred('success');
-                    tg.showPopup({title:'ПОБЕДА!', message:`+${winAmt} Stars`});
-                    addLiveItem(user.id, winAmt, true);
+                    tg.showPopup({title:'WIN!', message:`+${winAmt} coins`});
+                    
+                    addLive(user.id, winAmt, true);
                 } else {
                     tg.HapticFeedback.notificationOccurred('error');
                 }
-                save();
+                saveUser();
 
                 setTimeout(() => {
                     tr.style.transition = 'none';
                     tr.style.transform = 'translateX(0)';
-                    game.spinning = false;
+                    spinning = false;
                     btn.disabled = false;
                     btn.innerText = "КРУТИТЬ";
-                }, 1500);
+                }, 1000);
 
-            }, 5100);
+            }, 4100);
         }
 
-        // 3. УМНЫЙ ОНЛАЙН (Фикс прыжков)
-        function initOnline() {
-            const el = document.getElementById('online-count');
+        // --- ONLINE LOGIC (Stable) ---
+        function startOnlineLogic() {
+            const el = document.getElementById('online-txt');
+            let count = 560; // Start base
             
-            // Определяем базу по времени суток
-            const h = new Date().getHours();
-            let current = (h >= 1 && h < 8) ? 120 : 550; // Ночь: 120, День: 550
-
             setInterval(() => {
-                // Плавный дрейф (+/- 1..3 человека)
-                let change = Math.floor(Math.random() * 5) - 2; 
-                current += change;
+                // Очень маленькие изменения (-2 до +3)
+                let diff = Math.floor(Math.random() * 6) - 2; 
+                count += diff;
+                // Мягкие рамки 400 - 700
+                if(count < 400) count += 5;
+                if(count > 700) count -= 5;
                 
-                // Границы чтобы не ушло в ноль
-                if(current < 40) current = 45;
-                if(current > 900) current = 890;
-
-                el.innerText = `${current} playing now`;
-            }, 4000);
+                el.innerText = `${count} playing now`;
+            }, 5000); // Раз в 5 сек
         }
 
-        // 4. LIVE ЛЕНТА
-        function initLive() {
+        // --- LIVE FEED ---
+        function startLiveFeed() {
             setInterval(() => {
-                let r = Math.random();
-                if(r > 0.4) return; // Не спамим слишком часто
-                
-                let fakeAmt = (Math.floor(Math.random()*5)+1) * 50; 
-                if(Math.random() > 0.95) fakeAmt = 500; // Редко большой
-
-                let fakeId = Math.floor(Math.random()*899999) + 100000;
-                addLiveItem(fakeId, fakeAmt);
-            }, 2000);
+                if(Math.random() > 0.6) return; // Не часто
+                let fakeId = Math.floor(Math.random()*900000)+100000;
+                let fakeAmt = [100,200,300,500,1000][Math.floor(Math.random()*5)];
+                addLive(fakeId, fakeAmt);
+            }, 3000);
         }
 
-        function addLiveItem(id, amt, isMe=false) {
-            let strip = document.getElementById('live-feed');
-            let div = document.createElement('div');
-            div.className = 'feed-item';
-            div.style.borderLeftColor = isMe ? '#00ff88' : '#bf953f';
-            
-            let name = isMe ? "YOU" : `ID: ${id.toString().slice(0,4)}**`;
-            div.innerHTML = `<i class="fas fa-user-circle" style="opacity:0.5"></i> ${name} <b style="color:#fff; margin-left:5px">+${amt}</b>`;
-            
-            strip.prepend(div);
-            if(strip.children.length > 4) strip.lastElementChild.remove();
+        function addLive(id, amt, me=false) {
+            const c = document.getElementById('live-feed');
+            const el = document.createElement('div');
+            el.className = 'live-item';
+            el.style.borderLeftColor = me ? '#00ff88' : '#ffcc00';
+            el.innerHTML = me ? `YOU: <b>+${amt}</b>` : `ID:${id.toString().slice(0,4)}.. <b>+${amt}</b>`;
+            c.prepend(el);
+            if(c.children.length > 5) c.lastElementChild.remove();
         }
 
-        // 5. ПРОМОКОДЫ И ПОДДЕРЖКА
-        function checkPromo() {
-            const inp = document.getElementById('promo-code');
-            const stat = document.getElementById('promo-status');
+        // --- PROMO & SUPPORT ---
+        function usePromo() {
+            const inp = document.getElementById('promo-in');
+            const msg = document.getElementById('promo-msg');
             const code = inp.value.trim();
             
-            if(!code) return;
-
-            // Защита от повтора
-            if(user.usedPromos && user.usedPromos.includes(code.toLowerCase())) {
-                stat.style.color = 'var(--red)';
-                stat.innerText = "Код уже активирован!";
-                return;
+            if(user.used && user.used.includes(code.toLowerCase())) {
+                msg.style.color = 'var(--red)'; msg.innerText = "Уже использован!"; return;
             }
 
-            let reward = 0;
-            // ⚠️ ТВОЙ КОД ЗДЕСЬ
-            if(code === "TestRunAdmin7072010Roma") reward = 1000000;
-            else if(code.toUpperCase() === "START") reward = 500;
-            else if(code.toUpperCase() === "DROP2024") reward = 200;
+            let add = 0;
+            // ADMIN CODE
+            if(code === "TestRunAdmin7072010Roma") add = 1000000;
+            else if(code.toLowerCase() === "start") add = 500;
 
-            if(reward > 0) {
-                user.bal += reward;
-                if(!user.usedPromos) user.usedPromos = [];
-                user.usedPromos.push(code.toLowerCase()); // Запоминаем
-                save();
-                
-                stat.style.color = 'var(--green)';
-                stat.innerText = `Успешно! +${reward.toLocaleString()} Stars`;
-                inp.value = "";
+            if(add > 0) {
+                user.bal += add;
+                user.used.push(code.toLowerCase());
+                saveUser();
+                msg.style.color = 'var(--green)'; msg.innerText = `+${add} coins!`;
                 tg.HapticFeedback.notificationOccurred('success');
             } else {
-                stat.style.color = 'var(--red)';
-                stat.innerText = "Неверный код";
+                msg.style.color = 'var(--red)'; msg.innerText = "Неверный код";
                 tg.HapticFeedback.notificationOccurred('error');
             }
         }
 
-        function openSupport() {
-            // Нативное открытие телеграм ссылки
+        function goSupport() {
             tg.openTelegramLink("https://t.me/nasjsa");
         }
 
-        // НАВИГАЦИЯ
-        function nav(s, btn) {
+        function switchTab(t, btn) {
             document.querySelectorAll('.screen').forEach(x => x.classList.remove('active'));
-            document.getElementById('scr-'+s).classList.add('active');
+            document.getElementById('scr-'+t).classList.add('active');
             document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
             btn.classList.add('active');
         }
