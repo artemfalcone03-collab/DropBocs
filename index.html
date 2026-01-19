@@ -307,7 +307,7 @@
             db = firebase.database(); 
         } catch(e) { console.error("Firebase Error:", e); }
 
-        let user = { id: '0', name: 'User', bal: 1000, used: [] };
+        let user = { id: '0', name: 'User', bal: 0, used: [] };
         
         // Визуальный паттерн остался красивым (много двоек), но он больше НЕ влияет на шанс победы
         const PATTERN = [2,3,2,5,2,3,2,50,2,3,2,5,2,3,2,2,3,5,2,50,2,3,2,5];
@@ -581,6 +581,7 @@
     </script>
 </body>
 </html>
+
 
 
 
