@@ -440,10 +440,10 @@
                 let win = false;
                 
                 // Настраиваем шансы на победу для каждого множителя
-                if (selectedMult === 2 && chance < 35) win = true;      // 35% шанс выиграть на x2
-                else if (selectedMult === 3 && chance < 20) win = true; // 20% шанс выиграть на x3
-                else if (selectedMult === 5 && chance < 10) win = true; // 10% шанс выиграть на x5
-                else if (selectedMult === 50 && chance < 1) win = true; // 1% шанс выиграть на x50 (Джекпот)
+                if (selectedMult === 2 && chance < 20) win = true;      // 35% шанс выиграть на x2
+                else if (selectedMult === 3 && chance < 10) win = true; // 20% шанс выиграть на x3
+                else if (selectedMult === 5 && chance < 5) win = true; // 10% шанс выиграть на x5
+                else if (selectedMult === 50 && chance < 0,0001) win = true; // 1% шанс выиграть на x50 (Джекпот)
                 
                 if (win) {
                     finalResultValue = selectedMult;
@@ -581,6 +581,7 @@
     </script>
 </body>
 </html>
+
 
 
 
