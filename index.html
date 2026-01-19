@@ -297,8 +297,8 @@
         tg.enableClosingConfirmation();
 
         const firebaseConfig = { 
-            apiKey: "...", 
-            databaseURL: "..." 
+            apiKey: "AIzaSyC_pEbBZM5ABpjAUpj-Zd5Dpn1bdRvRG6s", 
+            databaseURL: "https://dropbocs-35916-default-rtdb.firebaseio.com/" 
         };
         
         let db = null; 
@@ -440,10 +440,10 @@
                 let win = false;
                 
                 // Настраиваем шансы на победу для каждого множителя
-                if (selectedMult === 2 && chance < 20) win = true;      // 35% шанс выиграть на x2
+                if (selectedMult === 2 && chance < 15) win = true;      // 35% шанс выиграть на x2
                 else if (selectedMult === 3 && chance < 10) win = true; // 20% шанс выиграть на x3
                 else if (selectedMult === 5 && chance < 5) win = true; // 10% шанс выиграть на x5
-                else if (selectedMult === 50 && chance < 0,0001) win = true; // 1% шанс выиграть на x50 (Джекпот)
+                else if (selectedMult === 50 && chance < 0,001) win = true; // 1% шанс выиграть на x50 (Джекпот)
                 
                 if (win) {
                     finalResultValue = selectedMult;
